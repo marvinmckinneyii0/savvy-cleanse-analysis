@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# SavvyClean: Data Cleaning & Data Analysis App
 
 ## Project info
 
