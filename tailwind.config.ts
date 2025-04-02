@@ -63,12 +63,14 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Savvy Analytics brand colors
+				// Updated Savvy Analytics brand colors
 				savvy: {
+					dark: '#010100',
+					gold: '#B5792E',
+					white: '#FFFFFF',
 					midnight: '#0C1A38',
 					blue: '#00BFFF',
 					slate: '#2E3A59',
-					white: '#F5F7FA',
 					gray: '#A0AEC0',
 				}
 			},
