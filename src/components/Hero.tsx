@@ -1,0 +1,68 @@
+
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+
+const Hero = () => {
+  return (
+    <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-blue/5">
+      <div className="container px-4 md:px-6">
+        <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
+          <div className="space-y-4 animate-fade-in">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tighter">
+              Clean, Transform, and <span className="text-savvy-blue">Analyze</span> Your Data
+            </h1>
+            <p className="text-muted-foreground md:text-xl">
+              SavvyClean is a Python-first data cleaning and analytics platform built for data scientists,
+              analysts, and business intelligence professionals.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Link to="/dashboard">
+                <Button size="lg" className="bg-savvy-blue hover:bg-savvy-blue/90">
+                  Start Cleaning Data
+                </Button>
+              </Link>
+              <Button variant="outline" size="lg">
+                Watch Demo
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground pt-2">
+              No credit card required. Free tier available.
+            </p>
+          </div>
+          <div className="lg:pl-10 animate-fade-in">
+            <div className="rounded-lg shadow-xl overflow-hidden border">
+              <div className="bg-savvy-midnight p-2">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                </div>
+              </div>
+              <div className="bg-white p-4">
+                <pre className="code-block text-xs md:text-sm overflow-x-auto">
+{`# SavvyClean Python Integration
+import savvyclean as sc
+
+# Load and clean your data
+df = sc.clean('messy_data.csv')
+
+# Analyze using descriptive statistics
+summary = df.analyze('descriptive')
+
+# Visualize the results
+summary.plot(kind='histogram')
+
+# Export the clean data and code
+df.to_notebook('analysis.ipynb')`}
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;
