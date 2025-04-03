@@ -16,6 +16,13 @@ const Dashboard = () => {
     setSelectedFile(file);
     setCleanedData(null);
     setSelectedAnalysisType(null);
+    
+    // Check if it's a file type that doesn't need cleaning (like PDF)
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (fileExtension === 'pdf') {
+      // For PDFs, we'll just pass the file directly as it may need specific handling
+      setCleanedData({ fileType: 'pdf', rawFile: file });
+    }
   };
   
   const handleCleaningComplete = (data: any) => {

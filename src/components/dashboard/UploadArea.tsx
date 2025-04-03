@@ -88,12 +88,12 @@ const UploadArea = ({ onFileUpload }: { onFileUpload: (file: File) => void }) =>
                       type="file"
                       className="sr-only"
                       onChange={handleFileChange}
-                      accept=".csv,.json,.xlsx,.xml,.txt"
+                      accept=".csv,.json,.xlsx,.xml,.txt,.xls,.pdf"
                     />
                   </label>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Supported formats: CSV, JSON, XLSX, XML, TXT
+                  Supported formats: CSV, JSON, XLSX, XLS, XML, TXT, PDF
                 </p>
               </div>
             </div>
