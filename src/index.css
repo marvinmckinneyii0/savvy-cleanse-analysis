@@ -2,111 +2,108 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
-    --background: 60 33% 98%;
-    --foreground: 60 10% 10%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 60 10% 10%;
-
+    --card-foreground: 222.2 84% 4.9%;
+ 
     --popover: 0 0% 100%;
-    --popover-foreground: 60 10% 10%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 240 10% 3.9%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 36 62% 45%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --primary: 60 100% 0.5%;  /* #010100 */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 38 58% 44%;  /* #B5792E */
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 60 10% 92%;
-    --muted-foreground: 60 5% 40%;
-
-    --accent: 60 10% 92%;
-    --accent-foreground: 60 10% 10%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 60 10% 90%;
-    --input: 60 10% 90%;
-    --ring: 60 100% 0.5%;
-
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+ 
     --radius: 0.5rem;
+    
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 36 62% 45%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 216 34% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 216 34% 17%;
+    --sidebar-ring: 36 62% 45%;
   }
-
+ 
   .dark {
-    --background: 60 10% 10%;
-    --foreground: 60 10% 98%;
-
-    --card: 60 10% 12%;
-    --card-foreground: 60 10% 98%;
-
-    --popover: 60 10% 12%;
-    --popover-foreground: 60 10% 98%;
-
-    --primary: 60 100% 0.5%;  /* #010100 */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 38 58% 44%;  /* #B5792E */
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 60 10% 20%;
-    --muted-foreground: 60 5% 65%;
-
-    --accent: 60 10% 20%;
-    --accent-foreground: 60 10% 98%;
-
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 60 10% 98%;
-
-    --border: 60 10% 20%;
-    --input: 60 10% 20%;
-    --ring: 38 58% 44%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 84% 4.9%;
+ 
+    --secondary: 36 62% 45%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    
+    --sidebar-background: 222.2 47.4% 11.2%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 36 62% 45%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 36 62% 45%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-  }
-  
-  code {
-    @apply font-mono bg-muted p-1 rounded text-sm;
-  }
-  
-  .code-block {
-    @apply font-mono bg-slate-800 text-white p-4 rounded-md text-sm overflow-x-auto;
-  }
-  
-  .formula {
-    @apply font-serif text-lg italic;
   }
 }
 
-@layer components {
-  .stat-card {
-    @apply p-5 rounded-lg bg-card shadow-sm hover:shadow-md transition-shadow border border-border;
-  }
-  
-  .formula-block {
-    @apply p-3 bg-muted rounded-md font-mono text-sm overflow-x-auto;
-  }
-  
-  .analysis-card {
-    @apply p-5 bg-card rounded-lg shadow-md border border-border hover:border-savvy-gold transition-colors cursor-pointer;
-  }
-  
-  .analysis-card.selected {
-    @apply border-2 border-savvy-gold ring-2 ring-savvy-gold/20;
-  }
-  
-  .step-indicator {
-    @apply flex items-center justify-center w-8 h-8 rounded-full bg-savvy-gold text-white font-medium;
-  }
+/* Analytics Models Components */
+.stat-card {
+  @apply p-3 border rounded-md flex flex-col;
+}
+
+.formula-block {
+  @apply p-2 bg-muted rounded-md font-mono text-sm;
+}
+
+.code-block {
+  @apply p-3 bg-black text-white rounded-md block overflow-x-auto whitespace-pre text-xs;
 }
