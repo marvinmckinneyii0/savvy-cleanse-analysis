@@ -9,7 +9,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2">
               <img 
-                src="/lovable-uploads/savvy-logo.png" 
+                src="/lovable-uploads/bce4ab85-e6f8-4810-9883-f33ee1cfb90d.png" 
                 alt="Savvy Analytics Logo" 
                 className="w-8 h-8"
               />
