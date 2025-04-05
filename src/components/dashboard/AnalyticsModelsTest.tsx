@@ -29,6 +29,14 @@ const AnalyticsModelsTest = () => {
     return parseFloat(num.toFixed(2)).toString();
   };
 
+  // Safe formatter for tooltip that handles ValueType (which can be string or number)
+  const safeTooltipFormatter = (value: any) => {
+    if (typeof value === 'number') {
+      return [formatNumber(value), 'Count'];
+    }
+    return [value.toString(), 'Count'];
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -106,7 +114,7 @@ const AnalyticsModelsTest = () => {
                             tickFormatter={(value) => formatNumber(value)} 
                           />
                           <YAxis />
-                          <Tooltip formatter={(value) => [value, 'Count']} />
+                          <Tooltip formatter={safeTooltipFormatter} />
                           <Bar dataKey="count" fill="#B5792E" name="Frequency" />
                         </BarChart>
                       </ResponsiveContainer>
@@ -474,7 +482,14 @@ const AnalyticsModelsTest = () => {
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="name" />
                           <YAxis />
-                          <Tooltip formatter={(value) => [`$${parseInt(value).toLocaleString()}`, 'Expected Value']} />
+                          <Tooltip 
+                            formatter={(value: any) => {
+                              if (typeof value === 'number') {
+                                return [`$${parseInt(value.toString()).toLocaleString()}`, 'Expected Value'];
+                              }
+                              return [value.toString(), 'Expected Value'];
+                            }} 
+                          />
                           <Bar dataKey="expectedValue" name="Expected Value" fill="#B5792E" />
                         </BarChart>
                       </ResponsiveContainer>

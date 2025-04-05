@@ -1,15 +1,42 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 
-interface CleaningPreviewProps {
-  data: any;
-  onContinue: () => void;
+export interface CleaningPreviewProps {
+  data?: any;
+  file?: File;
+  onCleaningComplete: (data: any) => void;
+  onReset: () => void;
 }
 
-const CleaningPreview: React.FC<CleaningPreviewProps> = ({ data, onContinue }) => {
+const CleaningPreview: React.FC<CleaningPreviewProps> = ({ data, file, onCleaningComplete, onReset }) => {
+  const [isProcessing, setIsProcessing] = useState(true);
+  
+  useEffect(() => {
+    // Simulate cleaning process
+    const timer = setTimeout(() => {
+      setIsProcessing(false);
+      // Generate sample cleaned data
+      const cleanedData = {
+        columns: ['id', 'name', 'age', 'income', 'state'],
+        rows: [
+          [1, 'John Smith', 34, 75000, 'CA'],
+          [2, 'Sarah Jones', null, 81000, 'NY'],
+          [3, 'Mike Johnson', 43, 62000, 'TX'],
+          [4, 'Emily Lee', 29, 55000, 'IL'],
+          [5, 'Unknown', 51, 90000, 'FL']
+        ]
+      };
+      
+      // In a real app, this would process the actual file
+      console.log("Processing file:", file?.name);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [file]);
+  
   // In a real app, this would show before/after data cleaning
   // For demo purposes, we're showing sample data
   
@@ -26,6 +53,38 @@ const CleaningPreview: React.FC<CleaningPreviewProps> = ({ data, onContinue }) =
 3,Mike Johnson,43,62000,TX
 4,Emily Lee,29,55000,IL
 5,Unknown,51,90000,FL`;
+
+  const handleContinue = () => {
+    const cleanedData = {
+      columns: ['id', 'name', 'age', 'income', 'state'],
+      rows: [
+        [1, 'John Smith', 34, 75000, 'CA'],
+        [2, 'Sarah Jones', null, 81000, 'NY'],
+        [3, 'Mike Johnson', 43, 62000, 'TX'],
+        [4, 'Emily Lee', 29, 55000, 'IL'],
+        [5, 'Unknown', 51, 90000, 'FL']
+      ]
+    };
+    
+    onCleaningComplete(cleanedData);
+  };
+
+  if (isProcessing) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Cleaning Your Data</CardTitle>
+          <CardDescription>
+            We're automatically cleaning and preparing your data for analysis...
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center py-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-savvy-gold mb-4"></div>
+          <p className="text-muted-foreground">This usually takes a few seconds</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -121,7 +180,7 @@ const CleaningPreview: React.FC<CleaningPreviewProps> = ({ data, onContinue }) =
         <div className="flex justify-end">
           <Button 
             className="bg-savvy-blue hover:bg-savvy-blue/90"
-            onClick={onContinue}
+            onClick={handleContinue}
           >
             Continue to Analysis
           </Button>
