@@ -5,12 +5,12 @@ import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-blue/5">
+    <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5">
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
           <div className="space-y-4 animate-fade-in">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tighter">
-              Clean, Transform, and <span className="text-savvy-blue">Analyze</span> Your Data
+              Clean, Transform, and <span className="text-savvy-gold">Analyze</span> Your Data
             </h1>
             <p className="text-muted-foreground md:text-xl">
               SavvyClean is a Python-first data cleaning and analytics platform built for data scientists,
@@ -18,7 +18,7 @@ const Hero = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Link to="/dashboard">
-                <Button size="lg" className="bg-savvy-blue hover:bg-savvy-blue/90">
+                <Button size="lg" className="bg-savvy-gold hover:bg-savvy-gold/90 text-white">
                   Start Cleaning Data
                 </Button>
               </Link>
@@ -32,14 +32,21 @@ const Hero = () => {
           </div>
           <div className="lg:pl-10 animate-fade-in">
             <div className="rounded-lg shadow-xl overflow-hidden border">
-              <div className="bg-savvy-midnight p-2">
+              <div className="bg-savvy-dark p-2">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 rounded-full bg-red-500"></div>
                   <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
                 </div>
               </div>
-              <div className="bg-white p-4">
+              <div className="bg-white dark:bg-savvy-dark/90 p-4">
+                <div className="flex items-center mb-4 justify-center">
+                  <img 
+                    src="/lovable-uploads/savvy-logo.png" 
+                    alt="Savvy Analytics Logo" 
+                    className="w-12 h-12"
+                  />
+                </div>
                 <pre className="code-block text-xs md:text-sm overflow-x-auto">
 {`# SavvyClean Python Integration
 import savvyclean as sc

@@ -10,14 +10,10 @@ import Pricing from '@/components/Pricing';
 import CTA from '@/components/CTA';
 import BusinessIntelligence from '@/components/BusinessIntelligence';
 import Feedback from '@/components/Feedback';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 const Index = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeSwitcher />
-      </div>
       <Navbar />
       <main className="flex-grow">
         <Hero />

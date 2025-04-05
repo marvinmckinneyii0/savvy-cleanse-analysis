@@ -6,6 +6,7 @@ import CleaningPreview from '@/components/dashboard/CleaningPreview';
 import AnalysisTypeSelector from '@/components/dashboard/AnalysisTypeSelector';
 import AnalysisResults from '@/components/dashboard/AnalysisResults';
 import AnalyticsModelsTest from '@/components/dashboard/AnalyticsModelsTest';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 const Dashboard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -37,6 +38,9 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeSwitcher />
+      </div>
       <div className="flex-1 space-y-4 p-4 md:p-8">
         <div className="flex items-center justify-between">
           <div>
@@ -44,6 +48,13 @@ const Dashboard = () => {
             <p className="text-muted-foreground">
               Upload, clean, and analyze your data
             </p>
+          </div>
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/savvy-logo.png" 
+              alt="Savvy Analytics Logo" 
+              className="w-8 h-8 mr-2"
+            />
           </div>
         </div>
 

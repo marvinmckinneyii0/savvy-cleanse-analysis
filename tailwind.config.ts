@@ -65,9 +65,9 @@ export default {
 				},
 				// Updated Savvy Analytics brand colors
 				savvy: {
-					dark: '#010100',    // Primary
-					gold: '#B5792E',    // Secondary
-					white: '#FFFFFF',   // Tertiary
+					dark: '#000000',    // Primary (black)
+					gold: '#B5792E',    // Secondary (gold)
+					white: '#FFFFFF',   // Tertiary (white)
 					midnight: '#0C1A38',
 					blue: '#00BFFF',
 					slate: '#2E3A59',

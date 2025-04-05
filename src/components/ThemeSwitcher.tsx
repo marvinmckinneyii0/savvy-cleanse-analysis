@@ -11,10 +11,13 @@ export function ThemeSwitcher() {
       variant="ghost"
       size="icon"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="rounded-full"
+      className="rounded-full border border-savvy-gold/20 bg-background"
       aria-label="Toggle theme"
     >
-      {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+      {theme === "light" ? 
+        <Moon className="h-5 w-5 text-savvy-gold" /> : 
+        <Sun className="h-5 w-5 text-savvy-gold" />
+      }
     </Button>
   );
 }
