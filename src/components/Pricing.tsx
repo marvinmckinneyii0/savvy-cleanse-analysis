@@ -57,7 +57,7 @@ const Pricing = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold">Pricing Plans</h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Choose the plan that fits your needs, from free data cleaning to advanced analytics.
+            Select a plan tailored to your data needs, from basic cleaning to comprehensive analytics solutions.
           </p>
         </div>
         
