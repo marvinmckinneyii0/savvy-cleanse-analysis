@@ -33,18 +33,18 @@ const DataFlow = () => {
         
         <div className="relative">
           {/* Process line */}
-          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-savvy-blue/20 hidden md:block"></div>
+          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-savvy-gold/20 hidden md:block"></div>
           
           <div className="space-y-10">
             {steps.map((step, index) => (
               <div key={index} className="relative flex items-start gap-6">
-                <div className="hidden md:flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-full bg-savvy-blue text-white z-10">
+                <div className="hidden md:flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-full bg-savvy-gold text-white z-10">
                   {index + 1}
                 </div>
                 
                 <div className="md:pl-4 flex-1 animate-fade-in [animation-delay:200ms]">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-savvy-blue text-white">
+                    <div className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-savvy-gold text-white">
                       {index + 1}
                     </div>
                     <h3 className="text-xl font-bold">{step.title}</h3>
