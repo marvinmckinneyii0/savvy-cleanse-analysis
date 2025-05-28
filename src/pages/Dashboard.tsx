@@ -1,11 +1,14 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UploadArea from '@/components/dashboard/UploadArea';
 import CleaningPreview from '@/components/dashboard/CleaningPreview';
 import AnalysisTypeSelector from '@/components/dashboard/AnalysisTypeSelector';
 import AnalysisResults from '@/components/dashboard/AnalysisResults';
 import AnalyticsModelsTest from '@/components/dashboard/AnalyticsModelsTest';
+import LiveDataStream from '@/components/dashboard/LiveDataStream';
+import ApiEndpointInfo from '@/components/dashboard/ApiEndpointInfo';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ParsedData } from '@/utils/fileParser';
 
@@ -49,7 +52,7 @@ const Dashboard = () => {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Analytics Dashboard</h1>
             <p className="text-muted-foreground">
-              Upload, clean, and analyze your data
+              Upload, clean, and analyze your data - now with real-time monitoring
             </p>
           </div>
           <div className="flex items-center">
@@ -61,47 +64,63 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {!selectedFile && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <UploadArea onFileUpload={handleFileUpload} />
-            <AnalyticsModelsTest />
-          </div>
-        )}
+        <Tabs defaultValue="file-upload" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="file-upload">File Upload & Analysis</TabsTrigger>
+            <TabsTrigger value="live-data">Live Data Stream</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="file-upload" className="space-y-6">
+            {!selectedFile && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <UploadArea onFileUpload={handleFileUpload} />
+                <AnalyticsModelsTest />
+              </div>
+            )}
 
-        {selectedFile && !cleanedData && (
-          <CleaningPreview 
-            file={selectedFile}
-            onCleaningComplete={handleCleaningComplete}
-            onReset={handleReset}
-          />
-        )}
-
-        {cleanedData && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Select Analysis Type</h2>
-              <Button 
-                variant="outline" 
-                onClick={handleReset}
-                className="text-xs"
-              >
-                Upload New Data
-              </Button>
-            </div>
-            
-            <AnalysisTypeSelector
-              selectedType={selectedAnalysisType}
-              onSelect={(type) => setSelectedAnalysisType(type)}
-            />
-            
-            {selectedAnalysisType && (
-              <AnalysisResults 
-                analysisType={selectedAnalysisType} 
-                data={cleanedData}
+            {selectedFile && !cleanedData && (
+              <CleaningPreview 
+                file={selectedFile}
+                onCleaningComplete={handleCleaningComplete}
+                onReset={handleReset}
               />
             )}
-          </div>
-        )}
+
+            {cleanedData && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">Select Analysis Type</h2>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleReset}
+                    className="text-xs"
+                  >
+                    Upload New Data
+                  </Button>
+                </div>
+                
+                <AnalysisTypeSelector
+                  selectedType={selectedAnalysisType}
+                  onSelect={(type) => setSelectedAnalysisType(type)}
+                />
+                
+                {selectedAnalysisType && (
+                  <AnalysisResults 
+                    analysisType={selectedAnalysisType} 
+                    data={cleanedData}
+                  />
+                )}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="live-data" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <LiveDataStream />
+              <ApiEndpointInfo />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
