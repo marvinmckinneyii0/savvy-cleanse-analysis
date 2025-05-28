@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -72,10 +73,18 @@ const LiveDataStream: React.FC = () => {
     // Load initial data
     loadInitialData();
 
+    // Set up polling as fallback (every 5 seconds)
+    const pollInterval = setInterval(() => {
+      if (supabaseConfigured) {
+        loadInitialData();
+      }
+    }, 5000);
+
     return () => {
       if (supabaseConfigured) {
         supabase.removeChannel(channel);
       }
+      clearInterval(pollInterval);
     };
   }, [supabaseConfigured]);
 
