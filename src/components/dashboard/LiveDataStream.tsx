@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -22,8 +21,26 @@ const LiveDataStream: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [supabaseConfigured, setSupabaseConfigured] = useState(true);
 
   useEffect(() => {
+    // Check if Supabase is properly configured
+    const checkSupabaseConfig = () => {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        setSupabaseConfigured(false);
+        setError('Supabase environment variables are not configured. Please check your project settings.');
+        return false;
+      }
+      return true;
+    };
+
+    if (!checkSupabaseConfig()) {
+      return;
+    }
+
     // Set up real-time subscription
     const channel = supabase
       .channel('live_data_changes')
@@ -56,11 +73,15 @@ const LiveDataStream: React.FC = () => {
     loadInitialData();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (supabaseConfigured) {
+        supabase.removeChannel(channel);
+      }
     };
-  }, []);
+  }, [supabaseConfigured]);
 
   const loadInitialData = async () => {
+    if (!supabaseConfigured) return;
+    
     try {
       const { data, error } = await supabase
         .from('live_data_stream')
@@ -91,6 +112,40 @@ const LiveDataStream: React.FC = () => {
   const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString();
   };
+
+  if (!supabaseConfigured) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            <CardTitle>Live Data Stream</CardTitle>
+            <Badge variant="secondary" className="ml-2">
+              🔴 Not Configured
+            </Badge>
+          </div>
+          <CardDescription>
+            Real-time data ingestion from external systems
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Supabase environment variables are not configured. Please check your project settings and ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.
+            </AlertDescription>
+          </Alert>
+          <div className="text-center py-8 text-muted-foreground">
+            <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <p>Live data stream requires Supabase configuration</p>
+            <p className="text-xs mt-1">
+              Please configure your Supabase environment variables
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full">
