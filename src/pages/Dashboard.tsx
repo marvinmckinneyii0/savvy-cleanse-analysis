@@ -7,22 +7,25 @@ import AnalysisTypeSelector from '@/components/dashboard/AnalysisTypeSelector';
 import AnalysisResults from '@/components/dashboard/AnalysisResults';
 import AnalyticsModelsTest from '@/components/dashboard/AnalyticsModelsTest';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { ParsedData } from '@/utils/fileParser';
 
 const Dashboard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [cleanedData, setCleanedData] = useState<any | null>(null);
   const [selectedAnalysisType, setSelectedAnalysisType] = useState<string | null>(null);
   
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = (file: File, parsedData?: ParsedData) => {
     setSelectedFile(file);
-    setCleanedData(null);
     setSelectedAnalysisType(null);
     
-    // Check if it's a file type that doesn't need cleaning (like PDF)
+    // Check if it's a file type that doesn't need cleaning (like PDF) or if we have parsed data
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    if (fileExtension === 'pdf') {
-      // For PDFs, we'll just pass the file directly as it may need specific handling
-      setCleanedData({ fileType: 'pdf', rawFile: file });
+    if (fileExtension === 'pdf' || parsedData) {
+      // For PDFs or files with parsed data, pass them directly to analysis
+      setCleanedData(parsedData || { fileType: 'pdf', rawFile: file });
+    } else {
+      // For other file types, still go through cleaning process
+      setCleanedData(null);
     }
   };
   
