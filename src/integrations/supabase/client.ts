@@ -18,6 +18,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
       update: () => ({ data: null, error: new Error('Supabase not configured') }),
       delete: () => ({ data: null, error: new Error('Supabase not configured') }),
     }),
+    auth: {
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({
+        data: { subscription: { unsubscribe: () => {} } }
+      }),
+      signInWithPassword: () => Promise.resolve({ 
+        data: { user: null, session: null }, 
+        error: new Error('Supabase not configured') 
+      }),
+      signUp: () => Promise.resolve({ 
+        data: { user: null, session: null }, 
+        error: new Error('Supabase not configured') 
+      }),
+      signOut: () => Promise.resolve({ error: null }),
+    },
     channel: () => ({
       on: () => ({ subscribe: () => {} }),
       subscribe: () => {},
