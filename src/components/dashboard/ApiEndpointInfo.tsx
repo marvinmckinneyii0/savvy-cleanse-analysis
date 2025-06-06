@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 
 const ApiEndpointInfo: React.FC = () => {
   const { toast } = useToast();
-  const [showApiKey, setShowApiKey] = useState(false);
 
   const apiEndpoint = `${window.location.origin}/api/live-data`;
   const samplePayload = {
@@ -24,7 +23,7 @@ const ApiEndpointInfo: React.FC = () => {
 
   const curlExample = `curl -X POST ${apiEndpoint} \\
   -H "Content-Type: application/json" \\
-  -H "x-api-key: YOUR_API_KEY" \\
+  -H "x-api-key: sk_your_api_key_here" \\
   -d '${JSON.stringify(samplePayload, null, 2)}'`;
 
   const copyToClipboard = (text: string, label: string) => {
@@ -51,7 +50,7 @@ const ApiEndpointInfo: React.FC = () => {
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            Use this endpoint to send real-time JSON data to your application. 
+            Create an API key in the API Keys tab, then use this endpoint to send real-time JSON data. 
             Data will appear instantly in the Live Data Stream.
           </AlertDescription>
         </Alert>
@@ -81,14 +80,14 @@ const ApiEndpointInfo: React.FC = () => {
               </code>
               <div className="flex items-center gap-2">
                 <code className="flex-1 p-2 bg-muted rounded text-sm">
-                  x-api-key: {showApiKey ? "your-secret-api-key" : "••••••••••••••••"}
+                  x-api-key: sk_your_api_key_here
                 </code>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowApiKey(!showApiKey)}
+                  onClick={() => copyToClipboard("x-api-key: sk_your_api_key_here", "API key header")}
                 >
-                  <Key className="h-4 w-4" />
+                  <Copy className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -128,9 +127,9 @@ const ApiEndpointInfo: React.FC = () => {
 
           <Alert>
             <AlertDescription>
-              <strong>Required fields:</strong> timestamp, source, metrics<br/>
-              <strong>Response:</strong> JSON with success/error status<br/>
-              <strong>Rate limit:</strong> 1000 requests per minute
+              <strong>Security:</strong> Each user has their own API keys and can only access their own data<br/>
+              <strong>Rate limit:</strong> 100 requests per minute per API key<br/>
+              <strong>Payload limit:</strong> Maximum 100KB per request
             </AlertDescription>
           </Alert>
         </div>

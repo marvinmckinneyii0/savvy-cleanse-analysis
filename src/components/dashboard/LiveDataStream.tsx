@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -7,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Activity, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface LiveDataEntry {
   id: string;
@@ -23,8 +23,11 @@ const LiveDataStream: React.FC = () => {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [supabaseConfigured, setSupabaseConfigured] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user) return;
+
     // Check if Supabase is properly configured
     const checkSupabaseConfig = () => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -42,7 +45,7 @@ const LiveDataStream: React.FC = () => {
       return;
     }
 
-    // Set up real-time subscription
+    // Set up real-time subscription for user's data only
     const channel = supabase
       .channel('live_data_changes')
       .on(
@@ -50,7 +53,8 @@ const LiveDataStream: React.FC = () => {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'live_data_stream'
+          table: 'live_data_stream',
+          filter: `user_id=eq.${user.id}`
         },
         (payload) => {
           console.log('New live data received:', payload);
@@ -86,15 +90,16 @@ const LiveDataStream: React.FC = () => {
       }
       clearInterval(pollInterval);
     };
-  }, [supabaseConfigured]);
+  }, [supabaseConfigured, user]);
 
   const loadInitialData = async () => {
-    if (!supabaseConfigured) return;
+    if (!supabaseConfigured || !user) return;
     
     try {
       const { data, error } = await supabase
         .from('live_data_stream')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -199,7 +204,7 @@ const LiveDataStream: React.FC = () => {
             <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
             <p>No live data received yet</p>
             <p className="text-xs mt-1">
-              Send POST requests to your API endpoint to see data here
+              Create an API key and send POST requests to see data here
             </p>
           </div>
         ) : (

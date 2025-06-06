@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,6 +8,9 @@ import AnalysisResults from '@/components/dashboard/AnalysisResults';
 import AnalyticsModelsTest from '@/components/dashboard/AnalyticsModelsTest';
 import LiveDataStream from '@/components/dashboard/LiveDataStream';
 import ApiEndpointInfo from '@/components/dashboard/ApiEndpointInfo';
+import ApiKeyManager from '@/components/dashboard/ApiKeyManager';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import UserMenu from '@/components/auth/UserMenu';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ParsedData } from '@/utils/fileParser';
 
@@ -43,86 +45,94 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeSwitcher />
-      </div>
-      <div className="flex-1 space-y-4 p-4 md:p-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Analytics Dashboard</h1>
-            <p className="text-muted-foreground">
-              Upload, clean, and analyze your data - now with real-time monitoring
-            </p>
-          </div>
-          <div className="flex items-center">
-            <img 
-              src="/lovable-uploads/bce4ab85-e6f8-4810-9883-f33ee1cfb90d.png" 
-              alt="Savvy Analytics Logo" 
-              className="w-8 h-8 mr-2"
-            />
-          </div>
+    <ProtectedRoute>
+      <div className="flex min-h-screen bg-background">
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+          <ThemeSwitcher />
+          <UserMenu />
         </div>
-
-        <Tabs defaultValue="file-upload" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="file-upload">File Upload & Analysis</TabsTrigger>
-            <TabsTrigger value="live-data">Live Data Stream</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="file-upload" className="space-y-6">
-            {!selectedFile && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <UploadArea onFileUpload={handleFileUpload} />
-                <AnalyticsModelsTest />
-              </div>
-            )}
-
-            {selectedFile && !cleanedData && (
-              <CleaningPreview 
-                file={selectedFile}
-                onCleaningComplete={handleCleaningComplete}
-                onReset={handleReset}
-              />
-            )}
-
-            {cleanedData && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold">Select Analysis Type</h2>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleReset}
-                    className="text-xs"
-                  >
-                    Upload New Data
-                  </Button>
-                </div>
-                
-                <AnalysisTypeSelector
-                  selectedType={selectedAnalysisType}
-                  onSelect={(type) => setSelectedAnalysisType(type)}
-                />
-                
-                {selectedAnalysisType && (
-                  <AnalysisResults 
-                    analysisType={selectedAnalysisType} 
-                    data={cleanedData}
-                  />
-                )}
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="live-data" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <LiveDataStream />
-              <ApiEndpointInfo />
+        <div className="flex-1 space-y-4 p-4 md:p-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Analytics Dashboard</h1>
+              <p className="text-muted-foreground">
+                Upload, clean, and analyze your data - now with real-time monitoring
+              </p>
             </div>
-          </TabsContent>
-        </Tabs>
+            <div className="flex items-center">
+              <img 
+                src="/lovable-uploads/bce4ab85-e6f8-4810-9883-f33ee1cfb90d.png" 
+                alt="Savvy Analytics Logo" 
+                className="w-8 h-8 mr-2"
+              />
+            </div>
+          </div>
+
+          <Tabs defaultValue="file-upload" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="file-upload">File Upload & Analysis</TabsTrigger>
+              <TabsTrigger value="live-data">Live Data Stream</TabsTrigger>
+              <TabsTrigger value="api-keys">API Keys</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="file-upload" className="space-y-6">
+              {!selectedFile && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <UploadArea onFileUpload={handleFileUpload} />
+                  <AnalyticsModelsTest />
+                </div>
+              )}
+
+              {selectedFile && !cleanedData && (
+                <CleaningPreview 
+                  file={selectedFile}
+                  onCleaningComplete={handleCleaningComplete}
+                  onReset={handleReset}
+                />
+              )}
+
+              {cleanedData && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold">Select Analysis Type</h2>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleReset}
+                      className="text-xs"
+                    >
+                      Upload New Data
+                    </Button>
+                  </div>
+                  
+                  <AnalysisTypeSelector
+                    selectedType={selectedAnalysisType}
+                    onSelect={(type) => setSelectedAnalysisType(type)}
+                  />
+                  
+                  {selectedAnalysisType && (
+                    <AnalysisResults 
+                      analysisType={selectedAnalysisType} 
+                      data={cleanedData}
+                    />
+                  )}
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="live-data" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <LiveDataStream />
+                <ApiEndpointInfo />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="api-keys" className="space-y-6">
+              <ApiKeyManager />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 };
 
