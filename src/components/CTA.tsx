@@ -4,6 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 const CTA = () => {
+  const handleEarlyAccessClick = () => {
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+      signupForm.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="py-16 bg-gradient-to-r from-savvy-dark to-savvy-midnight">
       <div className="container px-4 md:px-6 text-center">
@@ -21,6 +28,13 @@ const CTA = () => {
           </Link>
           <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
             Request Demo
+          </Button>
+          <Button 
+            size="lg" 
+            onClick={handleEarlyAccessClick}
+            className="bg-white text-savvy-dark border border-savvy-gold hover:bg-savvy-gold hover:text-white"
+          >
+            Sign Up for Early Access
           </Button>
         </div>
       </div>
