@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 
 const CTA = () => {
   const handleEarlyAccessClick = () => {
@@ -18,20 +17,15 @@ const CTA = () => {
           Ready to transform your data workflow?
         </h2>
         <p className="text-savvy-white/80 max-w-2xl mx-auto mb-8">
-          Join analysts, data scientists, and BI professionals who use SavvyClean to turn messy data into actionable insights.
+          Join analysts, data scientists, and BI professionals who will use SavvyClean to turn messy data into actionable insights.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link to="/dashboard">
-            <Button size="lg" className="bg-savvy-gold hover:bg-savvy-gold/90 text-white">
-              Start Cleaning Data
-            </Button>
-          </Link>
           <Button 
             size="lg" 
             onClick={handleEarlyAccessClick}
-            className="bg-white text-savvy-dark border border-savvy-gold hover:bg-savvy-gold hover:text-white"
+            className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
           >
-            Sign Up for Early Access
+            Get Early Access
           </Button>
         </div>
       </div>

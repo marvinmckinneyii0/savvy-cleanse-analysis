@@ -10,6 +10,7 @@ import Pricing from '@/components/Pricing';
 import CTA from '@/components/CTA';
 import BusinessIntelligence from '@/components/BusinessIntelligence';
 import Feedback from '@/components/Feedback';
+import SignupForm from '@/components/SignupForm';
 
 const Index = () => {
   return (
@@ -24,6 +25,11 @@ const Index = () => {
         <Pricing />
         <Feedback />
         <CTA />
+        <section className="py-16 bg-white dark:bg-savvy-dark">
+          <div className="container px-4 md:px-6">
+            <SignupForm />
+          </div>
+        </section>
       </main>
       <Footer />
     </div>

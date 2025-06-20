@@ -5,6 +5,13 @@ import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 const Navbar = () => {
+  const handleSignupClick = () => {
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+      signupForm.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className="border-b bg-white dark:bg-savvy-dark sticky top-0 z-50">
       <div className="container flex items-center justify-between h-16 px-4 md:px-6">
@@ -18,32 +25,22 @@ const Navbar = () => {
         </Link>
         
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link to="/" className="font-medium transition-colors hover:text-savvy-gold">
-            Home
-          </Link>
-          <Link to="/#features" className="font-medium transition-colors hover:text-savvy-gold">
+          <a href="#features" className="font-medium transition-colors hover:text-savvy-gold">
             Features
-          </Link>
+          </a>
           <a href="#pricing" className="font-medium transition-colors hover:text-savvy-gold">
             Pricing
           </a>
-          <Link to="/" className="font-medium transition-colors hover:text-savvy-gold">
-            Documentation
-          </Link>
         </nav>
         
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
-          <Link to="/dashboard">
-            <Button variant="ghost" className="hidden md:inline-flex">
-              Dashboard
-            </Button>
-          </Link>
-          <Link to="/dashboard">
-            <Button className="bg-savvy-gold hover:bg-savvy-gold/90 text-white">
-              Try Now
-            </Button>
-          </Link>
+          <Button 
+            onClick={handleSignupClick}
+            className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
+          >
+            Sign Up
+          </Button>
         </div>
       </div>
     </header>

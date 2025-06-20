@@ -1,9 +1,15 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 
 const Hero = () => {
+  const handleSignupClick = () => {
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+      signupForm.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5">
       <div className="container px-4 md:px-6">
@@ -17,17 +23,19 @@ const Hero = () => {
               analysts, and business intelligence professionals.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Link to="/dashboard">
-                <Button size="lg" className="bg-savvy-gold hover:bg-savvy-gold/90 text-white">
-                  Start Cleaning Data
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                onClick={handleSignupClick}
+                className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
+              >
+                Join Waitlist
+              </Button>
               <Button variant="outline" size="lg">
                 Watch Demo
               </Button>
             </div>
             <p className="text-sm text-muted-foreground pt-2">
-              No credit card required. Free tier available.
+              No credit card required. Be first to access when we launch.
             </p>
           </div>
           <div className="lg:pl-10 animate-fade-in">
