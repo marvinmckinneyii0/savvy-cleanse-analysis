@@ -26,9 +26,6 @@ const CTA = () => {
               Start Cleaning Data
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
-            Request Demo
-          </Button>
           <Button 
             size="lg" 
             onClick={handleEarlyAccessClick}
