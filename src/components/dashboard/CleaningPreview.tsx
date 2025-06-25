@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { cleanData } from '@/utils/api';
 
 export interface CleaningPreviewProps {
   data?: any;
@@ -13,28 +14,28 @@ export interface CleaningPreviewProps {
 
 const CleaningPreview: React.FC<CleaningPreviewProps> = ({ data, file, onCleaningComplete, onReset }) => {
   const [isProcessing, setIsProcessing] = useState(true);
-  
+  const [cleanResult, setCleanResult] = useState<any | null>(null);
+
   useEffect(() => {
-    // Simulate cleaning process
-    const timer = setTimeout(() => {
+    if (!file) {
       setIsProcessing(false);
-      // Generate sample cleaned data
-      const cleanedData = {
-        columns: ['id', 'name', 'age', 'income', 'state'],
-        rows: [
-          [1, 'John Smith', 34, 75000, 'CA'],
-          [2, 'Sarah Jones', null, 81000, 'NY'],
-          [3, 'Mike Johnson', 43, 62000, 'TX'],
-          [4, 'Emily Lee', 29, 55000, 'IL'],
-          [5, 'Unknown', 51, 90000, 'FL']
-        ]
-      };
-      
-      // In a real app, this would process the actual file
-      console.log("Processing file:", file?.name);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const run = async () => {
+      try {
+        const data = await cleanData(file);
+        setCleanResult(data);
+      } catch (err) {
+        console.error('Failed to clean file', err);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    run();
   }, [file]);
   
   // In a real app, this would show before/after data cleaning
@@ -55,7 +56,7 @@ const CleaningPreview: React.FC<CleaningPreviewProps> = ({ data, file, onCleanin
 5,Unknown,51,90000,FL`;
 
   const handleContinue = () => {
-    const cleanedData = {
+    const fallbackData = {
       columns: ['id', 'name', 'age', 'income', 'state'],
       rows: [
         [1, 'John Smith', 34, 75000, 'CA'],
@@ -65,8 +66,8 @@ const CleaningPreview: React.FC<CleaningPreviewProps> = ({ data, file, onCleanin
         [5, 'Unknown', 51, 90000, 'FL']
       ]
     };
-    
-    onCleaningComplete(cleanedData);
+
+    onCleaningComplete(cleanResult || fallbackData);
   };
 
   if (isProcessing) {
