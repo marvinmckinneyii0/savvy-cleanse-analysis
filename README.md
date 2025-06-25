@@ -71,3 +71,19 @@ Yes it is!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Python Backend (FastAPI)
+
+A minimal FastAPI backend is provided in the `backend` directory. It exposes endpoints for uploading, cleaning and analyzing datasets.
+
+### Setup
+
+```bash
+# Install Python dependencies
+pip install -r backend/requirements.txt
+
+# Run the API server
+python backend/main.py
+```
+
+The API will start on `http://localhost:8000`. You can then interact with the routes such as `/upload`, `/clean`, `/goal`, `/analyze`, `/report/summary`, and `/export`.
