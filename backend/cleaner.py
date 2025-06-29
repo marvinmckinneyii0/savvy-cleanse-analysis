@@ -8,6 +8,8 @@ def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         if cleaned[col].dtype == 'O':
             cleaned[col].fillna('', inplace=True)
         else:
-            cleaned[col].fillna(cleaned[col].mean(numeric_only=True), inplace=True)
+            # Series.mean does not support numeric_only; the column is already
+            # numeric so we can directly compute the mean.
+            cleaned[col].fillna(cleaned[col].mean(), inplace=True)
     cleaned.drop_duplicates(inplace=True)
     return cleaned
