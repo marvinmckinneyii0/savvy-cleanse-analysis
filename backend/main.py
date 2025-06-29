@@ -1,7 +1,12 @@
 from fastapi import FastAPI, File, UploadFile, Depends
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
+try:
+    import pandas as pd
+except ModuleNotFoundError:  # pragma: no cover - helper for local dev
+    raise SystemExit(
+        "pandas is required. Install dependencies with 'pip install -r backend/requirements.txt'"
+    )
 from io import BytesIO
 
 from cleaner import clean_dataframe
