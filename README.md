@@ -82,6 +82,10 @@ A minimal FastAPI backend is provided in the `backend` directory. It exposes end
 # Install Python dependencies
 pip install -r backend/requirements.txt
 
+# If you encounter a `ModuleNotFoundError` for pandas,
+# install it separately:
+pip install pandas
+
 # Run the API server
 python backend/main.py
 ```
