@@ -49,14 +49,14 @@ const BusinessIntelligence = () => {
           </p>
         </div>
         
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 md:gap-6 sm:grid-cols-1 lg:grid-cols-2">
           {/* Sales Performance Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>Sales Performance</CardTitle>
-              <CardDescription>Monthly sales vs target comparison</CardDescription>
+              <CardTitle className="text-lg md:text-xl">Sales Performance</CardTitle>
+              <CardDescription className="text-sm">Monthly sales vs target comparison</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className="h-64 md:h-80">
               <ChartContainer
                 config={{
                   sales: { label: "Sales", color: "#B5792E" },
@@ -82,10 +82,10 @@ const BusinessIntelligence = () => {
           {/* Market Share Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>Market Share</CardTitle>
-              <CardDescription>Distribution across product lines</CardDescription>
+              <CardTitle className="text-lg md:text-xl">Market Share</CardTitle>
+              <CardDescription className="text-sm">Distribution across product lines</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className="h-64 md:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -112,10 +112,10 @@ const BusinessIntelligence = () => {
           {/* User Engagement Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>User Engagement</CardTitle>
-              <CardDescription>Weekly new and active users</CardDescription>
+              <CardTitle className="text-lg md:text-xl">User Engagement</CardTitle>
+              <CardDescription className="text-sm">Weekly new and active users</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className="h-64 md:h-80">
               <ChartContainer
                 config={{
                   newUsers: { label: "New Users", color: "#B5792E" },
@@ -141,10 +141,10 @@ const BusinessIntelligence = () => {
           {/* Performance Metrics Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>Quarterly Performance</CardTitle>
-              <CardDescription>Financial metrics by quarter</CardDescription>
+              <CardTitle className="text-lg md:text-xl">Quarterly Performance</CardTitle>
+              <CardDescription className="text-sm">Financial metrics by quarter</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className="h-64 md:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={performanceData}

@@ -43,9 +43,9 @@ const AnalysisTypes = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {analysisTypes.map((analysis, index) => (
-            <div key={analysis.type} className={`analysis-card animate-bounce-in [animation-delay:${index * 100}ms]`}>
+            <div key={analysis.type} className={`bg-white dark:bg-card p-4 md:p-6 rounded-lg border shadow-sm hover:shadow-md transition-shadow animate-bounce-in [animation-delay:${index * 100}ms]`}>
               <div className="text-savvy-blue font-semibold mb-2">{analysis.type}</div>
               <h3 className="text-xl font-bold mb-2">{analysis.question}</h3>
               <p className="text-muted-foreground text-sm mb-4">{analysis.description}</p>

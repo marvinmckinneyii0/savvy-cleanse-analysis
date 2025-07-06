@@ -35,9 +35,9 @@ const DataFlow = () => {
           {/* Process line */}
           <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-savvy-gold/20 hidden md:block"></div>
           
-          <div className="space-y-10">
+          <div className="space-y-8 md:space-y-10">
             {steps.map((step, index) => (
-              <div key={index} className="relative flex items-start gap-6">
+              <div key={index} className="relative flex items-start gap-4 md:gap-6">
                 <div className="hidden md:flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-full bg-savvy-gold text-white z-10">
                   {index + 1}
                 </div>
