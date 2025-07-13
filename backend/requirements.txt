@@ -4,5 +4,6 @@ pandas
 pdfplumber
 openpyxl
 scikit-learn
+scipy
 python-multipart
 joblib
