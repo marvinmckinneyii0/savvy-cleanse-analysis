@@ -74,7 +74,10 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-trick
 
 ## Python Backend (FastAPI)
 
-A minimal FastAPI backend is provided in the `backend` directory. It exposes endpoints for uploading, cleaning and analyzing datasets.
+A FastAPI backend is provided in the `backend` directory. It now includes
+an advanced data cleaning and analytics pipeline powered by machine learning.
+Endpoints are exposed for uploading datasets, cleaning them and answering
+analytics questions.
 
 ### Setup
 
@@ -90,4 +93,12 @@ pip install pandas
 python backend/main.py
 ```
 
+If you plan to lint or build the frontend, install the Node.js dependencies with
+`npm install` in the project root. This step requires internet access on the
+first run in order to download packages.
+
 The API will start on `http://localhost:8000`. You can then interact with the routes such as `/upload`, `/clean`, `/goal`, `/analyze`, `/report/summary`, and `/export`.
+The `/clean` endpoint uses an intelligent cleaner that profiles your data
+and selects the best strategy automatically. The `/analyze` endpoint accepts
+a natural language question about your dataset and returns the analytics type
+along with recommended next steps.

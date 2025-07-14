@@ -1,15 +1,9 @@
 import pandas as pd
+from advanced_pipeline import DataCleaner
+
+_cleaner = DataCleaner()
 
 
 def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """Simple cleaning logic: fill missing values and drop duplicates."""
-    cleaned = df.copy()
-    for col in cleaned.columns:
-        if cleaned[col].dtype == 'O':
-            cleaned[col].fillna('', inplace=True)
-        else:
-            # Series.mean does not support numeric_only; the column is already
-            # numeric so we can directly compute the mean.
-            cleaned[col].fillna(cleaned[col].mean(), inplace=True)
-    cleaned.drop_duplicates(inplace=True)
-    return cleaned
+    """Clean dataframe using the advanced DataCleaner."""
+    return _cleaner.clean_data(df, method="auto")
