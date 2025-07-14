@@ -3,8 +3,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { useAuth } from '@/components/auth/AuthProvider';
+import UserMenu from '@/components/auth/UserMenu';
 
 const Navbar = () => {
+  const { user } = useAuth();
+
   const handleSignupClick = () => {
     const signupForm = document.getElementById('signup-form');
     if (signupForm) {
@@ -38,20 +42,25 @@ const Navbar = () => {
         
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
-          <Link to="/dashboard">
-            <Button 
-              variant="outline"
-              className="hidden sm:inline-flex"
-            >
-              Try Now
-            </Button>
-          </Link>
-          <Button 
-            onClick={handleSignupClick}
-            className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
-          >
-            Sign Up
-          </Button>
+          {!user && (
+            <>
+              <Link to="/dashboard">
+                <Button 
+                  variant="outline"
+                  className="hidden sm:inline-flex"
+                >
+                  Try Now
+                </Button>
+              </Link>
+              <Button 
+                onClick={handleSignupClick}
+                className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
+              >
+                Sign Up
+              </Button>
+            </>
+          )}
+          {user && <UserMenu />}
         </div>
       </div>
     </header>

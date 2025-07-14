@@ -10,11 +10,12 @@ import { useAuth } from '@/components/auth/AuthProvider';
 
 interface LiveDataEntry {
   id: string;
-  timestamp: string;
-  source: string;
-  metrics: Record<string, any>;
-  raw_data: Record<string, any>;
+  user_id: string;
+  data: any;
+  processed_data: any;
+  status: string;
   created_at: string;
+  updated_at: string;
 }
 
 const LiveDataStream: React.FC = () => {
@@ -115,12 +116,19 @@ const LiveDataStream: React.FC = () => {
     }
   };
 
-  const formatMetrics = (metrics: Record<string, any>) => {
-    return Object.entries(metrics).map(([key, value]) => (
-      <div key={key} className="text-xs">
-        <span className="font-medium">{key}:</span> {String(value)}
-      </div>
-    ));
+  const formatData = (data: any) => {
+    if (!data) return <span className="text-muted-foreground">No data</span>;
+    
+    try {
+      const dataObj = typeof data === 'string' ? JSON.parse(data) : data;
+      return Object.entries(dataObj).slice(0, 3).map(([key, value]) => (
+        <div key={key} className="text-xs">
+          <span className="font-medium">{key}:</span> {String(value)}
+        </div>
+      ));
+    } catch {
+      return <span className="text-xs text-muted-foreground">Invalid data format</span>;
+    }
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -213,29 +221,34 @@ const LiveDataStream: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Time</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Metrics</TableHead>
+                  <TableHead>Data</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {liveData.map((entry) => (
                   <TableRow key={entry.id}>
                     <TableCell className="font-mono text-xs">
-                      {formatTimestamp(entry.timestamp)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{entry.source}</Badge>
+                      {formatTimestamp(entry.created_at)}
                     </TableCell>
                     <TableCell className="max-w-xs">
                       <div className="space-y-1">
-                        {formatMetrics(entry.metrics)}
+                        {formatData(entry.data)}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="default" className="text-xs">
-                        Received
+                      <Badge 
+                        variant={entry.status === 'completed' ? "default" : "secondary"} 
+                        className="text-xs"
+                      >
+                        {entry.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="sm" className="text-xs">
+                        View Details
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
