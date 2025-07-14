@@ -1,8 +1,15 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
+  const navigate = useNavigate();
+  
+  const handleStartAnalyzing = () => {
+    navigate('/dashboard');
+  };
+
   const handleSignupClick = () => {
     const signupForm = document.getElementById('signup-form');
     if (signupForm) {
@@ -25,17 +32,17 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button 
                 size="lg" 
-                onClick={handleSignupClick}
+                onClick={handleStartAnalyzing}
                 className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
               >
-                Join Waitlist
+                Start Analyzing Data
               </Button>
-              <Button variant="outline" size="lg">
-                Watch Demo
+              <Button variant="outline" size="lg" onClick={handleSignupClick}>
+                Join Waitlist
               </Button>
             </div>
             <p className="text-sm text-muted-foreground pt-2">
-              No credit card required. Be first to access when we launch.
+              Upload CSV, JSON, XLSX, XML, or TXT files. AI cleaning included.
             </p>
           </div>
           <div className="lg:pl-10 animate-fade-in">

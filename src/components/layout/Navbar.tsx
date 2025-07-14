@@ -31,10 +31,21 @@ const Navbar = () => {
           <a href="#pricing" className="font-medium transition-colors hover:text-savvy-gold">
             Pricing
           </a>
+          <Link to="/dashboard" className="font-medium transition-colors hover:text-savvy-gold">
+            Dashboard
+          </Link>
         </nav>
         
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
+          <Link to="/dashboard">
+            <Button 
+              variant="outline"
+              className="hidden sm:inline-flex"
+            >
+              Try Now
+            </Button>
+          </Link>
           <Button 
             onClick={handleSignupClick}
             className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
