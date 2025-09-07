@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from './AuthProvider';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 
 const AuthForm: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -16,7 +16,7 @@ const AuthForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +40,22 @@ const AuthForm: React.FC = () => {
       }
     } catch (err) {
       setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred with Google sign in');
     } finally {
       setLoading(false);
     }
@@ -102,6 +118,26 @@ const AuthForm: React.FC = () => {
               {isSignUp ? 'Create Account' : 'Sign In'}
             </Button>
           </form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+          >
+            <Mail className="mr-2 h-4 w-4" />
+            Google
+          </Button>
 
           <div className="mt-4 text-center">
             <Button

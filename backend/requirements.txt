@@ -6,3 +6,17 @@ openpyxl
 scikit-learn
 python-multipart
 joblib
+scipy
+numpy
+seaborn
+matplotlib
+httpx
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+supabase
+openai
+anthropic
+google-generativeai
+psycopg2-binary
+sqlalchemy
