@@ -1,28 +1,22 @@
 # SavvyClean: Data Cleaning & Data Analysis App
 
 ## Project info
+URL: https://lovable.dev/projects/2ecea895-8960-4ad5-b705-0bc59bc94016
 
-**URL**: https://lovable.dev/projects/2ecea895-8960-4ad5-b705-0bc59bc94016
+---
 
-## How can I edit this code?
+## 🚀 How can I edit this code?
 
-There are several ways of editing your application.
+There are several ways of editing your application:
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/2ecea895-8960-4ad5-b705-0bc59bc94016) and start prompting.
-
+### 1. Use Lovable
+Simply visit the [Lovable Project](https://lovable.dev/projects/2ecea895-8960-4ad5-b705-0bc59bc94016) and start prompting.  
 Changes made via Lovable will be committed automatically to this repo.
 
-**Use your preferred IDE**
+### 2. Use your preferred IDE
+If you want to work locally using your own IDE:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
+```bash
 # Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
 
@@ -34,71 +28,99 @@ npm i
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
-```
+3. Edit a file directly in GitHub
+Navigate to the desired file(s).
 
-**Edit a file directly in GitHub**
+Click the "Edit" button (pencil icon) at the top right of the file view.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Make your changes and commit them.
 
-**Use GitHub Codespaces**
+4. Use GitHub Codespaces
+Navigate to the main page of your repository.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Click on the Code button (green button).
 
-## What technologies are used for this project?
+Select the Codespaces tab.
 
-This project is built with .
+Click on New codespace to launch an environment.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Edit files directly and commit/push when done.
 
-## How can I deploy this project?
+🧹 How to clean/reset your repo
+If you want to start fresh and avoid conflicts:
 
-Simply open [Lovable](https://lovable.dev/projects/2ecea895-8960-4ad5-b705-0bc59bc94016) and click on Share -> Publish.
+Option A: Keep Git history
+bash
+Copy code
+cd /c/Users/marvi/github-projects/savvycleanse
+git rm -r *
+git commit -m "Remove old files for fresh scaffold"
+git add .
+git commit -m "Add new scaffold"
+git push origin main
+Option B: Start completely fresh (no history)
+bash
+Copy code
+cd /c/Users/marvi/github-projects
+rm -rf savvycleanse
+git clone https://github.com/YOUR_USERNAME/savvycleanse.git
+cd savvycleanse
+🛠️ Technologies used
+Vite
 
-## Can I connect a custom domain to my Lovable project?
+TypeScript
 
-Yes it is!
+React
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+shadcn-ui
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Tailwind CSS
 
-## Python Backend (FastAPI)
+Python (FastAPI backend)
 
-A FastAPI backend is provided in the `backend` directory. It now includes
-an advanced data cleaning and analytics pipeline powered by machine learning.
-Endpoints are exposed for uploading datasets, cleaning them and answering
-analytics questions.
+🐍 Python Backend (FastAPI)
+A FastAPI backend is provided in the backend directory.
+It includes a data cleaning and analytics pipeline powered by machine learning.
+Endpoints are exposed for uploading datasets, cleaning them, and answering analytics questions.
 
-### Setup
-
-```bash
+Setup
+bash
+Copy code
 # Install Python dependencies
 pip install -r backend/requirements.txt
 
-# If you encounter a `ModuleNotFoundError` for pandas,
-# install it separately:
+# If you encounter a ModuleNotFoundError for pandas:
 pip install pandas
 
 # Run the API server
-python backend/main.py
-```
+uvicorn main:app --reload
+The API will start on http://localhost:8000.
+You can interact with routes such as:
 
-If you plan to lint or build the frontend, install the Node.js dependencies with
-`npm install` in the project root. This step requires internet access on the
-first run in order to download packages.
+/upload
 
-The API will start on `http://localhost:8000`. You can then interact with the routes such as `/upload`, `/clean`, `/goal`, `/analyze`, `/report/summary`, and `/export`.
-The `/clean` endpoint uses an intelligent cleaner that profiles your data
-and selects the best strategy automatically. The `/analyze` endpoint accepts
-a natural language question about your dataset and returns the analytics type
-along with recommended next steps.
+/clean
+
+/goal
+
+/analyze
+
+/report/summary
+
+/export
+
+The /clean endpoint uses an intelligent cleaner that profiles your data and selects the best strategy automatically.
+The /analyze endpoint accepts a natural language question about your dataset and returns the analytics type along with recommended next steps.
+
+🌍 How can I deploy this project?
+Deploy Backend (FastAPI)
+Use Render, Railway, Fly.io, or Docker.
+
+Deploy Frontend (React/Vite)
+bash
+Copy code
+npm run build
+Deploy the dist/ folder to Netlify, Vercel, or GitHub Pages.
+
+Custom Domain
+Yes! Navigate to Project > Settings > Domains and click Connect Domain.
