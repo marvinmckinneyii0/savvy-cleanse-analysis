@@ -9,12 +9,16 @@ import AnalyticsModelsTest from '@/components/dashboard/AnalyticsModelsTest';
 import LiveDataStream from '@/components/dashboard/LiveDataStream';
 import ApiEndpointInfo from '@/components/dashboard/ApiEndpointInfo';
 import ApiKeyManager from '@/components/dashboard/ApiKeyManager';
+import UserDashboard from '@/components/dashboard/UserDashboard';
+import AdminDashboard from '@/components/dashboard/AdminDashboard';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import UserMenu from '@/components/auth/UserMenu';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { ParsedData } from '@/utils/fileParser';
 
 const Dashboard = () => {
+  const { isAdmin } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [cleanedData, setCleanedData] = useState<any | null>(null);
   const [selectedAnalysisType, setSelectedAnalysisType] = useState<string | null>(null);
@@ -68,12 +72,18 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <Tabs defaultValue="file-upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-5' : 'grid-cols-4'}`}>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="file-upload">File Upload & Analysis</TabsTrigger>
               <TabsTrigger value="live-data">Live Data Stream</TabsTrigger>
               <TabsTrigger value="api-keys">API Keys</TabsTrigger>
+              {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
             </TabsList>
+            
+            <TabsContent value="overview" className="space-y-6">
+              <UserDashboard />
+            </TabsContent>
             
             <TabsContent value="file-upload" className="space-y-6">
               {!selectedFile && (
@@ -129,6 +139,12 @@ const Dashboard = () => {
             <TabsContent value="api-keys" className="space-y-6">
               <ApiKeyManager />
             </TabsContent>
+
+            {isAdmin && (
+              <TabsContent value="admin" className="space-y-6">
+                <AdminDashboard />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>
