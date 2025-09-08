@@ -70,7 +70,7 @@ const About = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" data-page="about">
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
