@@ -157,5 +157,30 @@ All footer-linked pages have been implemented with comprehensive content and con
 - SEO-friendly structure with proper headings and meta information
 - Consistent use of Savvy brand colors (blue, gold, dark themes)
 
+### Style Consistency
+All footer pages maintain visual consistency with the homepage through:
+
+**Design Tokens & Colors:**
+- Uses semantic color tokens: `text-foreground`, `bg-card`, `text-muted-foreground`, `border-border`
+- Brand colors: `bg-savvy-blue`, `bg-savvy-gold`, `bg-savvy-dark`, `text-savvy-gold`
+- Consistent gradients: `bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate`
+
+**Layout & Spacing:**
+- Container max-width and padding: `container px-4 md:px-6`
+- Section padding: `py-16` for main sections, `py-12` for smaller sections
+- Card styling: `shadow-sm hover:shadow-lg transition-all duration-300`
+- Grid layouts: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`
+
+**Typography:**
+- Hero headings: `text-4xl md:text-5xl font-bold`
+- Section headings: `text-3xl font-bold`
+- Card titles: `text-xl` or `text-lg`
+- Body text: `text-muted-foreground` with proper line heights
+
+**Components:**
+- Consistent use of shadcn/ui components: Card, Button, Badge, Input, Textarea
+- Same button variants and styling as homepage
+- Unified icon usage from lucide-react with consistent sizing
+
 ### Routing
 Footer links now properly route to their respective pages using React Router `Link` components instead of placeholder anchor tags.
