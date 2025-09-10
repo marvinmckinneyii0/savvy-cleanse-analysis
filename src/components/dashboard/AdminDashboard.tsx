@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/components/auth/AuthProvider';
 import { 
   Users, 
   Database, 
@@ -51,7 +50,10 @@ interface AdminDashboardData {
 }
 
 const AdminDashboard: React.FC = () => {
-  const { user, session, isAdmin } = useAuth();
+  // Mock admin user data since auth is removed
+  const user = { email: 'admin@example.com' };
+  const session = { access_token: 'mock-admin-token' };
+  const isAdmin = true;
   const { toast } = useToast();
   
   const [dashboardData, setDashboardData] = useState<AdminDashboardData | null>(null);

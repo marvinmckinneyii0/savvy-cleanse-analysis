@@ -11,14 +11,11 @@ import ApiEndpointInfo from '@/components/dashboard/ApiEndpointInfo';
 import ApiKeyManager from '@/components/dashboard/ApiKeyManager';
 import UserDashboard from '@/components/dashboard/UserDashboard';
 import AdminDashboard from '@/components/dashboard/AdminDashboard';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import UserMenu from '@/components/auth/UserMenu';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
-import { useAuth } from '@/components/auth/AuthProvider';
 import { ParsedData } from '@/utils/fileParser';
 
 const Dashboard = () => {
-  const { isAdmin } = useAuth();
+  const isAdmin = true; // Remove auth check - make admin features accessible
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [cleanedData, setCleanedData] = useState<any | null>(null);
   const [selectedAnalysisType, setSelectedAnalysisType] = useState<string | null>(null);
@@ -49,11 +46,9 @@ const Dashboard = () => {
   };
 
   return (
-    <ProtectedRoute>
       <div className="flex min-h-screen bg-background">
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
           <ThemeSwitcher />
-          <UserMenu />
         </div>
         <div className="flex-1 space-y-4 p-4 md:p-8">
           <div className="flex items-center justify-between">
@@ -148,7 +143,6 @@ const Dashboard = () => {
           </Tabs>
         </div>
       </div>
-    </ProtectedRoute>
   );
 };
 

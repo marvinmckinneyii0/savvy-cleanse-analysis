@@ -20,14 +20,12 @@ import Careers from "./pages/careers";
 import Contact from "./pages/contact";
 import SavvyAnalytics from "./pages/savvy-analytics";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { AuthProvider } from "./components/auth/AuthProvider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <ThemeProvider defaultTheme="dark">
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
         <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -53,7 +51,6 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>
-      </AuthProvider>
     </QueryClientProvider>
   </ThemeProvider>
 );
