@@ -75,25 +75,71 @@ const UserDashboard: React.FC = () => {
 
   // Fetch dashboard data
   useEffect(() => {
-    if (session?.access_token) {
-      fetchDashboardData();
-    }
-  }, [session]);
+    // Always fetch data since we're using mock data
+    fetchDashboardData();
+  }, []);
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/dashboard/user', {
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
+      // For now, use mock data since auth is disabled
+      const mockData = {
+        user_stats: {
+          total_datasets: 3,
+          total_analyses: 7,
+          total_nlp_queries: 2
         },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardData(data);
-      } else {
-        throw new Error('Failed to fetch dashboard data');
-      }
+        recent_datasets: [
+          {
+            id: "1",
+            filename: "sales_data.csv",
+            original_filename: "sales_data.csv",
+            status: "cleaned",
+            created_at: new Date().toISOString(),
+            metadata: {
+              rows: 1000,
+              columns: 8,
+              column_names: ["date", "sales", "region", "product"]
+            }
+          },
+          {
+            id: "2", 
+            filename: "customer_data.xlsx",
+            original_filename: "customer_data.xlsx",
+            status: "uploaded",
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+            metadata: {
+              rows: 500,
+              columns: 12,
+              column_names: ["id", "name", "email", "age", "location"]
+            }
+          }
+        ],
+        recent_analyses: [
+          {
+            id: "1",
+            analysis_type: "descriptive",
+            created_at: new Date().toISOString(),
+            results: {}
+          },
+          {
+            id: "2",
+            analysis_type: "predictive", 
+            created_at: new Date(Date.now() - 3600000).toISOString(),
+            results: {}
+          }
+        ],
+        recent_queries: [
+          {
+            id: "1",
+            query_text: "What factors most influence sales performance?",
+            analysis_type: "diagnostic",
+            created_at: new Date().toISOString(),
+            results: {}
+          }
+        ]
+      };
+      
+      setDashboardData(mockData);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -116,7 +162,7 @@ const UserDashboard: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/analyze/nlp/${selectedDataset}`, {
+      const response = await fetch(`/analyze/nlp/${selectedDataset}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

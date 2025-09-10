@@ -638,6 +638,33 @@ async def export_dataset(dataset_id: str, current_user = Depends(get_current_use
         await log_activity(current_user.id, "data_export", "error", metadata={'dataset_id': dataset_id}, error_message=str(e))
         raise HTTPException(status_code=400, detail=str(e))
 
+# Admin endpoints
+@app.put("/admin/users/{user_id}/role")
+async def update_user_role(user_id: str, role_data: dict, current_user = Depends(get_admin_user)):
+    """Update user role (admin only)"""
+    try:
+        new_role = role_data.get('role')
+        if new_role not in ['user', 'admin']:
+            raise HTTPException(status_code=400, detail="Invalid role")
+        
+        # Update user role
+        result = supabase.table('user_profiles').update({
+            'role': new_role,
+            'updated_at': datetime.utcnow().isoformat()
+        }).eq('id', user_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        await log_activity(current_user.id, "user_role_update", metadata={'target_user_id': user_id, 'new_role': new_role})
+        
+        return {"message": "User role updated successfully", "user_id": user_id, "new_role": new_role}
+        
+    except Exception as e:
+        logger.error(f"User role update error: {str(e)}")
+        await log_activity(current_user.id, "user_role_update", "error", metadata={'target_user_id': user_id}, error_message=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
