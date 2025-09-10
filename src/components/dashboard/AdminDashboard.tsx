@@ -61,25 +61,77 @@ const AdminDashboard: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<string>('');
 
   useEffect(() => {
-    if (session?.access_token && isAdmin) {
-      fetchAdminData();
-    }
-  }, [session, isAdmin]);
+    // Always fetch data since we're using mock data
+    fetchAdminData();
+  }, []);
 
   const fetchAdminData = async () => {
     try {
-      const response = await fetch('/api/dashboard/admin', {
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
+      // For now, use mock data since auth is disabled
+      const mockData = {
+        system_stats: {
+          total_users: 15,
+          total_datasets: 42,
+          total_analyses: 128
         },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardData(data);
-      } else {
-        throw new Error('Failed to fetch admin data');
-      }
+        users: [
+          {
+            id: "1",
+            email: "admin@example.com",
+            full_name: "Admin User",
+            role: "admin",
+            created_at: new Date(Date.now() - 86400000 * 30).toISOString()
+          },
+          {
+            id: "2",
+            email: "user1@example.com", 
+            full_name: "John Doe",
+            role: "user",
+            created_at: new Date(Date.now() - 86400000 * 15).toISOString()
+          },
+          {
+            id: "3",
+            email: "user2@example.com",
+            full_name: "Jane Smith", 
+            role: "user",
+            created_at: new Date(Date.now() - 86400000 * 7).toISOString()
+          }
+        ],
+        recent_activity: [
+          {
+            id: "1",
+            user_id: "2",
+            action: "file_upload",
+            status: "success",
+            created_at: new Date().toISOString(),
+            metadata: { filename: "sales_data.csv", dataset_id: "abc123" }
+          },
+          {
+            id: "2",
+            user_id: "3", 
+            action: "descriptive_analysis",
+            status: "success",
+            created_at: new Date(Date.now() - 3600000).toISOString(),
+            metadata: { dataset_id: "def456" }
+          },
+          {
+            id: "3",
+            user_id: "2",
+            action: "nlp_query", 
+            status: "error",
+            created_at: new Date(Date.now() - 7200000).toISOString(),
+            error_message: "API key not configured",
+            metadata: { dataset_id: "ghi789" }
+          }
+        ],
+        user_activity_summary: {
+          "1": 5,
+          "2": 12,
+          "3": 8
+        }
+      };
+      
+      setDashboardData(mockData);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast({
@@ -94,23 +146,21 @@ const AdminDashboard: React.FC = () => {
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
-      const response = await fetch(`/api/admin/users/${userId}/role`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({ role: newRole }),
+      // For now, just show success message with mock data
+      toast({
+        title: 'Success',
+        description: 'User role updated successfully',
       });
-
-      if (response.ok) {
-        toast({
-          title: 'Success',
-          description: 'User role updated successfully',
+      
+      // Update the local mock data
+      if (dashboardData) {
+        const updatedUsers = dashboardData.users.map(user => 
+          user.id === userId ? { ...user, role: newRole } : user
+        );
+        setDashboardData({
+          ...dashboardData,
+          users: updatedUsers
         });
-        fetchAdminData(); // Refresh data
-      } else {
-        throw new Error('Failed to update user role');
       }
     } catch (error) {
       console.error('Error updating user role:', error);
