@@ -1,186 +1,136 @@
-# SavvyClean: Data Cleaning & Data Analysis App
+# SavvyClean App  
 
-## Project info
-URL: https://lovable.dev/projects/2ecea895-8960-4ad5-b705-0bc59bc94016
+A comprehensive React + FastAPI–based data cleaning and analytics tool from **Savvy Analytics** that helps businesses and analysts quickly prepare datasets, run automated analysis, and generate professional reports.  
 
----
+![Savvy Analytics](https://img.shields.io/badge/Savvy%20Analytics-SavvyClean-blue) ![React](https://img.shields.io/badge/React-18.2.0-blue) ![Vite](https://img.shields.io/badge/Vite-5.0-purple) ![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.3.0-38B2AC) ![shadcn/ui](https://img.shields.io/badge/shadcn/ui-Components-black) ![Python](https://img.shields.io/badge/Python-3.11-yellow) ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688) ![License](https://img.shields.io/badge/License-Proprietary-red)  
 
-## 🚀 How can I edit this code?
+Overview
 
-There are several ways of editing your application:
+SavvyClean is a data cleaning and analytics application that combines a React/Vite + TypeScript frontend with a Python/FastAPI backend. It enables businesses, analysts, and product owners to:
 
-### 1. Use Lovable
-Simply visit the [Lovable Project](https://lovable.dev/projects/2ecea895-8960-4ad5-b705-0bc59bc94016) and start prompting.  
-Changes made via Lovable will be committed automatically to this repo.
+Clean messy datasets with ML-powered strategies
 
-### 2. Use your preferred IDE
-If you want to work locally using your own IDE:
+Run automated analytics pipelines
 
-```bash
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Ask natural-language questions about their data
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Generate professional reports for decision-making
 
-# Step 3: Install the necessary dependencies.
-npm i
+Features
+✨ Core Functionality
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-3. Edit a file directly in GitHub
-Navigate to the desired file(s).
+Data Uploads: CSV, Excel, JSON support
 
-Click the "Edit" button (pencil icon) at the top right of the file view.
+Intelligent Cleaner: Profiles your dataset and auto-selects the best cleaning strategy
 
-Make your changes and commit them.
+Analytics Engine: Natural-language query interface for data analysis
 
-4. Use GitHub Codespaces
-Navigate to the main page of your repository.
+Report Generation: Summaries, recommendations, and export options
 
-Click on the Code button (green button).
+Compliance Ready: Built with GDPR/AI Act awareness
 
-Select the Codespaces tab.
+Responsive UI: Tailwind CSS + shadcn/ui
 
-Click on New codespace to launch an environment.
+📄 Footer Pages Implementation
 
-Edit files directly and commit/push when done.
+All footer-linked pages are scaffolded with consistent styling and responsive design:
 
-🧹 How to clean/reset your repo
-If you want to start fresh and avoid conflicts:
+Product Pages: Features, Pricing, Testimonials, API (beta)
 
-Option A: Keep Git history
-bash
-Copy code
-cd /c/Users/marvi/github-projects/savvycleanse
-git rm -r *
-git commit -m "Remove old files for fresh scaffold"
-git add .
-git commit -m "Add new scaffold"
-git push origin main
-Option B: Start completely fresh (no history)
-bash
-Copy code
-cd /c/Users/marvi/github-projects
-rm -rf savvycleanse
+Resources: Documentation, Guides, API Reference, Blog
+
+Company: About, Careers, Contact, Savvy Analytics info
+
+Style Consistency: Dark/light theme, SEO-friendly, unified brand tokens
+
+Installation
+1. Clone the repository
 git clone https://github.com/YOUR_USERNAME/savvycleanse.git
 cd savvycleanse
-🛠️ Technologies used
-Vite
 
-TypeScript
+2. Install dependencies (Frontend)
+npm install
+npm run dev
 
-React
 
-shadcn-ui
+Frontend will start at http://localhost:5173
+.
 
-Tailwind CSS
-
-Python (FastAPI backend)
-
-🐍 Python Backend (FastAPI)
-A FastAPI backend is provided in the backend directory.
-It includes a data cleaning and analytics pipeline powered by machine learning.
-Endpoints are exposed for uploading datasets, cleaning them, and answering analytics questions.
-
-Setup
-bash
-Copy code
-# Install Python dependencies
-pip install -r backend/requirements.txt
-
-# If you encounter a ModuleNotFoundError for pandas:
-pip install pandas
-
-# Run the API server
+3. Setup Backend (FastAPI)
+cd backend
+pip install -r requirements.txt
 uvicorn main:app --reload
-The API will start on http://localhost:8000.
-You can interact with routes such as:
 
-/upload
 
-/clean
+Backend will run at http://localhost:8000
+.
 
-/goal
+Available endpoints:
 
-/analyze
+/upload → upload dataset
 
-/report/summary
+/clean → intelligent cleaning pipeline
 
-/export
+/analyze → natural-language analytics
 
-The /clean endpoint uses an intelligent cleaner that profiles your data and selects the best strategy automatically.
-The /analyze endpoint accepts a natural language question about your dataset and returns the analytics type along with recommended next steps.
+/report/summary → generate reports
 
-🌍 How can I deploy this project?
-Deploy Backend (FastAPI)
-Use Render, Railway, Fly.io, or Docker.
+/export → export cleaned data
 
-Deploy Frontend (React/Vite)
-bash
-Copy code
+File Structure
+savvycleanse/
+├── frontend/               # React + Vite frontend
+│   ├── src/
+│   └── public/
+├── backend/                # FastAPI backend
+│   ├── main.py
+│   └── requirements.txt
+├── package.json
+└── README.md
+
+Technologies Used
+
+Frontend: React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui, Lucide React
+
+Backend: Python 3.11, FastAPI, Pandas, ML-powered cleaning pipeline
+
+Dev Tools: Lovable, GitHub Codespaces, Docker-ready configs
+
+Deployment
+Backend
+
+Deploy to Render, Railway, Fly.io, or Docker:
+
+uvicorn main:app --host 0.0.0.0 --port 8000
+
+Frontend
 npm run build
-Deploy the dist/ folder to Netlify, Vercel, or GitHub Pages.
+
+
+Deploy dist/ to Netlify, Vercel, or GitHub Pages.
 
 Custom Domain
-Yes! Navigate to Project > Settings > Domains and click Connect Domain.
 
-## 📄 Footer Pages Implementation
+Connect via Project > Settings > Domains in Lovable.
 
-**Footer pages scaffolded and content placeholders added.**
+Roadmap
 
-All footer-linked pages have been implemented with comprehensive content and consistent styling:
+ Expand API with more endpoints
 
-### Product Pages
-- **Features** (`/features`) - Detailed feature descriptions with icons and benefits
-- **Pricing** (`/pricing`) - Three-tier pricing structure with FAQ section
-- **Testimonials** (`/testimonials`) - Customer testimonials with ratings and stats
-- **API** (`/api`) - API overview, features, and code examples (Private Beta)
+ Add PDF report export
 
-### Resources Pages  
-- **Documentation** (`/documentation`) - Quick start guide and API examples
-- **Guides** (`/guides`) - In-depth tutorials and learning resources
-- **API Reference** (`/api-reference`) - Complete endpoint documentation
-- **Blog** (`/blog`) - Company blog with featured posts and categories
+ Integrate vector database for semantic queries
 
-### Company Pages
-- **About** (`/about`) - Company mission, values, team, and timeline
-- **Careers** (`/careers`) - Open positions with detailed job descriptions
-- **Contact** (`/contact`) - Contact form, support info, and FAQ
-- **Savvy Analytics** (`/savvy-analytics`) - Parent company information
+ Multi-user authentication & role-based access
 
-### Implementation Details
-- All pages follow consistent design patterns using Tailwind CSS and shadcn/ui components
-- Proper React Router integration with working navigation
-- Responsive design with mobile-first approach
-- Dark/light theme support maintained
-- SEO-friendly structure with proper headings and meta information
-- Consistent use of Savvy brand colors (blue, gold, dark themes)
+ Self-healing pipelines (data drift detection + correction)
 
-### Style Consistency
-All footer pages maintain visual consistency with the homepage through:
+License
 
-**Design Tokens & Colors:**
-- Uses semantic color tokens: `text-foreground`, `bg-card`, `text-muted-foreground`, `border-border`
-- Brand colors: `bg-savvy-blue`, `bg-savvy-gold`, `bg-savvy-dark`, `text-savvy-gold`
-- Consistent gradients: `bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate`
+© 2025 Savvy Analytics LLC. All rights reserved.
 
-**Layout & Spacing:**
-- Container max-width and padding: `container px-4 md:px-6`
-- Section padding: `py-16` for main sections, `py-12` for smaller sections
-- Card styling: `shadow-sm hover:shadow-lg transition-all duration-300`
-- Grid layouts: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`
+Contact
 
-**Typography:**
-- Hero headings: `text-4xl md:text-5xl font-bold`
-- Section headings: `text-3xl font-bold`
-- Card titles: `text-xl` or `text-lg`
-- Body text: `text-muted-foreground` with proper line heights
-
-**Components:**
-- Consistent use of shadcn/ui components: Card, Button, Badge, Input, Textarea
-- Same button variants and styling as homepage
-- Unified icon usage from lucide-react with consistent sizing
-
-### Routing
-Footer links now properly route to their respective pages using React Router `Link` components instead of placeholder anchor tags.
+For support or inquiries:
+Savvy Analytics
+🌐 savvyanalytics.info
