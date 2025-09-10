@@ -6,7 +6,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Activity, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
 
 interface LiveDataEntry {
   id: string;
@@ -24,7 +23,8 @@ const LiveDataStream: React.FC = () => {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [supabaseConfigured, setSupabaseConfigured] = useState(true);
-  const { user } = useAuth();
+  // Mock user since auth is removed
+  const user = { id: 'mock-user-id' };
 
   useEffect(() => {
     if (!user) return;

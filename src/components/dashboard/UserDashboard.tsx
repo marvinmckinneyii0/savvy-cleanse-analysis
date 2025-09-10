@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/components/auth/AuthProvider';
 import { 
   Upload, 
   BarChart3, 
@@ -55,7 +54,9 @@ interface DashboardStats {
 }
 
 const UserDashboard: React.FC = () => {
-  const { user, session } = useAuth();
+  // Mock user data since auth is removed
+  const user = { email: 'user@example.com' };
+  const session = { access_token: 'mock-token' };
   const { toast } = useToast();
   
   // State management

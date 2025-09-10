@@ -10,7 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Copy, Eye, EyeOff, Plus, Trash2, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
 
 interface ApiKey {
   id: string;
@@ -23,7 +22,8 @@ interface ApiKey {
 
 const ApiKeyManager: React.FC = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  // Mock user since auth is removed
+  const user = { id: 'mock-user-id' };
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [newKeyName, setNewKeyName] = useState('');
   const [loading, setLoading] = useState(false);
