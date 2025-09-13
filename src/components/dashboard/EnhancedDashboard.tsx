@@ -37,10 +37,10 @@ import {
   ReferenceLine
 } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
-import { fetchDashboardData, DashboardData, DashboardFilters } from '@/utils/dashboardApi';
+import { fetchDashboardData, DashboardData, DashboardFilterOptions } from '@/utils/dashboardApi';
 import ChartGrid from './ChartGrid';
 
-interface FilterState extends DashboardFilters {
+interface FilterState extends DashboardFilterOptions {
   customFilter: string;
 }
 

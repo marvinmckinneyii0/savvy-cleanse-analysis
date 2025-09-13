@@ -35,7 +35,7 @@ export interface DashboardData {
   recommendations?: any;
 }
 
-export interface DashboardFilters {
+export interface DashboardFilterOptions {
   analysis_mode?: string;
   date_range?: string;
   region?: string;
@@ -44,7 +44,7 @@ export interface DashboardFilters {
 
 const API_BASE_URL = 'http://localhost:8000';
 
-export const fetchDashboardData = async (filters: DashboardFilters = {}): Promise<DashboardData> => {
+export const fetchDashboardData = async (filters: DashboardFilterOptions = {}): Promise<DashboardData> => {
   const params = new URLSearchParams();
   
   Object.entries(filters).forEach(([key, value]) => {
