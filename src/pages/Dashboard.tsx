@@ -6,6 +6,7 @@ import CleaningPreview from '@/components/dashboard/CleaningPreview';
 import AnalysisTypeSelector from '@/components/dashboard/AnalysisTypeSelector';
 import AnalysisResults from '@/components/dashboard/AnalysisResults';
 import AnalyticsModelsTest from '@/components/dashboard/AnalyticsModelsTest';
+import EnhancedDashboard from '@/components/dashboard/EnhancedDashboard';
 import LiveDataStream from '@/components/dashboard/LiveDataStream';
 import ApiEndpointInfo from '@/components/dashboard/ApiEndpointInfo';
 import ApiKeyManager from '@/components/dashboard/ApiKeyManager';
@@ -68,8 +69,9 @@ const Dashboard = () => {
           </div>
 
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-5' : 'grid-cols-4'}`}>
+            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'}`}>
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="enhanced">Enhanced Analytics</TabsTrigger>
               <TabsTrigger value="file-upload">File Upload & Analysis</TabsTrigger>
               <TabsTrigger value="live-data">Live Data Stream</TabsTrigger>
               <TabsTrigger value="api-keys">API Keys</TabsTrigger>
@@ -78,6 +80,10 @@ const Dashboard = () => {
             
             <TabsContent value="overview" className="space-y-6">
               <UserDashboard />
+            </TabsContent>
+            
+            <TabsContent value="enhanced" className="space-y-6">
+              <EnhancedDashboard />
             </TabsContent>
             
             <TabsContent value="file-upload" className="space-y-6">

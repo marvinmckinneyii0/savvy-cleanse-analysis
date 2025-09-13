@@ -11,6 +11,7 @@ from io import BytesIO
 
 from cleaner import clean_dataframe
 from analytics import analyze_goal
+from dashboard_api import router as dashboard_router
 
 app = FastAPI(title="SavvyClean Backend")
 
@@ -24,6 +25,9 @@ app.add_middleware(
 
 # In-memory storage for uploaded and cleaned data
 DATA_STORAGE = {}
+
+# Include dashboard router
+app.include_router(dashboard_router)
 
 @app.post("/upload")
 async def upload(file: UploadFile = File(...)):
