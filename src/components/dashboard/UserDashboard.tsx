@@ -55,7 +55,7 @@ interface DashboardStats {
 
 const UserDashboard: React.FC = () => {
   // Mock user data since auth is removed
-  const user = { email: 'user@example.com' };
+  const user = { id: '00000000-0000-4000-8000-000000000001', email: 'user@example.com' };
   const session = { access_token: 'mock-token' };
   const { toast } = useToast();
   

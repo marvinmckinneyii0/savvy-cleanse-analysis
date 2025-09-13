@@ -23,7 +23,7 @@ interface ApiKey {
 const ApiKeyManager: React.FC = () => {
   const { toast } = useToast();
   // Mock user since auth is removed
-  const user = { id: 'mock-user-id' };
+  const user = { id: '00000000-0000-4000-8000-000000000001' };
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [newKeyName, setNewKeyName] = useState('');
   const [loading, setLoading] = useState(false);
