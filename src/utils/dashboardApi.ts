@@ -42,7 +42,7 @@ export interface DashboardFilterOptions {
   category?: string;
 }
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = '';
 
 export const fetchDashboardData = async (filters: DashboardFilterOptions = {}): Promise<DashboardData> => {
   const params = new URLSearchParams();
