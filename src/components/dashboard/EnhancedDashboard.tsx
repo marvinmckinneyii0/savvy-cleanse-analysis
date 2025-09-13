@@ -39,7 +39,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { fetchDashboardData, DashboardData, DashboardFilters } from '@/utils/dashboardApi';
 import ChartGrid from './ChartGrid';
-import { DashboardFilters } from './DashboardFilters';
 
 interface FilterState extends DashboardFilters {
   customFilter: string;
