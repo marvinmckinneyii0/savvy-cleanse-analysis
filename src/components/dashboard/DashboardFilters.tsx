@@ -21,7 +21,7 @@ interface DashboardFiltersProps {
   loading?: boolean;
 }
 
-const DashboardFilters: React.FC<DashboardFiltersProps> = ({
+export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   filters,
   onFilterChange,
   onApplyFilters,
@@ -130,5 +130,3 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     </Card>
   );
 };
-
-export default DashboardFilters;
