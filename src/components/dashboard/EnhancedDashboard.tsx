@@ -41,7 +41,10 @@ import { fetchDashboardData, DashboardData, DashboardFilterOptions } from '@/uti
 import ChartGrid from './ChartGrid';
 import { DashboardFilters } from './DashboardFilters';
 
-interface FilterState extends DashboardFilterOptions {
+interface FilterState {
+  dateRange: string;
+  region: string;
+  category: string;
   customFilter: string;
 }
 
