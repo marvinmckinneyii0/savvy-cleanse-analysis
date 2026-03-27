@@ -97,7 +97,7 @@ const LiveDataStream: React.FC = () => {
     if (!supabaseConfigured || !user) return;
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('live_data_stream')
         .select('*')
         .eq('user_id', user.id)

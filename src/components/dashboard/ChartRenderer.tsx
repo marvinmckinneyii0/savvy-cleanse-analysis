@@ -195,7 +195,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, value, percentage }) => `${name}: ${percentage || Math.round((value / data.reduce((sum, item) => sum + item.value, 0)) * 100)}%`}
+              label={({ name, value, percent }: any) => `${name}: ${percent ? Math.round(percent * 100) : Math.round((value / data.reduce((sum: number, item: any) => sum + item.value, 0)) * 100)}%`}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
