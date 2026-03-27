@@ -42,61 +42,50 @@ export interface DashboardFilterOptions {
   category?: string;
 }
 
-const API_BASE_URL = '';
+const generateMockData = (filters: DashboardFilterOptions = {}): DashboardData => {
+  const mode = filters.analysis_mode || 'descriptive';
+  
+  return {
+    sales_performance: [
+      { month: 'Jan', sales: 4200, target: 4000 },
+      { month: 'Feb', sales: 3800, target: 4100 },
+      { month: 'Mar', sales: 5100, target: 4200 },
+      { month: 'Apr', sales: 4600, target: 4300 },
+      { month: 'May', sales: 5400, target: 4400 },
+      { month: 'Jun', sales: 4900, target: 4500 }
+    ],
+    market_share: [
+      { name: 'Product A', value: 4500, percentage: 35 },
+      { name: 'Product B', value: 3200, percentage: 25 },
+      { name: 'Product C', value: 2600, percentage: 20 },
+      { name: 'Product D', value: 1900, percentage: 15 },
+      { name: 'Others', value: 650, percentage: 5 }
+    ],
+    user_engagement: [
+      { week: 'Week 1', active_users: 1200, new_users: 180 },
+      { week: 'Week 2', active_users: 1350, new_users: 220 },
+      { week: 'Week 3', active_users: 1180, new_users: 160 },
+      { week: 'Week 4', active_users: 1420, new_users: 280 }
+    ],
+    quarterly_performance: [
+      { quarter: 'Q1 2023', revenue: 125000, growth: 12 },
+      { quarter: 'Q2 2023', revenue: 142000, growth: 18 },
+      { quarter: 'Q3 2023', revenue: 158000, growth: 22 },
+      { quarter: 'Q4 2023', revenue: 175000, growth: 28 }
+    ],
+    metadata: {
+      generated_at: new Date().toISOString(),
+      analysis_mode: mode,
+      filters_applied: filters as Record<string, string>,
+      data_quality_score: 8.9,
+      last_updated: new Date().toISOString()
+    }
+  };
+};
 
 export const fetchDashboardData = async (filters: DashboardFilterOptions = {}): Promise<DashboardData> => {
-  const params = new URLSearchParams();
-  
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value) {
-      params.append(key, value);
-    }
-  });
-
-  const url = `${API_BASE_URL}/dashboard/data?${params.toString()}`;
-  
-  try {
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching dashboard data:', error);
-    
-    // Return fallback mock data if API is not available
-    return {
-      sales_performance: [
-        { month: 'Jan', sales: 4200, target: 4000 },
-        { month: 'Feb', sales: 3800, target: 4100 },
-        { month: 'Mar', sales: 5100, target: 4200 },
-        { month: 'Apr', sales: 4600, target: 4300 },
-        { month: 'May', sales: 5400, target: 4400 },
-        { month: 'Jun', sales: 4900, target: 4500 }
-      ],
-      market_share: [
-        { name: 'Product A', value: 4500, percentage: 35 },
-        { name: 'Product B', value: 3200, percentage: 25 },
-        { name: 'Product C', value: 2600, percentage: 20 },
-        { name: 'Product D', value: 1900, percentage: 15 },
-        { name: 'Others', value: 650, percentage: 5 }
-      ],
-      user_engagement: [
-        { week: 'Week 1', active_users: 1200, new_users: 180 },
-        { week: 'Week 2', active_users: 1350, new_users: 220 },
-        { week: 'Week 3', active_users: 1180, new_users: 160 },
-        { week: 'Week 4', active_users: 1420, new_users: 280 }
-      ],
-      quarterly_performance: [
-        { quarter: 'Q1 2023', revenue: 125000, growth: 12 },
-        { quarter: 'Q2 2023', revenue: 142000, growth: 18 },
-        { quarter: 'Q3 2023', revenue: 158000, growth: 22 },
-        { quarter: 'Q4 2023', revenue: 175000, growth: 28 }
-      ]
-    };
-  }
+  // Return local mock data (no backend server available)
+  return generateMockData(filters);
 };
 
 export const runDashboardAnalysis = async (
