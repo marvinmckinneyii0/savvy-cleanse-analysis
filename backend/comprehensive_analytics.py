@@ -1,3 +1,8 @@
+# STATUS: Legacy reference implementation
+# This module is NOT part of the SavvyCortex pipeline.
+# Reusable logic has been extracted into pipeline/ and models/.
+# Retained for web API compatibility until Phase 3 integration.
+
 """
 Comprehensive Analytics Module for SavvyCleanse
 Implements descriptive, diagnostic, predictive, and prescriptive analytics
@@ -13,8 +18,7 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.metrics import accuracy_score, r2_score, mean_squared_error, classification_report
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-import warnings
-warnings.filterwarnings('ignore')
+import warnings  # retained for downstream warning emission; global suppression removed in Story 1.1
 
 
 class DescriptiveAnalytics:
