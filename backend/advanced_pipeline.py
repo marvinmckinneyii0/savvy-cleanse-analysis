@@ -1,3 +1,8 @@
+# STATUS: Legacy reference implementation
+# This module is NOT part of the SavvyCortex pipeline.
+# Reusable logic has been extracted into pipeline/ and models/.
+# Retained for web API compatibility until Phase 3 integration.
+
 import pandas as pd
 import numpy as np
 from sklearn.impute import SimpleImputer, KNNImputer
@@ -5,9 +10,7 @@ from sklearn.ensemble import IsolationForest
 from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
-import warnings
-
-warnings.filterwarnings('ignore')
+import warnings  # retained for downstream warning emission; global suppression removed in Story 1.1
 
 
 class AnalyticsType(Enum):

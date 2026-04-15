@@ -1,3 +1,8 @@
+# STATUS: Legacy reference implementation
+# This module is NOT part of the SavvyCortex pipeline.
+# Reusable logic has been extracted into pipeline/ and models/.
+# Retained for web API compatibility until Phase 3 integration.
+
 """
 Natural Language Processing module for SavvyCleanse
 Handles natural language queries and maps them to appropriate analytics
@@ -316,33 +321,5 @@ Generate a natural language response that directly answers the user's question."
         return "Analysis completed. Please check the detailed results for specific insights."
 
 
-# Example usage and testing functions
-def test_nlp_processor():
-    """Test function for NLP processor"""
-    # Create sample data
-    data = {
-        'sales': [100, 150, 200, 180, 220, 250, 300],
-        'marketing_spend': [10, 15, 25, 20, 30, 35, 40],
-        'temperature': [20, 25, 30, 28, 32, 35, 38],
-        'season': ['winter', 'spring', 'summer', 'summer', 'summer', 'fall', 'fall']
-    }
-    df = pd.DataFrame(data)
-    
-    # Test queries
-    test_queries = [
-        "What's the average sales?",
-        "How does marketing spend relate to sales?",
-        "Can you predict future sales?",
-        "What should I do to maximize sales?"
-    ]
-    
-    processor = NLPProcessor(llm_provider="openai")  # Would need API key
-    
-    for query in test_queries:
-        print(f"\nQuery: {query}")
-        result = processor._fallback_intent_analysis(query, df)  # Using fallback for testing
-        print(f"Intent: {result}")
-
-
-if __name__ == "__main__":
-    test_nlp_processor()
+# Demo block (test_nlp_processor + __main__) removed in Story 1.1 — see
+# backend/tests/ for the replacement pytest suite.

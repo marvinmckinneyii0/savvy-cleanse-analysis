@@ -1,0 +1,14 @@
+[project]
+name = "savvycortex"
+version = "0.1.0"
+description = "SavvyCortex data quality and insight pipeline."
+requires-python = ">=3.13"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+addopts = "-ra -q"
+markers = [
+    "integration: stage-to-stage tests that exercise multiple pipeline modules together",
+    "e2e: end-to-end tests that run the CLI or API against a real CSV fixture",
+]

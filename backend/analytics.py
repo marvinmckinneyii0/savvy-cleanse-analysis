@@ -1,3 +1,7 @@
+# STATUS: LEGACY — deprecate. Scheduled for removal alongside advanced_pipeline.py
+# in Phase 3 when backend/api/ takes over request handling. Do NOT import from
+# new code — this module is a thin adapter over the legacy reference pipeline.
+
 import pandas as pd
 from typing import Any, Dict
 

@@ -2,8 +2,17 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://vdvqbmuibmtlqmrrzaef.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkdnFibXVpYm10bHFtcnJ6YWVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTUyNDUsImV4cCI6MjA5MDE5MTI0NX0.7ktkwE8jd2t-5WxpydwCYsBG6Vl7oVcpUX013clVI0E";
+// Day-1 Debt fix (Story 1.1): read from env instead of hardcoding.
+// See .env.example for the expected VITE_SUPABASE_* variables.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set in the environment. ' +
+    'Copy .env.example to .env and populate with your Supabase project credentials.',
+  );
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

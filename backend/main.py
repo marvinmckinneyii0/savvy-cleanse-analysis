@@ -1,3 +1,8 @@
+# STATUS: Legacy reference implementation
+# This module is NOT part of the SavvyCortex pipeline.
+# Reusable logic has been extracted into pipeline/ and models/.
+# Retained for web API compatibility until Phase 3 integration.
+
 from fastapi import FastAPI, File, UploadFile, Depends
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,6 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# DEBT: replaced by backend/db/ in Phase 3; do not import from new code
 # In-memory storage for uploaded and cleaned data
 DATA_STORAGE = {}
 
