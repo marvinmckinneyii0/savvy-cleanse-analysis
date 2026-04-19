@@ -1,0 +1,111 @@
+# generated: 2026-04-14
+# last_updated: 2026-04-14
+# project: SavvyCortex
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: C:/Users/marvi/savvy-cleanse-analysis/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-14
+last_updated: 2026-04-14
+project: SavvyCortex
+project_key: NOKEY
+tracking_system: file-system
+story_location: C:/Users/marvi/savvy-cleanse-analysis/_bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Data Quality & Insight Reports (CLI)
+  epic-1: in-progress
+  1-1-project-scaffolding-pipeline-foundation: ready-for-dev
+  1-2-data-quality-assessment-engine: backlog
+  1-3-insight-engine: backlog
+  1-4-llm-narrative-generation: backlog
+  1-5-document-rendering: backlog
+  1-6-pipeline-orchestration-cli-entry-point: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Automated Reporting & Data Monitoring
+  epic-2: backlog
+  2-1-configuration-layer: backlog
+  2-2-drift-engine: backlog
+  2-3-reporting-agent: backlog
+  2-4-monitoring-agent-alert-delivery: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Web Application & Customer Dashboard
+  epic-3: backlog
+  3-1-database-schema-auth-foundation: backlog
+  3-2-file-upload-pipeline-integration: backlog
+  3-3-analysis-configuration-ui: backlog
+  3-4-report-viewer-history: backlog
+  3-5-alert-dashboard-timeline: backlog
+  3-6-alert-configuration-ui: backlog
+  3-7-pipeline-health-dashboard: backlog
+  3-8-drift-history-view: backlog
+  3-9-usage-meter: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Subscription Billing
+  epic-4: backlog
+  4-1-stripe-integration-plan-tiers: backlog
+  4-2-webhook-handling-subscription-lifecycle: backlog
+  4-3-usage-tracking-limit-enforcement: backlog
+  4-4-billing-ui-free-trial: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Multi-Tenant Scale & Production Hardening
+  epic-5: backlog
+  5-1-multi-tenant-data-isolation: backlog
+  5-2-async-processing-pipeline: backlog
+  5-3-observability-error-tracking: backlog
+  5-4-security-hardening-owasp-review: backlog
+  5-5-containerized-deployment-ci-cd: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Admin Control Plane
+  epic-6: backlog
+  6-1-role-hierarchy-admin-auth: backlog
+  6-2-audit-log: backlog
+  6-3-tenant-management: backlog
+  6-4-user-management-api-tokens: backlog
+  6-5-system-health-dashboard: backlog
+  6-6-billing-overview: backlog
+  6-7-customer-journey-tracking: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Advanced Analytics & Self-Service API
+  epic-7: backlog
+  7-1-advanced-analytics-engine: backlog
+  7-2-custom-monitoring-rules-digest-reports: backlog
+  7-3-natural-language-querying: backlog
+  7-4-client-self-service-report-customization: backlog
+  7-5-versioned-rest-api-webhooks: backlog
+  epic-7-retrospective: optional
