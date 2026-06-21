@@ -69,7 +69,7 @@ class LLMProviderError(PipelineStageError):
     tried; ``cause`` is the underlying transport or SDK exception.
     """
 
-    def __init__(self, message: str, *, provider: str, cause: Exception | None = None) -> None:
+    def __init__(self, message: str, provider: str = "unknown", cause: Exception | None = None) -> None:
         super().__init__(message)
         self.provider: str = provider
         self.cause: Exception | None = cause

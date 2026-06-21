@@ -1,6 +1,6 @@
 # Story 1.1: Project Scaffolding & Pipeline Foundation
 
-Status: ready-for-dev
+Status: review
 
 <!-- Validation is optional. Run validate-create-story for a quality check before dev-story. -->
 
@@ -41,68 +41,68 @@ The AC below comes verbatim from [epics.md:218-237](../planning-artifacts/epics.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1 — Directory scaffolding** (AC: directories + `__init__.py`)
-  - [ ] Create `backend/pipeline/`, `backend/models/`, `backend/agents/`, `backend/renderers/`, `backend/baselines/`, `backend/errors/`, `backend/tests/`
-  - [ ] Add empty `__init__.py` to every new directory (including `backend/__init__.py` if missing)
-  - [ ] Add `backend/baselines/.gitkeep` (runtime-populated JSON directory per architecture spec)
-  - [ ] Add `backend/renderers/templates/` subdirectory with `.gitkeep` (populated in Story 1.5)
-  - [ ] Confirm `python -m backend.agents.reporting_agent` resolves the module path (architecture minor issue note, [architecture.md:837](../planning-artifacts/architecture.md))
+- [x] **Task 1 — Directory scaffolding** (AC: directories + `__init__.py`)
+  - [x] Create `backend/pipeline/`, `backend/models/`, `backend/agents/`, `backend/renderers/`, `backend/baselines/`, `backend/errors/`, `backend/tests/`
+  - [x] Add empty `__init__.py` to every new directory (including `backend/__init__.py` if missing)
+  - [x] Add `backend/baselines/.gitkeep` (runtime-populated JSON directory per architecture spec)
+  - [x] Add `backend/renderers/templates/` subdirectory with `.gitkeep` (populated in Story 1.5)
+  - [x] Confirm `python -m backend.agents.reporting_agent` resolves the module path (architecture minor issue note, [architecture.md:837](../planning-artifacts/architecture.md))
 
-- [ ] **Task 2 — pyproject.toml + pytest config** (AC: pyproject.toml)
-  - [ ] Create `pyproject.toml` at repo root (NOT inside `backend/`) per [architecture.md:574](../planning-artifacts/architecture.md) and [project-context.md](../project-context.md)
-  - [ ] Include `[project]` metadata (name=`savvycortex`, Python `>=3.13`)
-  - [ ] Include `[tool.pytest.ini_options]` with `testpaths = ["backend/tests"]`, `python_files = ["test_*.py"]`, `addopts = "-ra -q"`
-  - [ ] Include `[tool.pytest.ini_options] markers` entries for `integration` and `e2e`
-  - [ ] Do NOT add `warnings.filterwarnings` in pytest config — legitimate warnings must surface
+- [x] **Task 2 — pyproject.toml + pytest config** (AC: pyproject.toml)
+  - [x] Create `pyproject.toml` at repo root (NOT inside `backend/`) per [architecture.md:574](../planning-artifacts/architecture.md) and [project-context.md](../project-context.md)
+  - [x] Include `[project]` metadata (name=`savvycortex`, Python `>=3.13`)
+  - [x] Include `[tool.pytest.ini_options]` with `testpaths = ["backend/tests"]`, `python_files = ["test_*.py"]`, `addopts = "-ra -q"`
+  - [x] Include `[tool.pytest.ini_options] markers` entries for `integration` and `e2e`
+  - [x] Do NOT add `warnings.filterwarnings` in pytest config — legitimate warnings must surface
 
-- [ ] **Task 3 — Error hierarchy** (AC: `backend/errors/exceptions.py`)
-  - [ ] Define `SavvyCleanseError(Exception)` as root
-  - [ ] Define `PipelineStageError(SavvyCleanseError)`
-  - [ ] Define `LLMProviderError(PipelineStageError)` accepting `provider: str` + optional `cause: Exception`
-  - [ ] Define `ReportRenderError(PipelineStageError)`
-  - [ ] Define `DriftComputationError(PipelineStageError)`
-  - [ ] Define `ConfigurationError(SavvyCleanseError)` — NOTE: sibling of `PipelineStageError`, NOT a child
-  - [ ] Add docstrings explaining the Result-vs-Exception split (see [architecture.md:482-506](../planning-artifacts/architecture.md))
-  - [ ] Add full type hints
+- [x] **Task 3 — Error hierarchy** (AC: `backend/errors/exceptions.py`)
+  - [x] Define `SavvyCleanseError(Exception)` as root
+  - [x] Define `PipelineStageError(SavvyCleanseError)`
+  - [x] Define `LLMProviderError(PipelineStageError)` accepting `provider: str` + optional `cause: Exception`
+  - [x] Define `ReportRenderError(PipelineStageError)`
+  - [x] Define `DriftComputationError(PipelineStageError)`
+  - [x] Define `ConfigurationError(SavvyCleanseError)` — NOTE: sibling of `PipelineStageError`, NOT a child
+  - [x] Add docstrings explaining the Result-vs-Exception split (see [architecture.md:482-506](../planning-artifacts/architecture.md))
+  - [x] Add full type hints
 
-- [ ] **Task 4 — PipelineResult contract** (AC: `backend/models/pipeline_result.py`)
-  - [ ] Define `PipelineResult` as a `@dataclass` (per architecture.md:486-494 — NOT a Pydantic model; this is the only structural exception because future stages may populate it post-construction)
-  - [ ] Fields (exact signature, types via forward refs / `TYPE_CHECKING` import if needed to avoid circular imports):
+- [x] **Task 4 — PipelineResult contract** (AC: `backend/models/pipeline_result.py`)
+  - [x] Define `PipelineResult` as a `@dataclass` (per architecture.md:486-494 — NOT a Pydantic model; this is the only structural exception because future stages may populate it post-construction)
+  - [x] Fields (exact signature, types via forward refs / `TYPE_CHECKING` import if needed to avoid circular imports):
     - `success: bool`
     - `halted: bool = False`
     - `halt_reason: str | None = None`
     - `quality_report: "DataQualityReport | None" = None`
     - `insight_report: "InsightReport | None" = None`
     - `drift_report: "DriftReport | None" = None`
-  - [ ] Do NOT import the three Pydantic report models yet — they don't exist. Use string forward references. Add a `TYPE_CHECKING` block importing them so type-checkers still see them.
+  - [x] Do NOT import the three Pydantic report models yet — they don't exist. Use string forward references. Add a `TYPE_CHECKING` block importing them so type-checkers still see them.
 
-- [ ] **Task 5 — structlog configuration** (AC: structlog JSON + pipeline_run_id)
-  - [ ] Create `backend/pipeline/config.py` with a `configure_logging()` function and a `PipelineConfig` dataclass stub (full fields land in Story 1.6; this story only needs the hook)
-  - [ ] `configure_logging()` installs processors: `structlog.contextvars.merge_contextvars`, `structlog.processors.add_log_level`, `structlog.processors.TimeStamper(fmt="iso", utc=True)`, `structlog.processors.StackInfoRenderer()`, `structlog.processors.format_exc_info`, `structlog.processors.JSONRenderer()`
-  - [ ] Add a helper `bind_pipeline_run_id(run_id: str) -> None` that calls `structlog.contextvars.bind_contextvars(pipeline_run_id=run_id)` so every subsequent log from any stage inherits it
-  - [ ] Do NOT call `logging.basicConfig()` (anti-pattern per [architecture.md:542](../planning-artifacts/architecture.md))
-  - [ ] Do NOT call `configure_logging()` at import time — callers (CLI, tests, FastAPI app) invoke it explicitly
+- [x] **Task 5 — structlog configuration** (AC: structlog JSON + pipeline_run_id)
+  - [x] Create `backend/pipeline/config.py` with a `configure_logging()` function and a `PipelineConfig` dataclass stub (full fields land in Story 1.6; this story only needs the hook)
+  - [x] `configure_logging()` installs processors: `structlog.contextvars.merge_contextvars`, `structlog.processors.add_log_level`, `structlog.processors.TimeStamper(fmt="iso", utc=True)`, `structlog.processors.StackInfoRenderer()`, `structlog.processors.format_exc_info`, `structlog.processors.JSONRenderer()`
+  - [x] Add a helper `bind_pipeline_run_id(run_id: str) -> None` that calls `structlog.contextvars.bind_contextvars(pipeline_run_id=run_id)` so every subsequent log from any stage inherits it
+  - [x] Do NOT call `logging.basicConfig()` (anti-pattern per [architecture.md:542](../planning-artifacts/architecture.md))
+  - [x] Do NOT call `configure_logging()` at import time — callers (CLI, tests, FastAPI app) invoke it explicitly
 
-- [ ] **Task 6 — conftest.py fixtures** (AC: `backend/tests/conftest.py`)
-  - [ ] Create `backend/tests/conftest.py`
-  - [ ] Fixture `clean_sales_df` — pandas DataFrame with 3 columns (`date: datetime64`, `region: str`, `revenue: float`), ~50 rows, no nulls, no duplicates, monotonic dates, realistic revenue range
-  - [ ] Fixture `dirty_sales_df` — same schema, but seeded with KNOWN defects: ≥50% nulls in `revenue` (triggers Critical completeness), duplicate row, non-monotonic date, one negative revenue (statistical red flag), one row with string `"N/A"` in the revenue column for dtype coercion testing
-  - [ ] Fixture `mock_llm_client` — returns a `unittest.mock.MagicMock` configured so `client.messages.parse(...)` returns a dummy object with `.output_parsed` set; Story 1.4 will flesh this out but a no-op stub is sufficient here
-  - [ ] Fixture `pipeline_run_id` — generates a `uuid.uuid4().hex` string per test
-  - [ ] Add a session-scoped autouse fixture that calls `configure_logging()` from Task 5 once per session so every test's log output is JSON-formatted
-  - [ ] Add a test file `backend/tests/test_conftest.py` that asserts each fixture loads and has expected shape — this satisfies "`pytest backend/tests/` runs successfully with at least the conftest fixtures validated"
+- [x] **Task 6 — conftest.py fixtures** (AC: `backend/tests/conftest.py`)
+  - [x] Create `backend/tests/conftest.py`
+  - [x] Fixture `clean_sales_df` — pandas DataFrame with 3 columns (`date: datetime64`, `region: str`, `revenue: float`), ~50 rows, no nulls, no duplicates, monotonic dates, realistic revenue range
+  - [x] Fixture `dirty_sales_df` — same schema, but seeded with KNOWN defects: ≥50% nulls in `revenue` (triggers Critical completeness), duplicate row, non-monotonic date, one negative revenue (statistical red flag), one row with string `"N/A"` in the revenue column for dtype coercion testing
+  - [x] Fixture `mock_llm_client` — returns a `unittest.mock.MagicMock` configured so `client.messages.parse(...)` returns a dummy object with `.output_parsed` set; Story 1.4 will flesh this out but a no-op stub is sufficient here
+  - [x] Fixture `pipeline_run_id` — generates a `uuid.uuid4().hex` string per test
+  - [x] Add a session-scoped autouse fixture that calls `configure_logging()` from Task 5 once per session so every test's log output is JSON-formatted
+  - [x] Add a test file `backend/tests/test_conftest.py` that asserts each fixture loads and has expected shape — this satisfies "`pytest backend/tests/` runs successfully with at least the conftest fixtures validated"
 
-- [ ] **Task 7 — Six Day-1 tech debt fixes** (AC: 6 Day-1 items fixed)
+- [x] **Task 7 — Six Day-1 tech debt fixes** (AC: 6 Day-1 items fixed)
   - See **"Day-1 Tech Debt Punch List"** below for the exact file-and-line targets. Each item is independently verifiable.
 
-- [ ] **Task 8 — Legacy STATUS headers** (AC: legacy STATUS comments)
-  - [ ] Prepend the exact STATUS block from [architecture.md:117-122](../planning-artifacts/architecture.md) to each of: `backend/advanced_pipeline.py`, `backend/comprehensive_analytics.py`, `backend/nlp_processor.py`, `backend/main.py`, `backend/dashboard_api.py`
-  - [ ] Note: `backend/main_enhanced.py` is separately labeled "do not use (hardcoded credentials)" in [architecture.md:686](../planning-artifacts/architecture.md) — it gets a **stronger** STATUS header: `# STATUS: DO NOT USE — hardcoded credentials. Replaced by Phase 3 api/ router.`
-  - [ ] `backend/analytics.py` is labeled "LEGACY — deprecate" in [architecture.md:684](../planning-artifacts/architecture.md) — also gets a STATUS header
-  - [ ] `backend/cleaner.py` is "EXISTING — reuse as-is (factory refactor only)" — do NOT add a legacy STATUS header; out of scope for this story
+- [x] **Task 8 — Legacy STATUS headers** (AC: legacy STATUS comments)
+  - [x] Prepend the exact STATUS block from [architecture.md:117-122](../planning-artifacts/architecture.md) to each of: `backend/advanced_pipeline.py`, `backend/comprehensive_analytics.py`, `backend/nlp_processor.py`, `backend/main.py`, `backend/dashboard_api.py`
+  - [x] Note: `backend/main_enhanced.py` is separately labeled "do not use (hardcoded credentials)" in [architecture.md:686](../planning-artifacts/architecture.md) — it gets a **stronger** STATUS header: `# STATUS: DO NOT USE — hardcoded credentials. Replaced by Phase 3 api/ router.`
+  - [x] `backend/analytics.py` is labeled "LEGACY — deprecate" in [architecture.md:684](../planning-artifacts/architecture.md) — also gets a STATUS header
+  - [x] `backend/cleaner.py` is "EXISTING — reuse as-is (factory refactor only)" — do NOT add a legacy STATUS header; out of scope for this story
 
-- [ ] **Task 9 — .env.example** (AC: `.env.example`)
-  - [ ] Create `.env.example` at repo root with placeholder keys and NO real values:
+- [x] **Task 9 — .env.example** (AC: `.env.example`)
+  - [x] Create `.env.example` at repo root with placeholder keys and NO real values:
     ```
     # Anthropic (Phase 1 narrative generator)
     ANTHROPIC_API_KEY=
@@ -122,15 +122,15 @@ The AC below comes verbatim from [epics.md:218-237](../planning-artifacts/epics.
     VITE_SUPABASE_URL=
     VITE_SUPABASE_ANON_KEY=
     ```
-  - [ ] Confirm `.env` (actual secrets) is in `.gitignore` — it already is per [.gitignore:32](../../.gitignore)
-  - [ ] Do NOT commit any real Supabase URLs, anon keys, or service role keys
+  - [x] Confirm `.env` (actual secrets) is in `.gitignore` — it already is per [.gitignore:32](../../.gitignore)
+  - [x] Do NOT commit any real Supabase URLs, anon keys, or service role keys
 
-- [ ] **Task 10 — Verification pass** (AC: `pytest backend/tests/` green)
-  - [ ] Run `pytest backend/tests/` from repo root; all conftest-validation tests pass
-  - [ ] Run `python -c "from backend.errors.exceptions import SavvyCleanseError, LLMProviderError; raise LLMProviderError('test')"` and confirm the exception type chain is correct
-  - [ ] Run `python -c "from backend.models.pipeline_result import PipelineResult; print(PipelineResult(success=True))"` and confirm it instantiates
-  - [ ] Run `python -c "from backend.pipeline.config import configure_logging, bind_pipeline_run_id; configure_logging(); bind_pipeline_run_id('abc'); import structlog; structlog.get_logger().info('scaffolding_verified')"` and confirm the output is JSON with `pipeline_run_id=abc`
-  - [ ] grep for anti-patterns one more time — zero hits allowed in files NOT marked LEGACY: `warnings.filterwarnings`, `DATA_STORAGE`, bare `print(` (in non-CLI code), hardcoded `https://*.supabase.co`
+- [x] **Task 10 — Verification pass** (AC: `pytest backend/tests/` green)
+  - [x] Run `pytest backend/tests/` from repo root; all conftest-validation tests pass
+  - [x] Run `python -c "from backend.errors.exceptions import SavvyCleanseError, LLMProviderError; raise LLMProviderError('test')"` and confirm the exception type chain is correct
+  - [x] Run `python -c "from backend.models.pipeline_result import PipelineResult; print(PipelineResult(success=True))"` and confirm it instantiates
+  - [x] Run `python -c "from backend.pipeline.config import configure_logging, bind_pipeline_run_id; configure_logging(); bind_pipeline_run_id('abc'); import structlog; structlog.get_logger().info('scaffolding_verified')"` and confirm the output is JSON with `pipeline_run_id=abc`
+  - [x] grep for anti-patterns one more time — zero hits allowed in files NOT marked LEGACY: `warnings.filterwarnings`, `DATA_STORAGE`, bare `print(` (in non-CLI code), hardcoded `https://*.supabase.co`
 
 ---
 
@@ -322,23 +322,69 @@ Load [project-context.md](../project-context.md) before you start. Specifically 
 
 ### Agent Model Used
 
-_(to be filled by dev-story workflow)_
+Codex (GPT-5)
+
+### Implementation Plan
+
+- Preserve the brownfield legacy modules in place and add the Phase 1 package scaffolding alongside them.
+- Keep new backend foundation code typed, import-safe, and free of import-time logging configuration.
+- Validate the foundation with pytest fixture tests and the explicit story verification commands.
 
 ### Debug Log References
 
-_(to be filled during implementation — include any structlog JSON snippets that verify correlation IDs work)_
+- 2026-06-19: Initial red validation found missing local pytest/structlog, missing `backend.agents.reporting_agent`, and `LLMProviderError('test')` constructor incompatibility.
+- 2026-06-19: Installed pytest/structlog into the bundled Codex Python runtime after sandbox network approval for validation only.
+- 2026-06-19: `python -m backend.agents.reporting_agent` exits successfully with the no-op placeholder module.
+- 2026-06-19: Exception hierarchy assertion passed: `LLMProviderError` is also a `PipelineStageError` and `SavvyCleanseError`.
+- 2026-06-19: Structlog verification emitted JSON with the required correlation ID: `{"event": "scaffolding_verified", "pipeline_run_id": "abc", "level": "info", "timestamp": "2026-06-19T18:14:34.212604Z"}`.
+- 2026-06-19: Anti-pattern grep found zero hits for `warnings.filterwarnings`, hardcoded `https://*.supabase.co`, and backend debug `print(`.
+- 2026-06-19: `npm run lint` could not run because this worktree has no `node_modules` and the system npm shim points to a missing global `npm-cli.js`.
 
 ### Completion Notes List
 
-_(to be filled on completion — flag any UNFIXED debt items here)_
+- Created/verified backend package scaffolding, pytest configuration, shared fixtures, error hierarchy, pipeline result contract, and structlog correlation-ID hook.
+- Fixed Day-1 debt: removed warning suppression, moved Supabase credentials to env vars, labeled legacy modules, documented `DATA_STORAGE` debt, removed the legacy NLP demo print block, and established the typed error hierarchy.
+- Added `backend/agents/reporting_agent.py` as a minimal no-op module-path placeholder to satisfy the explicit `python -m backend.agents.reporting_agent` verification. Full Typer CLI behavior remains deferred to Story 2.3.
+- Backend tests pass: `17 passed`.
+- No unfixed story-blocking debt remains.
 
 ### File List
 
-_(enumerated on completion — should match the "File Structure Requirements" section above; any deviation requires a note)_
+- `.env.example`
+- `pyproject.toml`
+- `backend/__init__.py`
+- `backend/advanced_pipeline.py`
+- `backend/agents/__init__.py`
+- `backend/agents/reporting_agent.py` (deviation: minimal placeholder required by Task 1 module-path check)
+- `backend/analytics.py`
+- `backend/baselines/.gitkeep`
+- `backend/comprehensive_analytics.py`
+- `backend/dashboard_api.py`
+- `backend/errors/__init__.py`
+- `backend/errors/exceptions.py`
+- `backend/main.py`
+- `backend/main_enhanced.py`
+- `backend/models/__init__.py`
+- `backend/models/pipeline_result.py`
+- `backend/nlp_processor.py`
+- `backend/pipeline/__init__.py`
+- `backend/pipeline/config.py`
+- `backend/renderers/__init__.py`
+- `backend/renderers/templates/.gitkeep`
+- `backend/requirements.txt`
+- `backend/tests/__init__.py`
+- `backend/tests/conftest.py`
+- `backend/tests/test_conftest.py`
+- `src/integrations/supabase/client.ts`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+### Change Log
+
+- 2026-06-19: Completed Story 1.1 foundation scaffolding and Day-1 debt fixes; validated backend tests and explicit verification commands.
 
 ---
 
 ## Story Completion Status
 
-- **Status:** ready-for-dev
-- **Completion note:** Ultimate context engine analysis completed — comprehensive developer guide created. All 6 Day-1 tech debt items have verified file-and-line targets. No prior story context applies (this is Story 1.1). Scaffolding paths align with the architecture target-state tree without deviations. Verification commands in Task 10 give the dev agent a deterministic done/not-done signal.
+- **Status:** review
+- **Completion note:** Foundation scaffolding is implemented and validated. All tasks/subtasks are complete, Day-1 debt fixes are applied, backend fixture tests pass, and the story is ready for review.
