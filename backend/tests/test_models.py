@@ -1,7 +1,16 @@
-"""Basic model instantiation tests for quality_report.py models."""
+"""Basic model instantiation tests for quality_report.py and insight_payload.py models."""
 
 from __future__ import annotations
 
+from backend.models.insight_payload import (
+    AnomalyRecord,
+    ColumnSummary,
+    InsightPayload,
+    Recommendation,
+    SegmentComparison,
+    TrendAnalysis,
+    TrendPoint,
+)
 from backend.models.quality_report import (
     ColumnProfile,
     DataQualityDefect,
@@ -156,3 +165,157 @@ class TestDataQualityReport:
         assert report.has_critical_issues is True
         assert len(report.defects) == 1
         assert report.halt_reason is not None
+
+
+# ---- InsightPayload models (Story 1.3) ----
+
+
+class TestColumnSummary:
+    def test_numeric_column(self) -> None:
+        cs = ColumnSummary(
+            column_name="revenue",
+            dtype="numeric",
+            count=50,
+            null_count=0,
+            null_pct=0.0,
+            unique_count=50,
+            sum_val=50000.0,
+            mean_val=1000.0,
+            min_val=100.0,
+            max_val=5000.0,
+            std_val=800.0,
+            median_val=900.0,
+            q25_val=500.0,
+            q75_val=1400.0,
+            growth_rate=0.45,
+        )
+        assert cs.column_name == "revenue"
+        assert cs.growth_rate == 0.45
+
+    def test_categorical_column(self) -> None:
+        cs = ColumnSummary(
+            column_name="region",
+            dtype="categorical",
+            count=50,
+            null_count=0,
+            null_pct=0.0,
+            unique_count=4,
+            top_values=[{"value": "North", "count": 15, "pct": 30.0}],
+        )
+        assert cs.top_values is not None
+        assert cs.sum_val is None
+
+    def test_datetime_column(self) -> None:
+        cs = ColumnSummary(
+            column_name="date",
+            dtype="datetime",
+            count=50,
+            null_count=0,
+            null_pct=0.0,
+            unique_count=50,
+        )
+        assert cs.mean_val is None
+        assert cs.top_values is None
+
+
+class TestTrendAnalysis:
+    def test_instantiation(self) -> None:
+        tp = TrendPoint(period="2025-01-01", value=100.0, change_pct=5.0)
+        ta = TrendAnalysis(
+            metric_column="revenue",
+            date_column="date",
+            trend_direction="increasing",
+            trend_points=[tp],
+            overall_change_pct=45.0,
+            note="Revenue shows an increasing trend",
+        )
+        assert ta.trend_direction == "increasing"
+        assert len(ta.trend_points) == 1
+
+    def test_serialization_round_trip(self) -> None:
+        ta = TrendAnalysis(
+            metric_column="revenue",
+            date_column="date",
+            trend_direction="stable",
+            trend_points=[],
+            note="No significant trend",
+        )
+        data = ta.model_dump()
+        restored = TrendAnalysis.model_validate(data)
+        assert restored == ta
+
+
+class TestSegmentComparison:
+    def test_instantiation(self) -> None:
+        sc = SegmentComparison(
+            segment_column="region",
+            metric_column="revenue",
+            segments=[{"segment": "North", "mean": 500.0, "sum": 5000.0, "count": 10}],
+            note="North leads",
+        )
+        assert sc.segment_column == "region"
+        assert len(sc.segments) == 1
+
+
+class TestAnomalyRecord:
+    def test_instantiation(self) -> None:
+        ar = AnomalyRecord(
+            column_name="revenue",
+            row_indices=[5, 10],
+            values=[9999.0, 8888.0],
+            mean=500.0,
+            std=100.0,
+            threshold_sigma=2.0,
+            count=2,
+            pct=4.0,
+            direction="above",
+        )
+        assert ar.threshold_sigma == 2.0
+        assert ar.direction == "above"
+
+
+class TestRecommendation:
+    def test_instantiation(self) -> None:
+        rec = Recommendation(
+            category="anomaly",
+            priority="high",
+            message="Review outlier values",
+            related_columns=["revenue"],
+        )
+        assert rec.priority == "high"
+
+
+class TestInsightPayload:
+    def test_instantiation(self) -> None:
+        payload = InsightPayload(
+            data_quality_findings={"overall_severity": "low"},
+            summary=[],
+            key_insights=[],
+            anomalies=[],
+            recommendations=[],
+            metadata={"total_rows": 100, "has_temporal_data": False},
+        )
+        assert payload.metadata["total_rows"] == 100
+
+    def test_json_serialization(self) -> None:
+        payload = InsightPayload(
+            data_quality_findings={},
+            summary=[
+                ColumnSummary(
+                    column_name="x",
+                    dtype="numeric",
+                    count=10,
+                    null_count=0,
+                    null_pct=0.0,
+                    unique_count=10,
+                    mean_val=5.0,
+                )
+            ],
+            key_insights=[],
+            anomalies=[],
+            recommendations=[],
+            metadata={},
+        )
+        json_str = payload.model_dump_json()
+        assert '"column_name":"x"' in json_str
+        assert "NaN" not in json_str
