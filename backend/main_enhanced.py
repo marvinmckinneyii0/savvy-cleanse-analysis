@@ -1,3 +1,8 @@
+# STATUS: DO NOT USE — hardcoded credentials. Replaced by Phase 3 api/ router.
+# Secrets previously baked into this module have been de-fanged (env-var
+# reads only, raising ConfigurationError when unset) but the module as a
+# whole remains off-limits to any new code. Phase 3 supersedes it entirely.
+
 """
 Enhanced FastAPI backend for SavvyCleanse with comprehensive analytics,
 authentication, and multi-tenancy support
@@ -22,6 +27,7 @@ import logging
 from cleaner import clean_dataframe
 from comprehensive_analytics import ComprehensiveAnalytics
 from nlp_processor import NLPProcessor
+from backend.errors.exceptions import ConfigurationError
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -43,10 +49,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Supabase configuration
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://kahiypfloievcktkyzps.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthaGl5cGZsb2lldmNrdGt5enBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NTAzMDUsImV4cCI6MjA2ODAyNjMwNX0.DdMD_rsrbX1FkD_Qxv9jPzBeMzQJZtssfbYxKdJKsjQ")
+# Supabase configuration — env-var only. Raises ConfigurationError on import
+# if either URL or anon key is missing, preventing the module from
+# silently booting with stale credentials.
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ConfigurationError(
+        "SUPABASE_URL and SUPABASE_ANON_KEY must be set in the environment; "
+        "this legacy module carries no default credentials (see .env.example)."
+    )
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -57,6 +70,7 @@ security = HTTPBearer()
 analytics = ComprehensiveAnalytics()
 nlp_processors = {}  # Will store NLP processors per user/API key
 
+# DEBT: replaced by backend/db/ in Phase 3; do not import from new code
 # In-memory storage (in production, use Redis or database)
 DATA_STORAGE = {}
 

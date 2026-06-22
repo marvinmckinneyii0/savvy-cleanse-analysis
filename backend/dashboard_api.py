@@ -1,3 +1,8 @@
+# STATUS: Legacy reference implementation
+# This module is NOT part of the SavvyCortex pipeline.
+# Reusable logic has been extracted into pipeline/ and models/.
+# Retained for web API compatibility until Phase 3 integration.
+
 """
 Enhanced Dashboard API for SavvyCleanse
 Provides chart data and analytics endpoints for the dashboard

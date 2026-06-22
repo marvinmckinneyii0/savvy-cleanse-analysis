@@ -20,3 +20,11 @@ anthropic
 google-generativeai
 psycopg2-binary
 sqlalchemy
+
+# --- Phase 1 pipeline foundation (added Story 1.1) ---
+pydantic>=2.7          # Universal contract language across pipeline stages
+pandera==0.30.1        # DataFrame validation (first use: Story 1.2)
+structlog==25.5.0      # JSON structured logging with correlation IDs
+pytest>=8.2            # Test runner (pyproject pins exact config)
+pytest-cov             # Coverage reporting
+python-dotenv>=1.0     # .env loader for local development
