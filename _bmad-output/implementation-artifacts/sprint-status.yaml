@@ -27,6 +27,13 @@
 #   - optional: Can be completed but not required
 #   - done: Retrospective has been completed
 #
+# DEFINITION OF DONE (all stories):
+# ==================================
+# - All acceptance criteria met
+# - Tests pass (unit + integration where applicable)
+# - Run `/security-review` and resolve all Critical and High findings before marking done
+#   (Added 2026-06-22 — applies to all stories from 1.4 onward)
+#
 # WORKFLOW NOTES:
 # ===============
 # - Epic transitions to 'in-progress' automatically when first story is created
@@ -47,7 +54,7 @@ development_status:
   1-1-project-scaffolding-pipeline-foundation: review
   1-2-data-quality-assessment-engine: review
   1-3-insight-engine: done
-  1-4-llm-narrative-generation: backlog
+  1-4-llm-narrative-generation: review
   1-5-document-rendering: backlog
   1-6-pipeline-orchestration-cli-entry-point: backlog
   epic-1-retrospective: optional
