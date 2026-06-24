@@ -6,6 +6,12 @@ Status: review
 
 ---
 
+> **⚠️ ARCHITECT DECISION NEEDED (raised 2026-06-24, code review of PR #21) — resilience gap in the 4xx rule.**
+> The AC "a 4xx client error from any provider → NOT retried → raise `LLMProviderError`" is implemented faithfully, but as written it means a 4xx from the *first* provider (Claude) **aborts the entire fallback chain** and raises out of `generate()` with no graceful fallback `InsightReport`. Because **429 (rate limit)** and **401 (missing/invalid API key)** are 4xx, the most common transient-ish failures bypass the OpenAI→Gemini fallback and the circuit-breaker's data-only fallback report — contradicting the graceful-degradation philosophy in `backend/errors/exceptions.py` and the circuit-breaker AC (which returns `success=True`).
+> The "don't *retry the same provider* on 4xx" intent is correct; "abort the *whole pipeline* on a 4xx" is likely not. **Proposed change:** treat 4xx as non-retryable *for that provider* but still fall through to the next provider; only raise `LLMProviderError` if every provider 4xxes. Needs architect/PM sign-off before changing the AC and the `test_no_retry_on_4xx` expectation. Code and test currently left as-is to match the spec.
+
+---
+
 ## Story
 
 **As a** developer on SavvyCortex,

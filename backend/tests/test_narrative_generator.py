@@ -18,7 +18,11 @@ from structlog.testing import LogCapture
 
 from backend.errors.exceptions import LLMProviderError
 from backend.models.insight_payload import InsightPayload
-from backend.models.insight_report import InsightReport, NarrativeSection
+from backend.models.insight_report import (
+    InsightReport,
+    NarrativeContent,
+    NarrativeSection,
+)
 from backend.pipeline.config import configure_logging
 from backend.pipeline.narrative_generator import NarrativeGenerator
 
@@ -352,3 +356,50 @@ class TestClientErrorNonRetry:
         assert len(error_events) == 1
         assert error_events[0]["provider"] == "claude"
         assert error_events[0]["status_code"] == 422
+
+
+class TestClaudeProviderBody:
+    """Guards the real `_call_claude` body — the path mocked out everywhere else.
+
+    These lock the two failures that broke the Claude provider in production:
+    a retired model snapshot (404) and reading the wrong SDK response
+    attribute (`output_parsed` instead of `parsed_output`).
+    """
+
+    def test_uses_current_model_and_parsed_output(self) -> None:
+        anthropic = pytest.importorskip("anthropic")
+
+        gen = NarrativeGenerator()
+        parsed = NarrativeContent(
+            executive_summary="Grounded summary.",
+            key_findings=[NarrativeSection(title="A", content="B")],
+        )
+        mock_result = MagicMock()
+        mock_result.parsed_output = parsed
+        mock_result.usage.input_tokens = 100
+        mock_result.usage.output_tokens = 50
+
+        mock_client = MagicMock()
+        mock_client.messages.parse.return_value = mock_result
+
+        with patch.object(anthropic, "Anthropic", return_value=mock_client) as mock_ctor:
+            report = gen._call_claude("{}")
+
+        # The provider was asked for the current Sonnet, not a retired snapshot.
+        _, parse_kwargs = mock_client.messages.parse.call_args
+        assert parse_kwargs["model"] == "claude-sonnet-4-6"
+        # The LLM schema is the narrative-only model, never the full contract.
+        assert parse_kwargs["output_format"] is NarrativeContent
+        # The SDK's own retries are disabled so they don't compound our loop.
+        _, ctor_kwargs = mock_ctor.call_args
+        assert ctor_kwargs.get("max_retries") == 0
+
+        # The narrative is read from the correct attribute and wrapped with telemetry.
+        assert isinstance(report, InsightReport)
+        assert report.executive_summary == "Grounded summary."
+        assert report.metadata == {
+            "provider": "claude",
+            "model": "claude-sonnet-4-6",
+            "token_count": 150,
+        }
+        assert report.fallback is False

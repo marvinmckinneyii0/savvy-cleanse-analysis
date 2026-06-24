@@ -24,11 +24,20 @@ import structlog
 
 from backend.errors.exceptions import LLMProviderError
 from backend.models.insight_payload import InsightPayload
-from backend.models.insight_report import InsightReport, NarrativeSection
+from backend.models.insight_report import InsightReport, NarrativeContent
+from backend.pipeline.config import bind_pipeline_run_id
 
 _BACKOFF_DELAYS = [1, 2, 4]
 _MAX_ATTEMPTS = 3
 _CIRCUIT_BREAKER_THRESHOLD = 3
+
+# Provider model identifiers. Keep these current — retired snapshots return
+# 404 at call time, which the retry/fallback machinery masks as a transient
+# failure. ``claude-sonnet-4-6`` is the current Sonnet (the older
+# ``claude-sonnet-4-20250514`` snapshot retired 2026-06-15).
+_CLAUDE_MODEL = "claude-sonnet-4-6"
+_OPENAI_MODEL = "gpt-4o"
+_GEMINI_MODEL = "gemini-2.0-flash"
 
 _SYSTEM_PROMPT = (
     "You are a data analyst writing a professional narrative report. "
@@ -39,7 +48,7 @@ _SYSTEM_PROMPT = (
     "- Do NOT independently compute, invent, or hallucinate any numerical values.\n"
     "- Do NOT perform any arithmetic on the provided numbers.\n"
     "- Write in third person, professional tone.\n"
-    "- Structure your response as an InsightReport with: executive_summary, "
+    "- Structure your response with these fields: executive_summary, "
     "key_findings (list of titled sections), anomaly_analysis (if anomalies exist), "
     "and recommendations_narrative (if recommendations exist)."
 )
@@ -62,7 +71,7 @@ class NarrativeGenerator:
         up to 3 retry attempts with exponential backoff. If all providers
         fail, returns a fallback InsightReport.
         """
-        structlog.contextvars.bind_contextvars(pipeline_run_id=pipeline_run_id)
+        bind_pipeline_run_id(pipeline_run_id)
         payload_json = insight_payload.model_dump_json()
 
         providers: list[tuple[str, Any]] = [
@@ -182,80 +191,96 @@ class NarrativeGenerator:
             return True
         return False
 
+    def _build_report(
+        self,
+        content: NarrativeContent,
+        *,
+        provider: str,
+        model: str,
+        token_count: int,
+    ) -> InsightReport:
+        """Compose the renderer-facing InsightReport from LLM narrative + telemetry.
+
+        ``metadata`` and ``fallback`` are set here (by code), never by the
+        model — the model only ever sees the :class:`NarrativeContent` schema.
+        """
+        return InsightReport(
+            **content.model_dump(),
+            metadata={
+                "provider": provider,
+                "model": model,
+                "token_count": token_count,
+            },
+            fallback=False,
+        )
+
+    def _build_prompt(self, payload_json: str) -> str:
+        return (
+            f"{_SYSTEM_PROMPT}\n\n"
+            f"Here is the computed data payload:\n{payload_json}"
+        )
+
     def _call_claude(self, payload_json: str) -> InsightReport:
         import anthropic
 
-        client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-        result = client.messages.parse(
-            model="claude-sonnet-4-20250514",
-            max_tokens=4096,
-            messages=[
-                {
-                    "role": "user",
-                    "content": (
-                        f"{_SYSTEM_PROMPT}\n\n"
-                        f"Here is the computed data payload:\n{payload_json}"
-                    ),
-                },
-            ],
-            output_format=InsightReport,
+        # max_retries=0 — this class implements its own retry/backoff loop; the
+        # SDK's default of 2 internal retries would compound with it.
+        client = anthropic.Anthropic(
+            api_key=os.environ.get("ANTHROPIC_API_KEY"), max_retries=0
         )
-        report: InsightReport = result.output_parsed  # type: ignore[assignment]
-        report.metadata.update({
-            "provider": "claude",
-            "model": "claude-sonnet-4-20250514",
-            "token_count": getattr(result.usage, "output_tokens", 0)
-            + getattr(result.usage, "input_tokens", 0),
-        })
-        return report
+        result = client.messages.parse(
+            model=_CLAUDE_MODEL,
+            max_tokens=4096,
+            messages=[{"role": "user", "content": self._build_prompt(payload_json)}],
+            output_format=NarrativeContent,
+        )
+        content: NarrativeContent = result.parsed_output  # type: ignore[assignment]
+        token_count = getattr(result.usage, "output_tokens", 0) + getattr(
+            result.usage, "input_tokens", 0
+        )
+        return self._build_report(
+            content, provider="claude", model=_CLAUDE_MODEL, token_count=token_count
+        )
 
     def _call_openai(self, payload_json: str) -> InsightReport:
         import openai
 
-        client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-        result = client.beta.chat.completions.parse(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "user",
-                    "content": (
-                        f"{_SYSTEM_PROMPT}\n\n"
-                        f"Here is the computed data payload:\n{payload_json}"
-                    ),
-                },
-            ],
-            response_format=InsightReport,
+        client = openai.OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"), max_retries=0
         )
-        report = result.choices[0].message.parsed  # type: ignore[union-attr]
-        report.metadata.update({  # type: ignore[union-attr]
-            "provider": "openai",
-            "model": "gpt-4o",
-            "token_count": getattr(result.usage, "total_tokens", 0),
-        })
-        return report  # type: ignore[return-value]
+        result = client.beta.chat.completions.parse(
+            model=_OPENAI_MODEL,
+            messages=[{"role": "user", "content": self._build_prompt(payload_json)}],
+            response_format=NarrativeContent,
+        )
+        content: NarrativeContent = result.choices[0].message.parsed  # type: ignore[assignment]
+        return self._build_report(
+            content,
+            provider="openai",
+            model=_OPENAI_MODEL,
+            token_count=getattr(result.usage, "total_tokens", 0),
+        )
 
     def _call_gemini(self, payload_json: str) -> InsightReport:
+        import json
+
         from google import genai
 
         client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
         result = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=(
-                f"{_SYSTEM_PROMPT}\n\n"
-                f"Here is the computed data payload:\n{payload_json}"
-            ),
+            model=_GEMINI_MODEL,
+            contents=self._build_prompt(payload_json),
             config={
                 "response_mime_type": "application/json",
-                "response_schema": InsightReport,
+                "response_schema": NarrativeContent,
             },
         )
-        import json
-        report = InsightReport.model_validate(json.loads(result.text))
-        report.metadata.update({
-            "provider": "gemini",
-            "model": "gemini-2.0-flash",
-            "token_count": getattr(
+        content = NarrativeContent.model_validate(json.loads(result.text))
+        return self._build_report(
+            content,
+            provider="gemini",
+            model=_GEMINI_MODEL,
+            token_count=getattr(
                 getattr(result, "usage_metadata", None), "total_token_count", 0
             ),
-        })
-        return report
+        )
