@@ -1,0 +1,86 @@
+# PR Status — SavvyCortex Daily Ops
+# Generated: 2026-06-24
+# Repo: marvinmckinneyii0/savvy-cleanse-analysis
+
+summary:
+  total_open: 4
+  ready_to_merge: 0
+  needs_review: 1
+  blocked: 3
+  opus_flagged: 2
+  sonnet_tier: 1
+
+pull_requests:
+  - number: 18
+    title: "Add Story 1.2 spec and mark ready-for-dev"
+    branch: claude/beautiful-lamarr-adfa1c
+    author: marvinmckinneyii0
+    mergeable: CONFLICTING
+    is_draft: false
+    review_decision: none
+    classification: blocked
+    blocked_reason: "Merge conflict — must be resolved before merge."
+    opus_flag: true
+    opus_reason: "Touches reporting_agent.py and exceptions.py (agent/error logic). Also has a merge conflict requiring manual resolution."
+    files_changed:
+      - backend/agents/reporting_agent.py (+16)
+      - backend/errors/exceptions.py (+1/-1)
+      - _bmad-output/codex-handoff.md (+31)
+      - _bmad-output/implementation-artifacts/1-2-data-quality-assessment-engine.md (+381)
+      - _bmad-output/implementation-artifacts/sprint-status.yaml (+3/-3)
+
+  - number: 17
+    title: "Add Supabase issues analysis report"
+    branch: codex/analyze-supabase-issues
+    author: marvinmckinneyii0
+    mergeable: UNKNOWN
+    is_draft: false
+    review_decision: none
+    labels: [codex]
+    classification: needs-review
+    opus_flag: false
+    opus_reason: null
+    sonnet_note: "Docs-only PR (markdown analysis). Sonnet-tier — safe to review and merge."
+    files_changed:
+      - supabase/SUPABASE_ISSUES_ANALYSIS.md (+73)
+
+  - number: 12
+    title: "Check github repository access"
+    branch: cursor/check-github-repository-access-79af
+    author: marvinmckinneyii0
+    mergeable: UNKNOWN
+    is_draft: true
+    review_decision: none
+    classification: blocked
+    blocked_reason: "Draft PR — not ready for review."
+    opus_flag: false
+    files_changed:
+      - clone_repo.sh (+38)
+      - github_repos_list.json (+656)
+      - github_repos_manager.py (+189)
+      - list_github_repos.py (+100)
+
+  - number: 4
+    title: "Integrate advanced data pipeline"
+    branch: codex/integrate-data-cleaning-and-analytics-code
+    author: marvinmckinneyii0
+    mergeable: UNKNOWN
+    is_draft: true
+    review_decision: none
+    labels: [codex]
+    classification: blocked
+    blocked_reason: "Draft PR — not ready for review."
+    opus_flag: true
+    opus_reason: "Touches advanced_pipeline.py (+403), analytics.py, cleaner.py — core pipeline engine. When un-drafted, needs Opus review."
+    files_changed:
+      - backend/advanced_pipeline.py (+403)
+      - backend/analytics.py (+9/-20)
+      - backend/cleaner.py (+5/-11)
+      - backend/requirements.txt (+1)
+      - README.md (+17/-4)
+
+changelog:
+  - date: "2026-06-24"
+    note: "PR #20 (Story 1.3 Insight Engine) merged since last run. PR #18 now shows CONFLICTING merge state. Updated counts accordingly."
+  - date: "2026-06-22"
+    note: "Initial pr_status.yaml created by daily ops agent."

@@ -7,20 +7,23 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-  throw new Error(
-    'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set in the environment. ' +
-    'Copy .env.example to .env and populate with your Supabase project credentials.',
-  );
-}
-
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
-  }
-});
+export const supabase: ReturnType<typeof createClient<Database>> | null =
+  SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY
+    ? createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        auth: {
+          storage: localStorage,
+          persistSession: true,
+          autoRefreshToken: true,
+        },
+      })
+    : (() => {
+        console.warn(
+          'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are not set. ' +
+          'Supabase features will be unavailable. ' +
+          'Copy .env.example to .env and populate with your Supabase project credentials.',
+        );
+        return null;
+      })();
