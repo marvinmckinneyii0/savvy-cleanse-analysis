@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from backend.models.insight_report import InsightReport, NarrativeSection
 from backend.models.insight_payload import (
     AnomalyRecord,
     ColumnSummary,
@@ -319,3 +320,74 @@ class TestInsightPayload:
         json_str = payload.model_dump_json()
         assert '"column_name":"x"' in json_str
         assert "NaN" not in json_str
+
+
+# ---- InsightReport models (Story 1.4) ----
+
+
+class TestNarrativeSection:
+    def test_instantiation(self) -> None:
+        section = NarrativeSection(
+            title="Revenue Trends",
+            content="Revenue increased 45% over the analysis period.",
+        )
+        assert section.title == "Revenue Trends"
+        assert "45%" in section.content
+
+    def test_serialization_round_trip(self) -> None:
+        section = NarrativeSection(title="Summary", content="All metrics stable.")
+        data = section.model_dump()
+        restored = NarrativeSection.model_validate(data)
+        assert restored == section
+
+
+class TestInsightReport:
+    def test_full_report(self) -> None:
+        report = InsightReport(
+            executive_summary="Overall data quality is good with minor anomalies.",
+            key_findings=[
+                NarrativeSection(title="Growth", content="Revenue grew 12%."),
+                NarrativeSection(title="Outliers", content="2 outliers detected."),
+            ],
+            anomaly_analysis="Two revenue values exceeded 2-sigma threshold.",
+            recommendations_narrative="Review outlier transactions for data entry errors.",
+            metadata={"provider": "claude", "model": "claude-sonnet-4-20250514", "token_count": 350, "duration_ms": 1200},
+        )
+        assert report.executive_summary.startswith("Overall")
+        assert len(report.key_findings) == 2
+        assert report.fallback is False
+        assert report.fallback_reason is None
+
+    def test_fallback_report(self) -> None:
+        report = InsightReport(
+            executive_summary="",
+            key_findings=[],
+            metadata={"provider": "none", "fallback": True},
+            fallback=True,
+            fallback_reason="All LLM providers failed after 3 consecutive failures",
+        )
+        assert report.fallback is True
+        assert report.fallback_reason is not None
+        assert report.executive_summary == ""
+        assert report.key_findings == []
+
+    def test_optional_fields_default_none(self) -> None:
+        report = InsightReport(
+            executive_summary="Summary text.",
+            key_findings=[],
+            metadata={},
+        )
+        assert report.anomaly_analysis is None
+        assert report.recommendations_narrative is None
+        assert report.fallback is False
+
+    def test_json_serialization(self) -> None:
+        report = InsightReport(
+            executive_summary="Test summary.",
+            key_findings=[NarrativeSection(title="A", content="B")],
+            metadata={"provider": "claude"},
+        )
+        json_str = report.model_dump_json()
+        assert '"executive_summary":"Test summary."' in json_str
+        restored = InsightReport.model_validate_json(json_str)
+        assert restored == report

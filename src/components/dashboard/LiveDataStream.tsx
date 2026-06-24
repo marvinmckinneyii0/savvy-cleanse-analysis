@@ -29,20 +29,9 @@ const LiveDataStream: React.FC = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Check if Supabase is properly configured
-    const checkSupabaseConfig = () => {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      if (!supabaseUrl || !supabaseAnonKey) {
-        setSupabaseConfigured(false);
-        setError('Supabase environment variables are not configured. Please check your project settings.');
-        return false;
-      }
-      return true;
-    };
-
-    if (!checkSupabaseConfig()) {
+    if (!supabase) {
+      setSupabaseConfigured(false);
+      setError('Supabase environment variables are not configured. Please check your project settings.');
       return;
     }
 
@@ -86,7 +75,7 @@ const LiveDataStream: React.FC = () => {
     }, 5000);
 
     return () => {
-      if (supabaseConfigured) {
+      if (supabaseConfigured && supabase) {
         supabase.removeChannel(channel);
       }
       clearInterval(pollInterval);

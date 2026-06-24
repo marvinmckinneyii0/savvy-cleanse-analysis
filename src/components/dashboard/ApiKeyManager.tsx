@@ -35,7 +35,7 @@ const ApiKeyManager: React.FC = () => {
   }, []);
 
   const loadApiKeys = async () => {
-    if (!user) return;
+    if (!user || !supabase) return;
 
     const { data, error } = await (supabase as any)
       .from('user_api_keys')
@@ -73,7 +73,7 @@ const ApiKeyManager: React.FC = () => {
   };
 
   const createApiKey = async () => {
-    if (!user || !newKeyName.trim()) return;
+    if (!user || !newKeyName.trim() || !supabase) return;
 
     setLoading(true);
     try {
@@ -116,6 +116,7 @@ const ApiKeyManager: React.FC = () => {
   };
 
   const deleteApiKey = async (keyId: string) => {
+    if (!supabase) return;
     const { error } = await (supabase as any)
       .from('user_api_keys')
       .delete()

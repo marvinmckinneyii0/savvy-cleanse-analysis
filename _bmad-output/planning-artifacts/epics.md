@@ -1126,6 +1126,9 @@ So that I can diagnose issues, track error rates, and monitor system health in p
 
 ### Story 5.4: Security Hardening & OWASP Review
 
+**Prerequisite Task (should be completed during Story 5.5 or earlier):**
+Configure GitHub Actions Anthropic automated security review on PR creation. The action triggers automatically when pull requests are opened, posting inline comments with identified concerns and recommended fixes. This ensures every PR gets a security review before Story 5.4's formal OWASP audit, and provides a safety net for all subsequent development. Reference: https://support.claude.com/en/articles/11932705-automated-security-reviews-in-claude-code
+
 As a platform operator,
 I want all user inputs sanitized, API endpoints rate-limited, connections encrypted, and secrets properly managed,
 So that the platform meets OWASP top-10 security standards before production launch.

@@ -1,0 +1,31 @@
+# Codex Handoff — SavvyCortex
+# Synced by: Daily Ops Agent
+# Source: _bmad-output/codex-handoff.md (branch: claude/beautiful-lamarr-adfa1c)
+last_synced: "2026-06-22"
+
+tasks:
+  completed: []
+  in_progress: []
+  available: []
+
+status:
+  codex_idle: true
+  reason: "No Codex-owned pattern tasks available. Current stories (1.1-1.3) are schema/model design, engine logic, validation — all Claude-tier."
+  waiting_on: "A future story with scaffolding, config, fixture data, mock/sample data, documentation, or boilerplate stub work."
+
+files_touched:
+  - path: _bmad-output/codex-handoff.md
+    action: created
+    date: "2026-06-20"
+
+integration_log:
+  - date: "2026-06-22"
+    patterns_integrated: 0
+    patterns_flagged: 2
+    flags:
+      - "codex_handoff.yaml was missing from repo root — now created"
+      - "story.yaml was missing from repo root — now created"
+
+next_codex_run:
+  pick_up: null
+  depends_on: "Claude completing or creating a story with Codex-owned pattern tasks"

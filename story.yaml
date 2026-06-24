@@ -1,0 +1,119 @@
+# Story Tracker — SavvyCortex
+# Synced from: _bmad-output/implementation-artifacts/sprint-status.yaml
+# Used by: Daily Ops Agent for sprint check and codex sync
+last_synced: "2026-06-22"
+
+epic_1:
+  name: "Data Quality & Insight Reports (CLI)"
+  status: in-progress
+  stories:
+    1-1-project-scaffolding-pipeline-foundation:
+      status: review
+      pr: 18
+      opus_flag: true
+      opus_reason: "Touches reporting_agent.py, exceptions.py"
+      codex_integrated: false
+
+    1-2-data-quality-assessment-engine:
+      status: review
+      pr: 18
+      opus_flag: true
+      opus_reason: "Story spec + agent/error logic changes"
+      codex_integrated: false
+
+    1-3-insight-engine:
+      status: done
+      pr: 20
+      opus_flag: true
+      opus_reason: "Core engine (601 lines) + models + full test suite"
+      codex_integrated: false
+
+    1-4-llm-narrative-generation:
+      status: review
+      pr: null
+      opus_flag: false
+      codex_integrated: false
+
+    1-5-document-rendering:
+      status: backlog
+      pr: null
+      opus_flag: false
+      codex_integrated: false
+
+    1-6-pipeline-orchestration-cli-entry-point:
+      status: backlog
+      pr: null
+      opus_flag: false
+      codex_integrated: false
+
+epic_2:
+  name: "Automated Reporting & Data Monitoring"
+  status: backlog
+  stories:
+    2-1-configuration-layer: { status: backlog }
+    2-2-drift-engine: { status: backlog }
+    2-3-reporting-agent: { status: backlog }
+    2-4-monitoring-agent-alert-delivery: { status: backlog }
+
+epic_3:
+  name: "Web Application & Customer Dashboard"
+  status: backlog
+  stories:
+    3-1-database-schema-auth-foundation: { status: backlog }
+    3-2-file-upload-pipeline-integration: { status: backlog }
+    3-3-analysis-configuration-ui: { status: backlog }
+    3-4-report-viewer-history: { status: backlog }
+    3-5-alert-dashboard-timeline: { status: backlog }
+    3-6-alert-configuration-ui: { status: backlog }
+    3-7-pipeline-health-dashboard: { status: backlog }
+    3-8-drift-history-view: { status: backlog }
+    3-9-usage-meter: { status: backlog }
+
+epic_4:
+  name: "Subscription Billing"
+  status: backlog
+  stories:
+    4-1-stripe-integration-plan-tiers: { status: backlog }
+    4-2-webhook-handling-subscription-lifecycle: { status: backlog }
+    4-3-usage-tracking-limit-enforcement: { status: backlog }
+    4-4-billing-ui-free-trial: { status: backlog }
+
+epic_5:
+  name: "Multi-Tenant Scale & Production Hardening"
+  status: backlog
+  stories:
+    5-1-multi-tenant-data-isolation: { status: backlog }
+    5-2-async-processing-pipeline: { status: backlog }
+    5-3-observability-error-tracking: { status: backlog }
+    5-4-security-hardening-owasp-review: { status: backlog }
+    5-5-containerized-deployment-ci-cd: { status: backlog }
+
+epic_6:
+  name: "Admin Control Plane"
+  status: backlog
+  stories:
+    6-1-role-hierarchy-admin-auth: { status: backlog }
+    6-2-audit-log: { status: backlog }
+    6-3-tenant-management: { status: backlog }
+    6-4-user-management-api-tokens: { status: backlog }
+    6-5-system-health-dashboard: { status: backlog }
+    6-6-billing-overview: { status: backlog }
+    6-7-customer-journey-tracking: { status: backlog }
+
+epic_7:
+  name: "Advanced Analytics & Self-Service API"
+  status: backlog
+  stories:
+    7-1-advanced-analytics-engine: { status: backlog }
+    7-2-custom-monitoring-rules-digest-reports: { status: backlog }
+    7-3-natural-language-querying: { status: backlog }
+    7-4-client-self-service-report-customization: { status: backlog }
+    7-5-versioned-rest-api-webhooks: { status: backlog }
+
+summary:
+  total_stories: 31
+  done: 1
+  review: 3
+  in_progress: 0
+  backlog: 27
+  blocked: 0
