@@ -1,17 +1,32 @@
 # PR Status — SavvyCortex Daily Ops
-# Generated: 2026-06-24
+# Generated: 2026-06-25
 # Repo: marvinmckinneyii0/savvy-cleanse-analysis
 
 summary:
-  total_open: 4
+  total_open: 5
   ready_to_merge: 1
-  needs_review: 0
+  needs_review: 1
   blocked: 3
   opus_flagged: 2
-  sonnet_tier: 1
-  story_1_4_pr_pending: true
+  sonnet_tier: 2
+  story_1_4_pr_pending: false
 
 pull_requests:
+  - number: 22
+    title: "Implement LLM Narrative Generation with retry/fallback chain (Story 1.4)"
+    branch: claude/story-1-4-llm-narrative-generation
+    author: marvinmckinneyii0
+    mergeable: MERGEABLE
+    is_draft: false
+    review_decision: none
+    classification: needs-review
+    opus_flag: true
+    opus_reason: "Story 1.4 DoD requires Opus review and /security-review before merge. Core LLM integration (narrative_generator.py), multi-provider fallback, circuit breaker."
+    sonnet_note: "Files changed are ops artifacts only (pr_status.yaml, story.yaml). Implementation is on the branch."
+    files_changed:
+      - pr_status.yaml (+21/-11)
+      - story.yaml (+4/-2)
+
   - number: 18
     title: "Add Story 1.2 spec and mark ready-for-dev"
     branch: claude/beautiful-lamarr-adfa1c
@@ -49,7 +64,7 @@ pull_requests:
     title: "Check github repository access"
     branch: cursor/check-github-repository-access-79af
     author: marvinmckinneyii0
-    mergeable: MERGEABLE
+    mergeable: UNKNOWN
     is_draft: true
     review_decision: none
     classification: blocked
@@ -82,12 +97,14 @@ pull_requests:
       - README.md (+17/-4)
 
 alerts:
+  - "PR #22 (Story 1.4 LLM Narrative Generation) is MERGEABLE and needs Opus review + /security-review before merging per DoD."
   - "PR #17 is MERGEABLE and docs-only — ready to merge without further review."
-  - "PR #18 has a merge conflict introduced since 2026-06-22 — manual resolution needed."
-  - "PR #4 is now CONFLICTING (was unknown on 2026-06-22) — conflict resolution needed in addition to un-drafting."
-  - "Story 1.4 (LLM Narrative Generation) is implemented on branch claude/story-1-4-llm-narrative-generation — all 13 tasks done, 84/84 tests pass. No PR opened yet. Action: open PR + run /security-review per DoD."
+  - "PR #18 has a merge conflict — manual resolution needed before review or merge."
+  - "PR #4 is CONFLICTING + draft — conflict resolution and un-drafting needed before Opus review."
 
 changelog:
+  - date: "2026-06-25"
+    note: "PR #22 opened for Story 1.4 LLM Narrative Generation (MERGEABLE, needs Opus + security review per DoD). Updated story.yaml to set pr=22 for story 1-4. Summary: 5 open (1 ready, 1 needs-review, 3 blocked, 2 Opus-flagged)."
   - date: "2026-06-24"
     note: "Corrected mergeable states from live gh data: #17=MERGEABLE, #12=MERGEABLE, #4=CONFLICTING. Updated #17 classification to ready-to-merge. Added Story 1.4 alert. Corrected summary counts."
   - date: "2026-06-24"

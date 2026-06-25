@@ -1,7 +1,7 @@
 # Story Tracker — SavvyCortex
 # Synced from: _bmad-output/implementation-artifacts/sprint-status.yaml
 # Used by: Daily Ops Agent for sprint check and codex sync
-last_synced: "2026-06-24"
+last_synced: "2026-06-25"
 
 epic_1:
   name: "Data Quality & Insight Reports (CLI)"
@@ -30,11 +30,11 @@ epic_1:
 
     1-4-llm-narrative-generation:
       status: review
-      pr: null
+      pr: 22
       opus_flag: true
       opus_reason: "Core LLM integration (narrative_generator.py), multi-provider fallback, circuit breaker — Opus review per DoD"
       codex_integrated: false
-      notes: "Branch claude/story-1-4-llm-narrative-generation. All 13 tasks done, 84/84 tests pass. PR not yet opened."
+      notes: "Branch claude/story-1-4-llm-narrative-generation. All 13 tasks done, 84/84 tests pass. PR #22 open and MERGEABLE."
 
     1-5-document-rendering:
       status: backlog
