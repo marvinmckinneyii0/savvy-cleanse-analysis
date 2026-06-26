@@ -42,7 +42,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-14
-last_updated: 2026-06-26
+last_updated: 2026-06-26  # updated: 1-5 → ready-for-dev
 project: SavvyCortex
 project_key: NOKEY
 tracking_system: file-system
@@ -51,12 +51,12 @@ story_location: C:/Users/marvi/savvy-cleanse-analysis/_bmad-output/implementatio
 development_status:
   # Epic 1: Data Quality & Insight Reports (CLI)
   epic-1: in-progress
-  1-1-project-scaffolding-pipeline-foundation: review
-  1-2-data-quality-assessment-engine: review
+  1-1-project-scaffolding-pipeline-foundation: done
+  1-2-data-quality-assessment-engine: done
   1-3-insight-engine: done
   1-4-llm-narrative-generation: done
-  1-5-document-rendering: backlog
-  1-6-pipeline-orchestration-cli-entry-point: ready-for-dev
+  1-5-document-rendering: review
+  1-6-pipeline-orchestration-cli-entry-point: review
   epic-1-retrospective: optional
 
   # Epic 2: Automated Reporting & Data Monitoring
