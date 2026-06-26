@@ -3,6 +3,15 @@ name = "savvycortex"
 version = "0.1.0"
 description = "SavvyCortex data quality and insight pipeline."
 requires-python = ">=3.13"
+dependencies = [
+    "docxtpl>=0.20.2",
+    "weasyprint>=68.1",
+    "jinja2>=3.1",
+    "structlog>=24.0",
+    "pydantic>=2.0",
+    "typer>=0.12.1",
+    "pandas>=2.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
