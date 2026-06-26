@@ -1,7 +1,7 @@
 # Story Tracker — SavvyCortex
 # Synced from: _bmad-output/implementation-artifacts/sprint-status.yaml
 # Used by: Daily Ops Agent for sprint check and codex sync
-last_synced: "2026-06-25"
+last_synced: "2026-06-26"
 
 epic_1:
   name: "Data Quality & Insight Reports (CLI)"
@@ -29,12 +29,12 @@ epic_1:
       codex_integrated: false
 
     1-4-llm-narrative-generation:
-      status: review
+      status: done
       pr: 22
       opus_flag: true
       opus_reason: "Core LLM integration (narrative_generator.py), multi-provider fallback, circuit breaker — Opus review per DoD"
       codex_integrated: false
-      notes: "Branch claude/story-1-4-llm-narrative-generation. All 13 tasks done, 84/84 tests pass. PR #22 open and MERGEABLE."
+      notes: "PR #22 merged 2026-06-26. All 13 tasks done, 84/84 tests pass."
 
     1-5-document-rendering:
       status: backlog
@@ -43,10 +43,11 @@ epic_1:
       codex_integrated: false
 
     1-6-pipeline-orchestration-cli-entry-point:
-      status: backlog
+      status: ready-for-dev
       pr: null
       opus_flag: false
       codex_integrated: false
+      notes: "Story file created 2026-06-26: _bmad-output/implementation-artifacts/1-6-pipeline-orchestration-cli-entry-point.md"
 
 epic_2:
   name: "Automated Reporting & Data Monitoring"
@@ -114,8 +115,9 @@ epic_7:
 
 summary:
   total_stories: 31
-  done: 1
-  review: 3
+  done: 2
+  review: 2
   in_progress: 0
-  backlog: 27
+  ready_for_dev: 1
+  backlog: 26
   blocked: 0
