@@ -1,4 +1,4 @@
-# SavvyClean App  
+# SavvyCortex App  
 
 A comprehensive React + FastAPI–based data cleaning and analytics tool from **Savvy Analytics** that helps businesses and analysts quickly prepare datasets, run automated analysis, and generate professional reports.  
 
@@ -6,7 +6,7 @@ A comprehensive React + FastAPI–based data cleaning and analytics tool from **
 
 Overview
 
-SavvyClean is a data cleaning and analytics application that combines a React/Vite + TypeScript frontend with a Python/FastAPI backend. It enables businesses, analysts, and product owners to:
+SavvyCortex is a data cleaning and analytics application that combines a React/Vite + TypeScript frontend with a Python/FastAPI backend. It enables businesses, analysts, and product owners to:
 
 Clean messy datasets with ML-powered strategies
 
