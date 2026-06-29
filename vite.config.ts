@@ -8,6 +8,15 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Proxy API calls to the FastAPI backend so the browser talks to it
+    // same-origin (no CORS needed in dev). The server-side spreadsheet parser
+    // (POST /api/parse-file) lives there — see backend/api/app.py.
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [
     react(),

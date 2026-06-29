@@ -1,17 +1,30 @@
 
 import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
 import * as xml2js from 'xml2js';
 import * as pdfjsLib from 'pdfjs-dist';
 
 // Set up PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
+// A cell the backend parser could not represent faithfully (an Excel error
+// literal, or a formula with no cached result). Surfaced rather than dropped,
+// mirroring the backend CellParseError contract — see
+// backend/models/parsed_file.py.
+export interface ParseError {
+  row: number;
+  column: string;
+  issue: 'formula_cell' | 'error_cell';
+  rawValue: string;
+}
+
 export interface ParsedData {
   headers: string[];
   rows: any[][];
   totalRows: number;
   fileType: string;
+  // Present only for spreadsheet uploads parsed server-side; undefined for the
+  // client-side formats below. Optional so existing consumers stay valid.
+  parseErrors?: ParseError[];
 }
 
 export interface ParseResult {
@@ -67,8 +80,10 @@ const parseCSV = (file: File): Promise<ParseResult> => {
         }
 
         const headers = results.meta.fields || [];
-        const rows = results.data.map((row: any) => 
-          headers.map(header => row[header] || '')
+        // Preserve empty cells as null (detect-don't-fix) rather than coercing
+        // to '' — the parse layer must not silently rewrite missing values.
+        const rows = results.data.map((row: any) =>
+          headers.map(header => row[header] ?? null)
         );
 
         resolve({
@@ -197,52 +212,65 @@ const parseJSON = (file: File): Promise<ParseResult> => {
   });
 };
 
-const parseExcel = (file: File): Promise<ParseResult> => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
+// Shape returned by POST /api/parse-file (snake_case JSON from the FastAPI
+// backend). Mapped to ParsedData below.
+interface ParsedFileResponse {
+  headers: string[];
+  rows: any[][];
+  total_rows: number;
+  file_type: string;
+  parse_errors: { row: number; column: string; issue: 'formula_cell' | 'error_cell'; raw_value: string }[];
+}
+
+// Spreadsheet parsing moved server-side: the browser-side `xlsx` (SheetJS)
+// package was removed to clear two HIGH advisories (GHSA-4r6h-8v6p-xvw6,
+// GHSA-5pgg-2g8v-p4x9). The raw file is POSTed to the backend, which parses it
+// with openpyxl (null-preserving, no pandas coercion) and returns ParsedData.
+const parseExcel = async (file: File): Promise<ParseResult> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/parse-file', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      // FastAPI returns { detail: "..." } on 4xx; fall back to status text.
+      let detail = response.statusText;
       try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
-        
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        
-        if (jsonData.length === 0) {
-          resolve({
-            success: false,
-            error: 'Excel file appears to be empty'
-          });
-          return;
-        }
-
-        const headers = (jsonData[0] as any[]).map((header, index) => 
-          header ? String(header) : `Column ${index + 1}`
-        );
-        const rows = jsonData.slice(1).map((row: any) => 
-          headers.map((_, index) => row[index] || '')
-        );
-
-        resolve({
-          success: true,
-          data: {
-            headers,
-            rows,
-            totalRows: rows.length,
-            fileType: file.name.split('.').pop()?.toLowerCase() || 'excel'
-          }
-        });
-      } catch (error) {
-        resolve({
-          success: false,
-          error: `Excel parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`
-        });
+        const body = await response.json();
+        if (body?.detail) detail = body.detail;
+      } catch {
+        // non-JSON error body; keep statusText
       }
+      return { success: false, error: `Excel parsing error: ${detail}` };
+    }
+
+    const payload = (await response.json()) as ParsedFileResponse;
+
+    return {
+      success: true,
+      data: {
+        headers: payload.headers,
+        rows: payload.rows,
+        totalRows: payload.total_rows,
+        fileType: payload.file_type,
+        parseErrors: payload.parse_errors.map((e) => ({
+          row: e.row,
+          column: e.column,
+          issue: e.issue,
+          rawValue: e.raw_value,
+        })),
+      },
     };
-    reader.readAsArrayBuffer(file);
-  });
+  } catch (error) {
+    return {
+      success: false,
+      error: `Excel parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    };
+  }
 };
 
 const parseXML = (file: File): Promise<ParseResult> => {
