@@ -1,7 +1,7 @@
 # Codex Handoff — SavvyCortex
 # Synced by: Daily Ops Agent
 # Source: _bmad-output/codex-handoff.md (branch: claude/beautiful-lamarr-adfa1c)
-last_synced: "2026-06-26"
+last_synced: "2026-06-29"
 
 tasks:
   completed: []
@@ -10,8 +10,8 @@ tasks:
 
 status:
   codex_idle: true
-  reason: "No Codex-owned pattern tasks available. Current stories (1.1-1.3) are schema/model design, engine logic, validation — all Claude-tier."
-  waiting_on: "A future story with scaffolding, config, fixture data, mock/sample data, documentation, or boilerplate stub work."
+  reason: "No Codex-owned pattern tasks available. Epic 1 fully complete. Epic 2 (backlog) stories not yet created. Waiting for sprint planning to kick off Epic 2."
+  waiting_on: "Sprint planning for Epic 2 to create story files with any Codex-tier work (scaffolding, config, fixture data, mock/sample data, documentation, boilerplate stubs)."
 
 files_touched:
   - path: _bmad-output/codex-handoff.md
@@ -19,6 +19,11 @@ files_touched:
     date: "2026-06-20"
 
 integration_log:
+  - date: "2026-06-29"
+    patterns_integrated: 0
+    patterns_flagged: 0
+    flags: []
+    notes: "Codex idle. No open PRs. Epic 1 fully complete (all 6 stories done). story.yaml reconciled — was stale (showed 1-1/1-2 as review, 1-5 as backlog, 1-6 as ready-for-dev). Now all 6 updated to done."
   - date: "2026-06-26"
     patterns_integrated: 0
     patterns_flagged: 0
@@ -38,4 +43,4 @@ integration_log:
 
 next_codex_run:
   pick_up: null
-  depends_on: "Claude completing or creating a story with Codex-owned pattern tasks"
+  depends_on: "Epic 2 sprint planning and story file creation. Likely candidates: 2-1-configuration-layer (config stubs), 2-2-drift-engine (fixture/sample data)"

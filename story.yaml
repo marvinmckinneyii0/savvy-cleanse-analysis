@@ -1,53 +1,52 @@
 # Story Tracker — SavvyCortex
 # Synced from: _bmad-output/implementation-artifacts/sprint-status.yaml
 # Used by: Daily Ops Agent for sprint check and codex sync
-last_synced: "2026-06-26"
+last_synced: "2026-06-29"
 
 epic_1:
   name: "Data Quality & Insight Reports (CLI)"
-  status: in-progress
+  status: done
   stories:
     1-1-project-scaffolding-pipeline-foundation:
-      status: review
-      pr: 18
-      opus_flag: true
-      opus_reason: "Touches reporting_agent.py, exceptions.py"
+      status: done
+      pr: 16
+      opus_flag: false
       codex_integrated: false
+      notes: "PR #16 merged 2026-04-15. Reconciled 2026-06-29 — was incorrectly showing 'review/pr:18' in prior story.yaml."
 
     1-2-data-quality-assessment-engine:
-      status: review
-      pr: 18
-      opus_flag: true
-      opus_reason: "Story spec + agent/error logic changes"
+      status: done
+      pr: 19
+      opus_flag: false
       codex_integrated: false
+      notes: "PR #19 merged 2026-06-22. Reconciled 2026-06-29 — was incorrectly showing 'review/pr:18' in prior story.yaml."
 
     1-3-insight-engine:
       status: done
       pr: 20
-      opus_flag: true
-      opus_reason: "Core engine (601 lines) + models + full test suite"
+      opus_flag: false
       codex_integrated: false
 
     1-4-llm-narrative-generation:
       status: done
       pr: 22
-      opus_flag: true
-      opus_reason: "Core LLM integration (narrative_generator.py), multi-provider fallback, circuit breaker — Opus review per DoD"
+      opus_flag: false
       codex_integrated: false
-      notes: "PR #22 merged 2026-06-26. All 13 tasks done, 84/84 tests pass."
+      notes: "PR #22 merged 2026-06-25. All 13 tasks done, 84/84 tests pass."
 
     1-5-document-rendering:
-      status: backlog
-      pr: null
+      status: done
+      pr: 25
       opus_flag: false
       codex_integrated: false
+      notes: "PR #25 merged 2026-06-26."
 
     1-6-pipeline-orchestration-cli-entry-point:
-      status: ready-for-dev
-      pr: null
+      status: done
+      pr: 26
       opus_flag: false
       codex_integrated: false
-      notes: "Story file created 2026-06-26: _bmad-output/implementation-artifacts/1-6-pipeline-orchestration-cli-entry-point.md"
+      notes: "PR #26 merged 2026-06-26."
 
 epic_2:
   name: "Automated Reporting & Data Monitoring"
@@ -115,9 +114,9 @@ epic_7:
 
 summary:
   total_stories: 31
-  done: 2
-  review: 2
+  done: 6
+  review: 0
   in_progress: 0
-  ready_for_dev: 1
-  backlog: 26
+  ready_for_dev: 0
+  backlog: 25
   blocked: 0
