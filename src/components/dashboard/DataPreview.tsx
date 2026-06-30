@@ -43,7 +43,7 @@ const DataPreview: React.FC<DataPreviewProps> = ({ data, fileName }) => {
                 <TableRow key={rowIndex}>
                   {row.map((cell, cellIndex) => (
                     <TableCell key={cellIndex} className="max-w-xs truncate">
-                      {String(cell)}
+                      {cell === null || cell === undefined ? '' : String(cell)}
                     </TableCell>
                   ))}
                 </TableRow>
