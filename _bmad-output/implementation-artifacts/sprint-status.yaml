@@ -42,11 +42,34 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-14
-last_updated: 2026-06-26  # updated: 1-5, 1-6 → done; epic-1 → done
+last_updated: 2026-06-30  # updated: issue-24 resolved; story 1-4 DoD security gate closed; sprint-change-proposal written
 project: SavvyCortex
 project_key: NOKEY
 tracking_system: file-system
 story_location: C:/Users/marvi/savvy-cleanse-analysis/_bmad-output/implementation-artifacts
+
+security_issues:
+  issue-24:
+    title: "xlsx (SheetJS) HIGH CVEs — GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9"
+    status: resolved
+    resolved_in: "PR #27 (security/issue-24-xlsx-server-side-migration → main)"
+    resolution: "Removed SheetJS; xlsx parse moved server-side via openpyxl (FastAPI endpoint)"
+    sprint_change_proposal: "_bmad-output/planning-artifacts/sprint-change-proposal-2026-06-30.md"
+    story_impact: "1-4-llm-narrative-generation DoD security gate — now closed"
+    commits_on_main:
+      # NOTE: squash-merge branch-deletion race — two commits were not on the remote at
+      # merge time. Recovered from reflog and cherry-picked. Validated post-recovery
+      # (tsc clean, build green, 18/18 vitest, 0 xlsx HIGH). Archive tags pushed.
+      - sha: "2511998"
+        desc: "fix(security): remove client-side xlsx (SheetJS), move spreadsheet parse server-side — squash of PR #27 original scope"
+      - sha: "4b8c91c"
+        desc: "fix(security): drop legacy .xls support from upload UI (#24 follow-up) — cherry-picked from archive/issue-24-pre-cherrypick-xls (c6d99d5)"
+      - sha: "df7d6d5"
+        desc: "test(frontend): configure Vitest + cover Issue #24 migration surfaces — cherry-picked from archive/issue-24-pre-cherrypick-vitest (5bef3bd)"
+    archive_tags:
+      - "archive/issue-24-pre-cherrypick-xls → c6d99d5"
+      - "archive/issue-24-pre-cherrypick-vitest → 5bef3bd"
+    integrity_validated: "2026-06-30"
 
 development_status:
   # Epic 1: Data Quality & Insight Reports (CLI)
@@ -54,7 +77,7 @@ development_status:
   1-1-project-scaffolding-pipeline-foundation: done
   1-2-data-quality-assessment-engine: done
   1-3-insight-engine: done
-  1-4-llm-narrative-generation: done
+  1-4-llm-narrative-generation: done  # DoD security gate (issue-24) resolved 2026-06-30 via PR #27
   1-5-document-rendering: done
   1-6-pipeline-orchestration-cli-entry-point: done
   epic-1-retrospective: optional
