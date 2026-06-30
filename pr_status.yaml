@@ -1,5 +1,5 @@
 # PR Status — SavvyCortex Daily Ops
-# Generated: 2026-06-29
+# Generated: 2026-06-30
 # Repo: marvinmckinneyii0/savvy-cleanse-analysis
 
 summary:
@@ -15,12 +15,14 @@ pull_requests: []
 alerts: []
 
 notes:
-  - "PR queue is fully clear as of 2026-06-29."
-  - "Epic 1 is fully complete — all 6 stories merged (PRs #16, #19, #20, #22, #25, #26)."
-  - "3 Dependabot advisories remain unresolved from pass 1 (PR #23). May need follow-up PR."
-  - "Next expected PR: Epic 2 story creation (configuration-layer, drift-engine) when sprint planning kicks off."
+  - "PR queue is fully clear as of 2026-06-30."
+  - "PR #27 (security/issue-24-xlsx-server-side-migration) merged 2026-06-30T13:22:45Z — Issue #24 SheetJS HIGH CVEs resolved."
+  - "Epic 1 is fully complete — all 6 stories merged (PRs #16, #19, #20, #22, #25, #26) + security fix PR #27."
+  - "Next expected PRs: Epic 2 sprint planning and story creation (configuration-layer, drift-engine)."
 
 changelog:
+  - date: "2026-06-30"
+    note: "PR #27 merged (security fix — SheetJS removed, xlsx parse moved server-side). PR queue now clear. Issue #24 fully closed."
   - date: "2026-06-29"
     note: "PR queue clear. No open PRs. Epic 1 complete. Next work: Epic 2 backlog."
   - date: "2026-06-26"
