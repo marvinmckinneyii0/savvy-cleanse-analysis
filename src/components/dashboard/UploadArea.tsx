@@ -52,9 +52,15 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onFileUpload }) => {
     setParsedData(null);
     setFileName(file.name);
 
-    const supportedExtensions = ['csv', 'json', 'xls', 'xlsx', 'xml', 'txt', 'pdf'];
+    const supportedExtensions = ['csv', 'json', 'xlsx', 'xml', 'txt', 'pdf'];
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    
+
+    if (fileExtension === 'xls') {
+      setError('Legacy .xls format isn\'t supported. Please save as .xlsx and re-upload.');
+      setIsLoading(false);
+      return;
+    }
+
     if (!fileExtension || !supportedExtensions.includes(fileExtension)) {
       setError(`Unsupported file format. Please upload: ${supportedExtensions.join(', ').toUpperCase()}`);
       setIsLoading(false);
@@ -186,14 +192,14 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onFileUpload }) => {
                         type="file"
                         className="sr-only"
                         onChange={handleFileChange}
-                        accept=".csv,.json,.xlsx,.xml,.txt,.xls,.pdf"
+                        accept=".csv,.json,.xlsx,.xml,.txt,.pdf"
                         disabled={isLoading}
                       />
                     </label>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Supported formats: CSV, JSON, XLSX, XLS, XML, TXT, PDF
+                  Supported formats: CSV, JSON, XLSX, XML, TXT, PDF
                 </p>
               </div>
             </div>
