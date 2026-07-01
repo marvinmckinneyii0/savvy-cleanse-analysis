@@ -1,26 +1,51 @@
 # PR Status — SavvyCortex Daily Ops
-# Generated: 2026-06-30
+# Generated: 2026-07-01
 # Repo: marvinmckinneyii0/savvy-cleanse-analysis
 
 summary:
-  total_open: 0
+  total_open: 1
   ready_to_merge: 0
-  needs_review: 0
+  needs_review: 1
   blocked: 0
   opus_flagged: 0
-  sonnet_tier: 0
+  sonnet_tier: 1
 
-pull_requests: []
+pull_requests:
+  - number: 28
+    title: "audit(issue-24): post-merge integrity check — .xls UI fix, Vitest setup, tracking docs"
+    branch: "audit/issue-24-post-merge-integrity"
+    author: "marvinmckinneyii0"
+    draft: false
+    mergeable: true
+    review_decision: ""
+    labels: []
+    classification: needs-review
+    tier: sonnet
+    opus_flag: false
+    files:
+      - "_bmad-output/implementation-artifacts/sprint-status.yaml"
+      - "_bmad-output/planning-artifacts/sprint-change-proposal-2026-06-30.md"
+      - "package.json"
+      - "package-lock.json"
+      - "src/components/dashboard/UploadArea.tsx"
+      - "src/test/DataPreview.test.tsx"
+      - "src/test/UploadArea.test.tsx"
+      - "src/test/fileParser.test.ts"
+      - "src/test/setup.ts"
+      - "tsconfig.app.json"
+      - "vite.config.ts"
+    rationale: "Audit/integrity check for Issue #24. Tests + UI wiring + build config — Sonnet-tier. No engine logic, schema changes, or security-core code. Ready for review by Marvin."
 
 alerts: []
 
 notes:
-  - "PR queue is fully clear as of 2026-06-30."
-  - "PR #27 (security/issue-24-xlsx-server-side-migration) merged 2026-06-30T13:22:45Z — Issue #24 SheetJS HIGH CVEs resolved."
-  - "Epic 1 is fully complete — all 6 stories merged (PRs #16, #19, #20, #22, #25, #26) + security fix PR #27."
-  - "Next expected PRs: Epic 2 sprint planning and story creation (configuration-layer, drift-engine)."
+  - "PR #28 opened 2026-07-01 — post-merge audit for Issue #24 SheetJS migration."
+  - "Epic 2 now in-progress — story 2-1-configuration-layer is ready-for-dev (story file created 2026-06-30)."
+  - "Epic 1 remains fully complete (6/6 stories, PRs #16 #19 #20 #22 #25 #26 + security PR #27)."
 
 changelog:
+  - date: "2026-07-01"
+    note: "PR #28 opened (audit/issue-24-post-merge-integrity — Sonnet-tier, needs-review). story.yaml reconciled: epic_2 → in-progress, 2-1 → ready-for-dev."
   - date: "2026-06-30"
     note: "PR #27 merged (security fix — SheetJS removed, xlsx parse moved server-side). PR queue now clear. Issue #24 fully closed."
   - date: "2026-06-29"
@@ -29,9 +54,5 @@ changelog:
     note: "All PRs closed/merged. Queue clear. PR #22 (Story 1.4 LLM Narrative) confirmed merged. PR #23 (Dependabot security fixes) also merged."
   - date: "2026-06-25"
     note: "PR #22 opened for Story 1.4 LLM Narrative Generation (MERGEABLE, needs Opus + security review per DoD). Summary: 5 open (1 ready, 1 needs-review, 3 blocked, 2 Opus-flagged)."
-  - date: "2026-06-24"
-    note: "Corrected mergeable states from live gh data: #17=MERGEABLE, #12=MERGEABLE, #4=CONFLICTING. Updated #17 classification to ready-to-merge."
-  - date: "2026-06-24"
-    note: "PR #20 (Story 1.3 Insight Engine) merged since last run. PR #18 now shows CONFLICTING merge state."
   - date: "2026-06-22"
     note: "Initial pr_status.yaml created by daily ops agent."

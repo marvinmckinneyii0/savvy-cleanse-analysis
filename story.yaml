@@ -1,7 +1,7 @@
 # Story Tracker — SavvyCortex
 # Synced from: _bmad-output/implementation-artifacts/sprint-status.yaml
 # Used by: Daily Ops Agent for sprint check and codex sync
-last_synced: "2026-06-29"
+last_synced: "2026-07-01"
 
 epic_1:
   name: "Data Quality & Insight Reports (CLI)"
@@ -50,9 +50,11 @@ epic_1:
 
 epic_2:
   name: "Automated Reporting & Data Monitoring"
-  status: backlog
+  status: in-progress
   stories:
-    2-1-configuration-layer: { status: backlog }
+    2-1-configuration-layer:
+      status: ready-for-dev
+      notes: "Story file created 2026-06-30. Reconciled 2026-07-01 — was incorrectly showing 'backlog'. story.yaml was stale vs sprint-status.yaml."
     2-2-drift-engine: { status: backlog }
     2-3-reporting-agent: { status: backlog }
     2-4-monitoring-agent-alert-delivery: { status: backlog }
@@ -117,6 +119,6 @@ summary:
   done: 6
   review: 0
   in_progress: 0
-  ready_for_dev: 0
-  backlog: 25
+  ready_for_dev: 1
+  backlog: 24
   blocked: 0
