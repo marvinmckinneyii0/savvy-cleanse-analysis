@@ -253,6 +253,24 @@ class TestOutlierDetection:
         assert anomaly.direction == "above"
         assert anomaly.count == 2
 
+    def test_outlier_detection_handles_non_integer_index(
+        self,
+        engine: InsightEngine,
+        outlier_df: pd.DataFrame,
+        clean_quality_report: DataQualityReport,
+        pipeline_run_id: str,
+    ) -> None:
+        df = outlier_df.copy()
+        df.index = [f"row-{i}" for i in range(len(df))]
+
+        result = engine.generate_insights(
+            df, clean_quality_report, pipeline_run_id=pipeline_run_id
+        )
+
+        anomaly = next(a for a in result.anomalies if a.column_name == "metric")
+        assert anomaly.row_indices == [98, 99]
+        assert anomaly.values == [500.0, 600.0]
+
 
 # ---------------------------------------------------------------------------
 # 10d — Empty/minimal dataset edge cases
