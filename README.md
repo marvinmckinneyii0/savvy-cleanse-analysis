@@ -57,9 +57,8 @@ Frontend will start at http://localhost:5173
 .
 
 3. Setup Backend (FastAPI)
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
+uv sync
+uvicorn backend.api.app:app --reload
 
 
 Backend will run at http://localhost:8000
@@ -84,7 +83,7 @@ savvycleanse/
 │   └── public/
 ├── backend/                # FastAPI backend
 │   ├── main.py
-│   └── requirements.txt
+│   └── pyproject.toml
 ├── package.json
 └── README.md
 
@@ -101,7 +100,7 @@ Backend
 
 Deploy to Render, Railway, Fly.io, or Docker:
 
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn backend.api.app:app --host 0.0.0.0 --port 8000
 
 Frontend
 npm run build
