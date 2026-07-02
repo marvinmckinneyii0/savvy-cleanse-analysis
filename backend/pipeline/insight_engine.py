@@ -432,7 +432,8 @@ class InsightEngine:
         anomalies: list[AnomalyRecord] = []
 
         for col in column_classes["numeric"]:
-            numeric = pd.to_numeric(df[col], errors="coerce").dropna()
+            numeric_full = pd.to_numeric(df[col], errors="coerce")
+            numeric = numeric_full.dropna()
 
             if len(numeric) < 10:
                 continue
@@ -445,6 +446,12 @@ class InsightEngine:
             mask = (numeric - mean).abs() > 2 * std
             outlier_indices = numeric[mask].index.tolist()
             outlier_values = numeric[mask].tolist()
+            full_mask = ((numeric_full - mean).abs() > 2 * std).fillna(False)
+            outlier_positions = [
+                int(pos)
+                for pos, is_outlier in enumerate(full_mask.tolist())
+                if is_outlier
+            ]
 
             if not outlier_indices:
                 continue
@@ -464,7 +471,7 @@ class InsightEngine:
             anomalies.append(
                 AnomalyRecord(
                     column_name=col,
-                    row_indices=[int(i) for i in outlier_indices[:20]],
+                    row_indices=outlier_positions[:20],
                     values=[
                         _safe_float(float(v)) or 0.0 for v in outlier_values[:20]
                     ],
