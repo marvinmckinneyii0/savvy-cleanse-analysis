@@ -1,7 +1,7 @@
 # Story Tracker — SavvyCortex
 # Synced from: _bmad-output/implementation-artifacts/sprint-status.yaml
 # Used by: Daily Ops Agent for sprint check and codex sync
-last_synced: "2026-07-01"
+last_synced: "2026-07-04"
 
 epic_1:
   name: "Data Quality & Insight Reports (CLI)"
@@ -53,8 +53,15 @@ epic_2:
   status: in-progress
   stories:
     2-1-configuration-layer:
+      status: done
+      commit: "1aab7b63500414ac17a42a21c4b594116b606dce"
+      branch: "claude/intelligent-lamport-x79o6v"
+      opus_flag: false
+      codex_integrated: false
+      notes: "Implemented 2026-07-04. 150/150 backend tests pass, security review clean. PipelineConfig contract in backend/models/pipeline_config.py; root config.yaml authored."
+    2-2-llm-client-abstraction:
       status: ready-for-dev
-      notes: "Story file created 2026-06-30. Reconciled 2026-07-01 — was incorrectly showing 'backlog'. story.yaml was stale vs sprint-status.yaml."
+      notes: "Inserted 2026-07-02 ahead of drift engine — prerequisite for 2.3/2.4 LLM calls. Synced from sprint-status.yaml 2026-07-04 (was missing here)."
     2-2-drift-engine: { status: backlog }
     2-3-reporting-agent: { status: backlog }
     2-4-monitoring-agent-alert-delivery: { status: backlog }
@@ -115,8 +122,8 @@ epic_7:
     7-5-versioned-rest-api-webhooks: { status: backlog }
 
 summary:
-  total_stories: 31
-  done: 6
+  total_stories: 32  # +1: 2-2-llm-client-abstraction inserted 2026-07-02
+  done: 7
   review: 0
   in_progress: 0
   ready_for_dev: 1
