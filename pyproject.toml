@@ -11,6 +11,10 @@ dependencies = [
     "pydantic>=2.0",
     "typer>=0.12.1",
     "pandas>=2.0",
+    "pyyaml>=6.0",
+    "croniter>=2.0",
+    "email-validator>=2.0",
+    "python-dotenv>=1.0",
 ]
 
 [tool.pytest.ini_options]
