@@ -84,7 +84,7 @@ development_status:
 
   # Epic 2: Automated Reporting & Data Monitoring
   epic-2: in-progress
-  2-1-configuration-layer: done  # commit 28a4a39 (claude/intelligent-lamport-5pkjd5) 2026-07-04; 27 new tests, 150 total green; security review: no findings
+  2-1-configuration-layer: done  # PR #29, commit 28a4a39 (claude/intelligent-lamport-5pkjd5) 2026-07-04; 27 new tests, 150 total green; security review: no findings
   2-2-llm-client-abstraction: ready-for-dev  # inserted 2026-07-02: prerequisite for 2.3 and 2.4 LLM calls
   2-2-drift-engine: backlog
   2-3-reporting-agent: backlog

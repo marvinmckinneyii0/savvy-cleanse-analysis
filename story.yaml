@@ -54,8 +54,9 @@ epic_2:
   stories:
     2-1-configuration-layer:
       status: done
+      pr: 29
       commit: "28a4a39"
-      notes: "Implemented 2026-07-04 on claude/intelligent-lamport-5pkjd5. 27 new tests (150 total green), security review clean."
+      notes: "Implemented 2026-07-04 on claude/intelligent-lamport-5pkjd5 (PR #29). 27 new tests (150 total green), security review clean."
     2-2-llm-client-abstraction:
       status: ready-for-dev
       notes: "Inserted 2026-07-02 before drift engine — prerequisite for 2.3/2.4 LLM calls. Synced from sprint-status.yaml 2026-07-04."
