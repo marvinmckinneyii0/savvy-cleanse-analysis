@@ -17,6 +17,7 @@ import structlog
 from structlog.testing import LogCapture
 
 from backend.core.llm_client import LLMClient
+from backend.core.logging import configure_logging
 from backend.errors.exceptions import LLMProviderError
 from backend.models.insight_payload import InsightPayload
 from backend.models.insight_report import (
@@ -24,7 +25,6 @@ from backend.models.insight_report import (
     NarrativeContent,
     NarrativeSection,
 )
-from backend.pipeline.config import configure_logging
 from backend.pipeline.narrative_generator import NarrativeGenerator
 
 

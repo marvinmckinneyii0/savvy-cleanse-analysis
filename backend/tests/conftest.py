@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from backend.pipeline.config import configure_logging
+from backend.core.logging import configure_logging
 
 # Defect-seeding indices for dirty_sales_df — kept as module constants so
 # test assertions can reference the exact positions rather than magic

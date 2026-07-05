@@ -30,9 +30,9 @@ from typing import Any
 
 import structlog
 
+from backend.core.logging import ensure_logging_configured, scoped_pipeline_run_id
 from backend.errors.exceptions import LLMProviderError
 from backend.models.insight_report import InsightReport, NarrativeContent
-from backend.pipeline.config import bind_pipeline_run_id
 
 _BACKOFF_DELAYS = [1, 2, 4]
 _MAX_ATTEMPTS = 3
@@ -85,76 +85,82 @@ class LLMClient:
         up to 3 retry attempts with exponential backoff. If all providers
         fail, returns a fallback InsightReport.
 
-        Binds ``pipeline_run_id`` to the logging context so direct callers
-        (future agents) get run-tagged logs without a separate step.
+        Binds ``pipeline_run_id`` to the logging context for the duration of this
+        call so direct callers (future agents) get run-tagged logs without a
+        separate step; the binding is restored to whatever was ambient before the
+        call once this method returns, so it never leaks into unrelated log lines
+        on a reused thread/asyncio task. Also guarantees JSON log output even if
+        the caller never called ``configure_logging()`` itself, without disturbing
+        a caller/test that already configured structlog.
         """
-        bind_pipeline_run_id(pipeline_run_id)
+        ensure_logging_configured()
 
-        providers: list[tuple[str, Any]] = [
-            ("claude", self._call_claude),
-            ("openai", self._call_openai),
-            ("gemini", self._call_gemini),
-        ]
+        with scoped_pipeline_run_id(pipeline_run_id):
+            providers: list[tuple[str, Any]] = [
+                ("claude", self._call_claude),
+                ("openai", self._call_openai),
+                ("gemini", self._call_gemini),
+            ]
 
-        consecutive_failures = 0
-        providers_tried: list[str] = []
+            consecutive_failures = 0
+            providers_tried: list[str] = []
 
-        for i, (provider_name, call_fn) in enumerate(providers):
-            if consecutive_failures >= _CIRCUIT_BREAKER_THRESHOLD:
-                break
-
-            providers_tried.append(provider_name)
-
-            try:
-                report = self._try_provider(
-                    provider_name, call_fn, payload_json,
-                )
-                self._logger.info(
-                    "narrative_generated",
-                    provider=provider_name,
-                    model=report.metadata.get("model", "unknown"),
-                    token_count=report.metadata.get("token_count", 0),
-                    duration_ms=report.metadata.get("duration_ms", 0),
-                )
-                return report
-
-            except LLMProviderError:
-                raise
-
-            except Exception:
-                consecutive_failures += 1
-
+            for i, (provider_name, call_fn) in enumerate(providers):
                 if consecutive_failures >= _CIRCUIT_BREAKER_THRESHOLD:
                     break
 
-                if i + 1 < len(providers):
-                    next_provider = providers[i + 1][0]
-                    self._logger.warning(
-                        "llm_fallback",
-                        from_provider=provider_name,
-                        to_provider=next_provider,
-                        reason="all_attempts_exhausted",
-                    )
+                providers_tried.append(provider_name)
 
-        self._logger.error(
-            "llm_circuit_breaker",
-            consecutive_failures=consecutive_failures,
-            providers_tried=providers_tried,
-        )
-        return InsightReport(
-            executive_summary="",
-            key_findings=[],
-            metadata={
-                "provider": "none",
-                "fallback": True,
-                "providers_tried": providers_tried,
-            },
-            fallback=True,
-            fallback_reason=(
-                f"All LLM providers failed after {consecutive_failures} "
-                "consecutive failures"
-            ),
-        )
+                try:
+                    report = self._try_provider(
+                        provider_name, call_fn, payload_json,
+                    )
+                    self._logger.info(
+                        "narrative_generated",
+                        provider=provider_name,
+                        model=report.metadata.get("model", "unknown"),
+                        token_count=report.metadata.get("token_count", 0),
+                        duration_ms=report.metadata.get("duration_ms", 0),
+                    )
+                    return report
+
+                except LLMProviderError:
+                    raise
+
+                except Exception:
+                    consecutive_failures += 1
+
+                    if consecutive_failures >= _CIRCUIT_BREAKER_THRESHOLD:
+                        break
+
+                    if i + 1 < len(providers):
+                        next_provider = providers[i + 1][0]
+                        self._logger.warning(
+                            "llm_fallback",
+                            from_provider=provider_name,
+                            to_provider=next_provider,
+                            reason="all_attempts_exhausted",
+                        )
+
+            self._logger.error(
+                "llm_circuit_breaker",
+                consecutive_failures=consecutive_failures,
+                providers_tried=providers_tried,
+            )
+            return InsightReport(
+                executive_summary="",
+                key_findings=[],
+                metadata={
+                    "provider": "none",
+                    "fallback": True,
+                    "providers_tried": providers_tried,
+                },
+                fallback=True,
+                fallback_reason=(
+                    f"All LLM providers failed after {consecutive_failures} "
+                    "consecutive failures"
+                ),
+            )
 
     def _try_provider(
         self,

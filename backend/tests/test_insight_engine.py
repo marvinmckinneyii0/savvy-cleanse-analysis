@@ -14,6 +14,7 @@ import pandas as pd
 import pytest
 import structlog
 
+from backend.core.logging import configure_logging
 from backend.models.insight_payload import (
     AnomalyRecord,
     ColumnSummary,
@@ -28,7 +29,6 @@ from backend.models.quality_report import (
     DefectCategory,
     Severity,
 )
-from backend.pipeline.config import configure_logging
 from backend.pipeline.insight_engine import InsightEngine
 
 
