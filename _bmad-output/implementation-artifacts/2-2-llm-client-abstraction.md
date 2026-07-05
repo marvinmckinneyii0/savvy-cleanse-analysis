@@ -1,6 +1,6 @@
 # Story 2.2: LLM Client Abstraction
 
-Status: ready-for-dev
+Status: review
 
 > 🔌 **Inserted story — not yet in epics.md.** Filed out-of-band between 2.1
 > (Configuration Layer) and the original 2.2 (Drift Engine, now effectively 2.3 in
@@ -66,7 +66,7 @@ consolidated in one place rather than scattered across pipeline stages.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 0 — Read the current implementation in full** (no AC, mandatory pre-work)
+- [x] **Task 0 — Read the current implementation in full** (no AC, mandatory pre-work) (completed by claude-opus)
   - [ ] Read `backend/pipeline/narrative_generator.py` completely — every method, every
         constant, every import. The file is 287 lines. Do not skim.
   - [ ] Read `backend/tests/test_narrative_generator.py` completely — identify every
@@ -77,11 +77,11 @@ consolidated in one place rather than scattered across pipeline stages.
   - [ ] Read `backend/errors/exceptions.py` — confirm `LLMProviderError` signature
         (takes `message: str`, `provider: str`, `cause: Exception`).
 
-- [ ] **Task 1 — Create `backend/core/__init__.py`** (AC: 5)
+- [x] **Task 1 — Create `backend/core/__init__.py`** (AC: 5) (completed by claude-opus)
   - [ ] Single line: `# backend/core — shared utilities (LLM client, future: cost tracking)`
   - [ ] This is the only change to directory structure.
 
-- [ ] **Task 2 — Create `backend/core/llm_client.py`** (AC: 1, 4, 6, 7)
+- [x] **Task 2 — Create `backend/core/llm_client.py`** (AC: 1, 4, 6, 7) (completed by claude-opus)
   - [ ] Move verbatim from `narrative_generator.py`:
         - Constants: `_BACKOFF_DELAYS`, `_MAX_ATTEMPTS`, `_CIRCUIT_BREAKER_THRESHOLD`,
           `_CLAUDE_MODEL`, `_OPENAI_MODEL`, `_GEMINI_MODEL`, `_SYSTEM_PROMPT`
@@ -100,7 +100,7 @@ consolidated in one place rather than scattered across pipeline stages.
   - [ ] Module docstring: explain the resilience layers (copy from `narrative_generator.py`
         docstring, update file reference).
 
-- [ ] **Task 3 — Refactor `backend/pipeline/narrative_generator.py`** (AC: 2, 6)
+- [x] **Task 3 — Refactor `backend/pipeline/narrative_generator.py`** (AC: 2, 6) (completed by claude-opus)
   - [ ] Add import: `from backend.core.llm_client import LLMClient`
   - [ ] In `__init__`: add `self._client = LLMClient()`
   - [ ] Replace `generate()` body with:
@@ -116,8 +116,8 @@ consolidated in one place rather than scattered across pipeline stages.
   - [ ] Update module docstring: note that resilience logic lives in
         `backend/core/llm_client.py` as of Story 2.2.
 
-- [ ] **Task 4 — Update mock targets in `backend/tests/test_narrative_generator.py`**
-      (AC: 3)
+- [x] **Task 4 — Update mock targets in `backend/tests/test_narrative_generator.py`**
+      (AC: 3) (completed by claude-opus)
   - [ ] Find every `@patch` or `mocker.patch` call. Current targets are of the form
         `backend.pipeline.narrative_generator.NarrativeGenerator._call_claude` (or
         similar). Update each to
@@ -127,7 +127,7 @@ consolidated in one place rather than scattered across pipeline stages.
   - [ ] **Do not add, remove, or rewrite any test case.** Only update mock targets
         and import paths.
 
-- [ ] **Task 5 — Full suite regression** (AC: 3, 6)
+- [x] **Task 5 — Full suite regression** (AC: 3, 6) (completed by claude-opus)
   - [ ] Run `uv run pytest backend/tests/ -v`
   - [ ] All 111 previously-passing tests must still pass (1 skip for `anthropic`
         missing from env is expected and acceptable).
@@ -281,3 +281,45 @@ update those too.
 | Date | Change |
 |---|---|
 | 2026-07-02 | Story filed out-of-band between 2.1 and original 2.2 (Drift Engine). Rationale: 2.3 Reporting Agent and 2.4 Monitoring Agent require LLM calls; extraction prevents duplication. |
+
+## Dev Agent Record
+
+### Agent Model Used
+
+claude-opus (Story 2.2, all tasks, single session — same session as Story 2.1)
+
+### Debug Log References
+
+`uv run pytest backend/tests/test_narrative_generator.py -v` — 11 passed, 1 skipped
+(anthropic not installed). Full suite: `uv run pytest backend/tests/ -v` — 131 passed,
+1 skipped, zero regressions (same pre-existing `pytest`/`pandera`/`fastapi`/`openpyxl`
+`--with` caveat as Story 2.1 — these aren't declared in `pyproject.toml`).
+
+### Completion Notes List
+
+- The existing test file mocked at the *instance* level
+  (`patch.object(gen, "_call_claude", ...)`) rather than the class-path form
+  (`@patch("backend.pipeline.narrative_generator.NarrativeGenerator._call_claude")`)
+  the story's Dev Notes assumed. Instance-level patches on `gen` do nothing once
+  `_call_claude` moves off `NarrativeGenerator` — the mock target update was
+  `patch.object(gen, "_call_claude", ...)` → `patch.object(gen._client, "_call_claude", ...)`
+  (and the same for `_call_openai`/`_call_gemini`), plus the one direct call
+  `gen._call_claude("{}")` → `gen._client._call_claude("{}")` in
+  `TestClaudeProviderBody`. `patch("backend.pipeline.narrative_generator.time.sleep")`
+  → `patch("backend.core.llm_client.time.sleep")`. No assertions changed, no test
+  cases added or removed — matches Task 4's constraint.
+- `stage="narrative_generator"` logger binding, event names, and all resilience
+  constants preserved byte-for-byte per AC6.
+
+### File List
+
+- `backend/core/__init__.py` — created (1 line).
+- `backend/core/llm_client.py` — created. `LLMClient` class: all resilience
+  machinery moved verbatim from `narrative_generator.py`.
+- `backend/pipeline/narrative_generator.py` — rewritten. Thin delegator (39 lines):
+  `NarrativeGenerator.__init__` builds `self._client = LLMClient()`; `generate()`
+  binds the run id, serializes the payload, delegates to
+  `self._client.generate_narrative(...)`.
+- `backend/tests/test_narrative_generator.py` — modified. Mock targets updated
+  from `gen.*` to `gen._client.*` and `narrative_generator.time.sleep` to
+  `llm_client.time.sleep`; no test cases added/removed/rewritten.
