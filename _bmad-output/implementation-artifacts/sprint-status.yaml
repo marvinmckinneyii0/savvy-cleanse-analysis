@@ -42,7 +42,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-14
-last_updated: 2026-07-05  # updated: story 2-2-llm-client-abstraction + corrective 2-2b-harden-llm-client-multi-caller-use both done
+last_updated: 2026-07-05  # updated: story 2-1-configuration-layer done; 2-2-llm-client-abstraction + corrective 2-2b-harden-llm-client-multi-caller-use both done
 project: SavvyCortex
 project_key: NOKEY
 tracking_system: file-system
@@ -84,7 +84,7 @@ development_status:
 
   # Epic 2: Automated Reporting & Data Monitoring
   epic-2: in-progress
-  2-1-configuration-layer: ready-for-dev
+  2-1-configuration-layer: done  # implemented + reviewed (1 fix applied: mapping-vs-list silent-swallow bug) 2026-07-05
   2-2-llm-client-abstraction: done  # inserted 2026-07-02: prerequisite for 2.3 and 2.4 LLM calls; implemented + reviewed 2026-07-05
   2-2b-harden-llm-client-multi-caller-use: done  # corrective story from 2-2 code review; implemented + re-reviewed (0 findings) 2026-07-05
   2-2-drift-engine: backlog
