@@ -28,3 +28,8 @@ structlog==25.5.0      # JSON structured logging with correlation IDs
 pytest>=8.2            # Test runner (pyproject pins exact config)
 pytest-cov             # Coverage reporting
 python-dotenv>=1.0     # .env loader for local development
+
+# --- Phase 2 configuration layer (added Story 2.1) ---
+pyyaml>=6.0            # config.yaml parsing (safe_load only)
+croniter>=2.0          # report_schedule cron expression validation
+email-validator>=2.0   # Pydantic EmailStr backing for alert_recipients
