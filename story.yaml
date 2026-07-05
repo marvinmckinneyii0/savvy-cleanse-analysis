@@ -56,7 +56,8 @@ epic_2:
       status: done
       opus_flag: false
       codex_integrated: false
-      notes: "Completed 2026-07-05 on branch claude/intelligent-lamport-pm94v2. PipelineConfig (Pydantic v2) + config.yaml + env-sourced SMTP secrets. 23 new tests, 146 total green, security review clean."
+      commit: "8bc8edb"
+      notes: "Completed 2026-07-05 in commit 8bc8edb on branch claude/intelligent-lamport-pm94v2. PipelineConfig (Pydantic v2) + config.yaml + env-sourced SMTP secrets. 23 new tests, 146 total green, security review clean."
     2-2-llm-client-abstraction:
       status: ready-for-dev
       notes: "Story file created 2026-07-02; inserted between 2.1 and drift engine as prerequisite for 2.3/2.4 LLM calls."
