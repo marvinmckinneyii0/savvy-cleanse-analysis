@@ -1,0 +1,19 @@
+# SavvyCortex pipeline configuration (Phase 2). Secrets live in .env, NOT here.
+
+data_sources:
+  - data/sales.csv            # file path(s) or directory(ies) the agents pull from
+
+report_schedule:
+  interval: weekly            # one of: daily | weekly | monthly
+  # cron: "0 6 * * 1"         # OR a cron expression (mutually exclusive with interval)
+
+metric_thresholds:            # per-metric fractional change; 0.15 == ±15%
+  revenue: 0.15
+  units_sold: 0.20
+
+alert_recipients:
+  - ops@example.com
+
+output:
+  format: docx                # docx | pdf
+  output_dir: output/
