@@ -1,6 +1,6 @@
 # Story 2.1: Configuration Layer
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -60,7 +60,7 @@ so that agents can be configured without code changes and settings can be modifi
 
 ## Tasks / Subtasks
 
-- [ ] **Task 0 — Resolve schema location & read the existing stub** (AC: 1, 3)
+- [x] **Task 0 — Resolve schema location & read the existing stub** (AC: 1, 3) (completed by claude-opus)
   - [ ] Read `backend/pipeline/config.py` — it currently holds `configure_logging()`,
         `bind_pipeline_run_id()`, and a **stub stdlib `@dataclass PipelineConfig`** (empty). Do NOT
         delete the logging functions — `conftest.py:20` imports `configure_logging` from here and the
@@ -69,7 +69,7 @@ so that agents can be configured without code changes and settings can be modifi
         `backend/models/pipeline_config.py`; replace the stub in `pipeline/config.py` with a
         re-export so `from backend.pipeline.config import PipelineConfig` keeps working.
 
-- [ ] **Task 1 — Define the Pydantic config contract** `backend/models/pipeline_config.py` (AC: 1, 2)
+- [x] **Task 1 — Define the Pydantic config contract** `backend/models/pipeline_config.py` (AC: 1, 2) (completed by claude-opus)
   - [ ] `ThresholdConfig` (or a `dict[str, float]` field with a validator) — per-metric fractional
         thresholds; default `DEFAULT_THRESHOLD = 0.15`; every value must be `> 0` (reject negative/zero).
   - [ ] `ScheduleConfig` — accepts either an interval enum (`daily`/`weekly`/`monthly`) or a cron
@@ -81,7 +81,7 @@ so that agents can be configured without code changes and settings can be modifi
         | Path | None = None) -> "PipelineConfig"` that reads YAML, merges env-sourced secrets, and
         validates. Use `model_config = ConfigDict(...)` per Pydantic v2.
 
-- [ ] **Task 2 — Implement the loader** `PipelineConfig.load()` (AC: 2, 3, 4, 5, 6)
+- [x] **Task 2 — Implement the loader** `PipelineConfig.load()` (AC: 2, 3, 4, 5, 6) (completed by claude-opus)
   - [ ] Default path = `config.yaml` at project root; accept an explicit path for tests.
   - [ ] Parse with `yaml.safe_load` (PyYAML). JSON is a valid subset — `safe_load` reads `.json` too;
         no separate JSON branch needed (note this in a comment).
@@ -93,14 +93,14 @@ so that agents can be configured without code changes and settings can be modifi
   - [ ] Emit `structlog.get_logger().info("config_loaded", schedule=..., threshold_keys=...,
         recipient_count=..., output_format=...)` — **assert no secret values are in the log payload.**
 
-- [ ] **Task 3 — Replace the stub & wire exports** `backend/pipeline/config.py` (AC: 3)
+- [x] **Task 3 — Replace the stub & wire exports** `backend/pipeline/config.py` (AC: 3) (completed by claude-opus)
   - [ ] Remove the empty `@dataclass PipelineConfig`; add `from backend.models.pipeline_config import
         PipelineConfig` (re-export) so both import paths resolve to the one Pydantic model.
   - [ ] Update the module docstring: the "full config surface lands in Story 1.6" note is stale —
         replace with "config schema defined in Story 2.1; see `backend/models/pipeline_config.py`".
   - [ ] Keep `configure_logging()` and `bind_pipeline_run_id()` exactly as-is.
 
-- [ ] **Task 4 — Author `config.yaml` + update `.env.example` + `pyproject.toml`** (AC: 1, 4)
+- [x] **Task 4 — Author `config.yaml` + update `.env.example` + `pyproject.toml`** (AC: 1, 4) (completed by claude-opus)
   - [ ] Create `config.yaml` at repo root with a documented, working example (see Dev Notes for the
         canonical shape). Comment each section. NO secrets in it.
   - [ ] Add to `.env.example`: `SMTP_HOST=`, `SMTP_PORT=587`, `SMTP_USERNAME=`, `SMTP_PASSWORD=`,
@@ -114,7 +114,7 @@ so that agents can be configured without code changes and settings can be modifi
         the four config deps land in both. Verify with:
         `grep -iE 'pyyaml|croniter|email-validator|python-dotenv' pyproject.toml backend/requirements.txt`
 
-- [ ] **Task 5 — Tests** `backend/tests/test_config.py` (AC: 2, 3, 4, 5, 6)
+- [x] **Task 5 — Tests** `backend/tests/test_config.py` (AC: 2, 3, 4, 5, 6) (completed by claude-opus)
   - [ ] Valid config → typed `PipelineConfig`, defaults applied (threshold `0.15`, format `docx`).
   - [ ] Missing required field → `ConfigurationError` (not bare `ValidationError`).
   - [ ] Invalid values: malformed cron, negative threshold, bad email → each raises `ConfigurationError`.
@@ -297,8 +297,49 @@ output:
 
 ### Agent Model Used
 
+claude-opus (Story 2.1, all tasks, single session)
+
 ### Debug Log References
+
+`uv run pytest backend/tests/ -v` — 131 passed, 1 skipped (anthropic not installed), zero
+regressions. Note: `pytest`, `pandera`, `fastapi`, `openpyxl` are not declared in
+`pyproject.toml` (pre-existing drift noted in Task 4 Dev Notes), so the local run used
+`uv run --with pytest --with pytest-cov --with pandera==0.30.1 --with fastapi --with
+python-multipart --with httpx --with openpyxl pytest ...` to exercise the full suite.
+`uv run --with pytest --with pytest-cov pytest backend/tests/test_config.py` is sufficient
+for this story's own tests without the extra `--with` flags.
 
 ### Completion Notes List
 
+- Deviated from the literal Task 1 model list: `ThresholdConfig`, `DataSourceConfig`, and
+  `AlertConfig` are implemented as plain typed fields on `PipelineConfig`
+  (`metric_thresholds: dict[str, float]`, `data_sources: list[str]`,
+  `alert_recipients: list[EmailStr]`) with field validators, rather than as separate
+  wrapper `BaseModel` classes. Reason: the canonical `config.yaml` shape (Dev Notes) has
+  these as flat YAML lists/dicts at the top level; wrapping them in single-field models
+  would force a nested shape (e.g. `alert_recipients: {recipients: [...]}`) that
+  contradicts the documented, working `config.yaml`. Task 1's own parenthetical for
+  `ThresholdConfig` ("or a `dict[str, float]` field with a validator") explicitly sanctions
+  this simplification; applied the same reasoning to the other two flat-shaped fields.
+  `ScheduleConfig`, `OutputConfig`, and `SmtpSettings` remain dedicated models since their
+  YAML shape is genuinely nested.
+- `PipelineConfig` uses `model_config = ConfigDict(extra="forbid")` at every level —
+  catches typos in `config.yaml` keys as validation errors rather than silently ignoring
+  them.
+
 ### File List
+
+- `backend/models/pipeline_config.py` — created. `ScheduleConfig`, `OutputConfig`,
+  `SmtpSettings`, `PipelineConfig` (with `load()` classmethod).
+- `backend/pipeline/config.py` — modified. Stub `@dataclass PipelineConfig` replaced with
+  a re-export from `backend.models.pipeline_config`; docstring updated;
+  `configure_logging()`/`bind_pipeline_run_id()` untouched.
+- `backend/tests/test_config.py` — created. 8 tests covering AC2–AC6.
+- `config.yaml` — created at repo root (canonical example, no secrets).
+- `.env.example` — modified. Added `SMTP_HOST`/`SMTP_PORT`/`SMTP_USERNAME`/
+  `SMTP_PASSWORD`/`SMTP_FROM` under a Phase 2 header.
+- `pyproject.toml` — modified. Added `pyyaml`, `croniter`, `email-validator`,
+  `python-dotenv` to `[project] dependencies`.
+- `backend/requirements.txt` — modified. Added `pyyaml`, `croniter`, `email-validator`
+  (mirrors `pyproject.toml`; `python-dotenv` was already present here).
+- `uv.lock` — regenerated via `uv lock` to include the four new dependencies.

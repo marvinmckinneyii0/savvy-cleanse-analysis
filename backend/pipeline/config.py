@@ -1,10 +1,10 @@
 """Pipeline configuration and logging setup.
 
-Story 1.1 installs the logging hook and a stub :class:`PipelineConfig`.
-The full config surface (thresholds, LLM provider selection, rendering
-options, baseline paths) lands in Story 1.6 when the orchestrator needs
-it end-to-end. Do not expand this dataclass ad-hoc — wait for Story 1.6
-so the schema is designed as a coherent whole.
+Story 1.1 installed the logging hook and an empty stub ``PipelineConfig``.
+The config schema is defined in Story 2.1; see
+:mod:`backend.models.pipeline_config`. ``PipelineConfig`` is re-exported
+here so ``from backend.pipeline.config import PipelineConfig`` keeps
+working for existing callers.
 
 Logging discipline (enforced here):
 
@@ -23,19 +23,11 @@ Logging discipline (enforced here):
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import structlog
 
+from backend.models.pipeline_config import PipelineConfig
 
-@dataclass
-class PipelineConfig:
-    """Pipeline configuration stub.
-
-    Full schema is defined in Story 1.6 (orchestrator). Intentionally
-    empty here so downstream modules can import the symbol without a
-    circular dependency on config shape that is not yet designed.
-    """
+__all__ = ["PipelineConfig", "configure_logging", "bind_pipeline_run_id"]
 
 
 def configure_logging() -> None:
