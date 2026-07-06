@@ -42,7 +42,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-14
-last_updated: 2026-07-06  # updated: story 2-1-configuration-layer done (implemented + reviewed, 156 passed / 1 pre-existing skip, no Critical/High findings)
+last_updated: 2026-07-06  # updated: stories 2-1-configuration-layer and 2-2-llm-client-abstraction done (implemented + reviewed, suite 157 passed / 0 skipped, no Critical/High findings)
 project: SavvyCortex
 project_key: NOKEY
 tracking_system: file-system
@@ -85,7 +85,7 @@ development_status:
   # Epic 2: Automated Reporting & Data Monitoring
   epic-2: in-progress
   2-1-configuration-layer: done  # 2026-07-06: all 6 ACs met; code review clean (no Critical/High); zero regressions
-  2-2-llm-client-abstraction: ready-for-dev  # inserted 2026-07-02: prerequisite for 2.3 and 2.4 LLM calls
+  2-2-llm-client-abstraction: done  # 2026-07-06: all 7 ACs met; verbatim extraction verified by review (no Critical/High); zero regressions
   2-2-drift-engine: backlog
   2-3-reporting-agent: backlog
   2-4-monitoring-agent-alert-delivery: backlog

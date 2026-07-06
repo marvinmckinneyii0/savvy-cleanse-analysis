@@ -1,6 +1,6 @@
 # Story 2.2: LLM Client Abstraction
 
-Status: review
+Status: done
 
 > 🔌 **Inserted story — not yet in epics.md.** Filed out-of-band between 2.1
 > (Configuration Layer) and the original 2.2 (Drift Engine, now effectively 2.3 in
