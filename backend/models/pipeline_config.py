@@ -19,6 +19,7 @@ a process restart (FR10).
 
 from __future__ import annotations
 
+import math
 import os
 from pathlib import Path
 from typing import Literal
@@ -47,6 +48,17 @@ DEFAULT_THRESHOLD = 0.15
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 _DEFAULT_CONFIG_PATH = _PROJECT_ROOT / "config.yaml"
+
+#: SmtpSettings field → environment variable it is sourced from, so
+#: env-var validation failures name the actual offender (the env var),
+#: not the innocent config.yaml.
+_SMTP_ENV_VARS = {
+    "host": "SMTP_HOST",
+    "port": "SMTP_PORT",
+    "username": "SMTP_USERNAME",
+    "password": "SMTP_PASSWORD",
+    "from_address": "SMTP_FROM",
+}
 
 _logger = structlog.get_logger(__name__)
 
@@ -137,9 +149,13 @@ class PipelineConfig(BaseModel):
     @classmethod
     def _thresholds_must_be_positive(cls, value: dict[str, float]) -> dict[str, float]:
         for metric, threshold in value.items():
-            if threshold <= 0:
+            # NaN compares False against everything, so a plain `<= 0`
+            # check would let it through and silently disable drift
+            # detection for that metric downstream.
+            if not math.isfinite(threshold) or threshold <= 0:
                 raise ValueError(
-                    f"metric_thresholds[{metric!r}] must be > 0, got {threshold}"
+                    f"metric_thresholds[{metric!r}] must be a finite number > 0, "
+                    f"got {threshold}"
                 )
         return value
 
@@ -168,6 +184,12 @@ class PipelineConfig(BaseModel):
             raw_text = config_path.read_text(encoding="utf-8")
         except FileNotFoundError as exc:
             raise ConfigurationError(f"config file not found: {config_path}") from exc
+        except (OSError, UnicodeDecodeError) as exc:
+            # IsADirectoryError, PermissionError, non-UTF-8 content, ... —
+            # all pre-flight config failures, so all ConfigurationError.
+            raise ConfigurationError(
+                f"config file could not be read: {config_path} ({exc})"
+            ) from exc
 
         try:
             data = yaml.safe_load(raw_text)
@@ -192,7 +214,23 @@ class PipelineConfig(BaseModel):
         load_dotenv()
 
         try:
-            config = cls(**data, smtp=SmtpSettings.from_env())
+            smtp = SmtpSettings.from_env()
+        except ValidationError as exc:
+            offenders = sorted(
+                {_SMTP_ENV_VARS.get(str(error["loc"][0]), "SMTP_*") for error in exc.errors()}
+            )
+            # Name the env var, never echo its value (it may be a secret).
+            raise ConfigurationError(
+                "invalid SMTP environment variable(s): "
+                + ", ".join(offenders)
+                + " — "
+                + "; ".join(error["msg"] for error in exc.errors())
+            ) from exc
+
+        try:
+            # model_validate (not cls(**data)) so non-string top-level YAML
+            # keys surface as ValidationError instead of a raw TypeError.
+            config = cls.model_validate({**data, "smtp": smtp})
         except ValidationError as exc:
             fields = ", ".join(
                 ".".join(str(loc) for loc in error["loc"]) or "<root>"

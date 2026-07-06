@@ -48,6 +48,18 @@ output:
 SECRET_MARKER = "hunter2-super-secret"
 
 
+@pytest.fixture(autouse=True)
+def _no_dotenv(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Neutralize load_dotenv() for every test in this module.
+
+    load_dotenv() walks up from cwd and would re-inject a developer's real
+    repo-root .env AFTER monkeypatch.delenv, making SMTP assertions
+    environment-dependent (and mutating os.environ outside monkeypatch
+    cleanup). Env sourcing itself is still covered via monkeypatch.setenv.
+    """
+    monkeypatch.setattr("backend.models.pipeline_config.load_dotenv", lambda: None)
+
+
 @pytest.fixture
 def config_path(tmp_path: Path) -> Path:
     """A valid config.yaml written to an isolated tmp directory."""
@@ -143,6 +155,17 @@ class TestInvalidConfig:
         with pytest.raises(ConfigurationError, match="not found"):
             PipelineConfig.load(missing)
 
+    def test_directory_path_raises_configuration_error(self, tmp_path: Path) -> None:
+        with pytest.raises(ConfigurationError, match="could not be read"):
+            PipelineConfig.load(tmp_path)
+
+    def test_non_utf8_file_raises_configuration_error(self, tmp_path: Path) -> None:
+        path = tmp_path / "config.yaml"
+        path.write_bytes(b"\xff\xfe invalid utf-8 \xff")
+
+        with pytest.raises(ConfigurationError, match="could not be read"):
+            PipelineConfig.load(path)
+
     def test_malformed_yaml_raises_configuration_error(self, tmp_path: Path) -> None:
         path = tmp_path / "config.yaml"
         path.write_text("data_sources: [unclosed", encoding="utf-8")
@@ -214,6 +237,19 @@ class TestInvalidConfig:
         with pytest.raises(ConfigurationError, match="metric_thresholds"):
             PipelineConfig.load(config_path)
 
+    @pytest.mark.parametrize("non_finite", [".nan", ".inf", "-.inf"])
+    def test_non_finite_threshold_rejected(self, config_path: Path, non_finite: str) -> None:
+        # NaN would silently disable drift detection for the metric —
+        # every downstream comparison against it evaluates False.
+        _write(config_path, {})
+        text = config_path.read_text(encoding="utf-8").replace(
+            "revenue: 0.15", f"revenue: {non_finite}"
+        )
+        config_path.write_text(text, encoding="utf-8")
+
+        with pytest.raises(ConfigurationError, match="metric_thresholds"):
+            PipelineConfig.load(config_path)
+
     def test_malformed_email_rejected(self, config_path: Path) -> None:
         _write(config_path, {"alert_recipients": ["not-an-email"]})
 
@@ -224,6 +260,17 @@ class TestInvalidConfig:
         _write(config_path, {"data_surces": ["typo.csv"]})
 
         with pytest.raises(ConfigurationError, match="data_surces"):
+            PipelineConfig.load(config_path)
+
+    def test_non_string_top_level_key_raises_configuration_error(
+        self, config_path: Path
+    ) -> None:
+        # YAML-1.1 pitfall: `on:`, `no:`, `123:` parse to bool/int keys,
+        # which would crash cls(**data) with a raw TypeError.
+        with config_path.open("a", encoding="utf-8") as handle:
+            handle.write("\n123: oops\n")
+
+        with pytest.raises(ConfigurationError, match="123"):
             PipelineConfig.load(config_path)
 
 
@@ -271,8 +318,12 @@ class TestSecretsFromEnv:
     ) -> None:
         monkeypatch.setenv("SMTP_PORT", "not-a-port")
 
-        with pytest.raises(ConfigurationError, match="port"):
+        # The message must blame the env var, not config.yaml, and must
+        # not echo the (potentially secret) env value.
+        with pytest.raises(ConfigurationError, match="SMTP_PORT") as excinfo:
             PipelineConfig.load(config_path)
+        assert "not-a-port" not in str(excinfo.value)
+        assert "config.yaml" not in str(excinfo.value)
 
 
 class TestReload:
