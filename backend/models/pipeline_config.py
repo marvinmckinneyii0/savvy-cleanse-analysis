@@ -21,6 +21,7 @@ surface as :class:`backend.errors.exceptions.ConfigurationError`; a raw
 
 from __future__ import annotations
 
+import math
 import os
 from pathlib import Path
 from typing import Literal
@@ -97,7 +98,7 @@ class SmtpSettings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     host: str | None = None
-    port: int = 587
+    port: int = Field(default=587, gt=0, lt=65536)
     username: str | None = None
     password: str | None = None
     from_addr: str | None = None
@@ -124,9 +125,10 @@ class PipelineConfig(BaseModel):
     @classmethod
     def _thresholds_must_be_positive(cls, value: dict[str, float]) -> dict[str, float]:
         for metric, threshold in value.items():
-            if threshold <= 0:
+            if not math.isfinite(threshold) or threshold <= 0:
                 raise ValueError(
-                    f"threshold for metric {metric!r} must be > 0, got {threshold}"
+                    f"threshold for metric {metric!r} must be a finite number > 0, "
+                    f"got {threshold}"
                 )
         return value
 
@@ -166,7 +168,12 @@ class PipelineConfig(BaseModel):
             # separate JSON branch needed.
             raw = yaml.safe_load(raw_text)
         except yaml.YAMLError as exc:
-            raise ConfigurationError(f"config file {resolved} is not valid YAML: {exc}") from exc
+            # Report position only, never the offending line's content — a
+            # secret mistakenly pasted into the YAML must not be echoed
+            # into error messages or logs.
+            raise ConfigurationError(
+                f"config file {resolved} is not valid YAML{_yaml_error_position(exc)}"
+            ) from exc
 
         if not isinstance(raw, dict):
             raise ConfigurationError(
@@ -195,7 +202,9 @@ class PipelineConfig(BaseModel):
             raise ConfigurationError(f"invalid SMTP environment settings: {exc}") from exc
 
         try:
-            config = cls(**raw, smtp=smtp)
+            # model_validate (not cls(**raw)) so non-string YAML keys become
+            # a ValidationError instead of an uncaught TypeError.
+            config = cls.model_validate({**raw, "smtp": smtp})
         except ValidationError as exc:
             raise ConfigurationError(_summarize_validation_error(exc)) from exc
 
@@ -210,6 +219,14 @@ class PipelineConfig(BaseModel):
             data_source_count=len(config.data_sources),
         )
         return config
+
+
+def _yaml_error_position(exc: yaml.YAMLError) -> str:
+    """Format the parse-failure position (line/column) if PyYAML provides one."""
+    mark = getattr(exc, "problem_mark", None)
+    if mark is None:
+        return ""
+    return f" (line {mark.line + 1}, column {mark.column + 1})"
 
 
 def _summarize_validation_error(exc: ValidationError) -> str:

@@ -56,7 +56,15 @@ alert_recipients:
 
 @pytest.fixture(autouse=True)
 def _clean_smtp_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Isolate every test from ambient SMTP_* env vars and any local .env."""
+    """Isolate every test from ambient SMTP_* env vars and any local .env.
+
+    ``load_dotenv`` is stubbed out because ``load()`` calls it *after* this
+    fixture runs — a developer's real ``.env`` would otherwise re-populate
+    the SMTP_* vars deleted here and make these tests machine-dependent.
+    """
+    monkeypatch.setattr(
+        "backend.models.pipeline_config.load_dotenv", lambda *args, **kwargs: False
+    )
     for var in ("SMTP_HOST", "SMTP_PORT", "SMTP_USERNAME", "SMTP_PASSWORD", "SMTP_FROM"):
         monkeypatch.delenv(var, raising=False)
 
@@ -118,6 +126,12 @@ class TestValidLoad:
 
         assert ReExported is PipelineConfig
 
+    def test_shipped_repo_root_config_is_valid(self) -> None:
+        # Read-only load of the real config.yaml — guards the shipped
+        # example against schema drift in later stories.
+        config = PipelineConfig.load()
+        assert isinstance(config, PipelineConfig)
+
 
 class TestInvalidConfig:
     def test_missing_file_raises_configuration_error(self, tmp_path: Path) -> None:
@@ -162,7 +176,7 @@ class TestInvalidConfig:
     @pytest.mark.parametrize("bad_threshold", ["-0.1", "0", "0.0"])
     def test_nonpositive_threshold_rejected(self, tmp_path: Path, bad_threshold: str) -> None:
         yaml_text = MINIMAL_YAML + f"metric_thresholds:\n  revenue: {bad_threshold}\n"
-        with pytest.raises(ConfigurationError, match="must be > 0"):
+        with pytest.raises(ConfigurationError, match="finite number > 0"):
             PipelineConfig.load(write_config(tmp_path, yaml_text))
 
     def test_malformed_email_rejected(self, tmp_path: Path) -> None:
@@ -175,15 +189,31 @@ class TestInvalidConfig:
             PipelineConfig.load(write_config(tmp_path, MINIMAL_YAML + "data_source: typo\n"))
 
     def test_validation_error_never_escapes(self, tmp_path: Path) -> None:
-        from pydantic import ValidationError
-
+        # A ValidationError (or anything else) escaping load() fails this
+        # pytest.raises — only ConfigurationError satisfies it.
         yaml_text = MINIMAL_YAML.replace("ops@example.com", "not-an-email")
-        try:
+        with pytest.raises(ConfigurationError):
             PipelineConfig.load(write_config(tmp_path, yaml_text))
-        except ConfigurationError:
-            pass
-        except ValidationError:  # pragma: no cover — the regression this guards
-            pytest.fail("ValidationError escaped PipelineConfig.load() uncaught")
+
+    def test_non_string_top_level_key_raises_configuration_error(
+        self, tmp_path: Path
+    ) -> None:
+        # YAML allows non-string mapping keys (123: x); they must surface as
+        # ConfigurationError, not an uncaught TypeError from cls(**raw).
+        with pytest.raises(ConfigurationError):
+            PipelineConfig.load(write_config(tmp_path, MINIMAL_YAML + "123: surprise\n"))
+
+    @pytest.mark.parametrize("bad_value", [".nan", ".inf"])
+    def test_non_finite_threshold_rejected(self, tmp_path: Path, bad_value: str) -> None:
+        yaml_text = MINIMAL_YAML + f"metric_thresholds:\n  revenue: {bad_value}\n"
+        with pytest.raises(ConfigurationError, match="finite"):
+            PipelineConfig.load(write_config(tmp_path, yaml_text))
+
+    def test_yaml_error_message_omits_file_content(self, tmp_path: Path) -> None:
+        yaml_text = "data_sources: [broken\nsecret-looking-value: {"
+        with pytest.raises(ConfigurationError) as excinfo:
+            PipelineConfig.load(write_config(tmp_path, yaml_text))
+        assert "secret-looking-value" not in str(excinfo.value)
 
     def test_bad_config_error_omits_input_values(self, tmp_path: Path) -> None:
         yaml_text = MINIMAL_YAML.replace("ops@example.com", "hunter2-secretvalue")
@@ -229,6 +259,14 @@ class TestSecrets:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setenv("SMTP_PORT", "not-a-port")
+        with pytest.raises(ConfigurationError, match="SMTP"):
+            PipelineConfig.load(write_config(tmp_path, VALID_YAML))
+
+    @pytest.mark.parametrize("bad_port", ["0", "-5", "70000"])
+    def test_out_of_range_smtp_port_raises_configuration_error(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, bad_port: str
+    ) -> None:
+        monkeypatch.setenv("SMTP_PORT", bad_port)
         with pytest.raises(ConfigurationError, match="SMTP"):
             PipelineConfig.load(write_config(tmp_path, VALID_YAML))
 
