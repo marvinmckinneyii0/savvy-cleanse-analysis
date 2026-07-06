@@ -1,6 +1,7 @@
 """Tests for NarrativeGenerator — Story 1.4.
 
-All LLM provider calls are mocked. Tests cover:
+All LLM provider calls are mocked (targets moved to
+``backend.core.llm_client.LLMClient`` in Story 2.2). Tests cover:
 - Successful generation (Task 9)
 - Retry logic with exponential backoff (Task 10)
 - Provider fallback chain (Task 11)
@@ -96,7 +97,7 @@ class TestSuccessfulGeneration:
         mock_result.usage.output_tokens = 200
         mock_result.usage.input_tokens = 150
 
-        with patch.object(gen, "_call_claude", return_value=sample_report):
+        with patch.object(gen._client, "_call_claude", return_value=sample_report):
             result = gen.generate(insight_payload, pipeline_run_id)
 
         assert isinstance(result, InsightReport)
@@ -113,7 +114,7 @@ class TestSuccessfulGeneration:
     ) -> None:
         gen = NarrativeGenerator()
 
-        with patch.object(gen, "_call_claude", return_value=sample_report):
+        with patch.object(gen._client, "_call_claude", return_value=sample_report):
             gen.generate(insight_payload, pipeline_run_id)
 
         events = [e for e in log_capture.entries if e.get("event") == "narrative_generated"]
@@ -143,8 +144,8 @@ class TestRetryLogic:
             return sample_report
 
         with (
-            patch.object(gen, "_call_claude", side_effect=_mock_claude),
-            patch("backend.pipeline.narrative_generator.time.sleep") as mock_sleep,
+            patch.object(gen._client, "_call_claude", side_effect=_mock_claude),
+            patch("backend.core.llm_client.time.sleep") as mock_sleep,
         ):
             result = gen.generate(insight_payload, pipeline_run_id)
 
@@ -173,8 +174,8 @@ class TestRetryLogic:
             return sample_report
 
         with (
-            patch.object(gen, "_call_claude", side_effect=_mock_claude),
-            patch("backend.pipeline.narrative_generator.time.sleep"),
+            patch.object(gen._client, "_call_claude", side_effect=_mock_claude),
+            patch("backend.core.llm_client.time.sleep"),
         ):
             gen.generate(insight_payload, pipeline_run_id)
 
@@ -203,9 +204,9 @@ class TestFallbackChain:
         )
 
         with (
-            patch.object(gen, "_call_claude", side_effect=_make_timeout_error()),
-            patch.object(gen, "_call_openai", return_value=openai_report),
-            patch("backend.pipeline.narrative_generator.time.sleep"),
+            patch.object(gen._client, "_call_claude", side_effect=_make_timeout_error()),
+            patch.object(gen._client, "_call_openai", return_value=openai_report),
+            patch("backend.core.llm_client.time.sleep"),
         ):
             result = gen.generate(insight_payload, pipeline_run_id)
 
@@ -232,10 +233,10 @@ class TestFallbackChain:
         )
 
         with (
-            patch.object(gen, "_call_claude", side_effect=_make_timeout_error()),
-            patch.object(gen, "_call_openai", side_effect=_make_timeout_error()),
-            patch.object(gen, "_call_gemini", return_value=gemini_report),
-            patch("backend.pipeline.narrative_generator.time.sleep"),
+            patch.object(gen._client, "_call_claude", side_effect=_make_timeout_error()),
+            patch.object(gen._client, "_call_openai", side_effect=_make_timeout_error()),
+            patch.object(gen._client, "_call_gemini", return_value=gemini_report),
+            patch("backend.core.llm_client.time.sleep"),
         ):
             result = gen.generate(insight_payload, pipeline_run_id)
 
@@ -255,10 +256,10 @@ class TestCircuitBreaker:
         gen = NarrativeGenerator()
 
         with (
-            patch.object(gen, "_call_claude", side_effect=_make_timeout_error()),
-            patch.object(gen, "_call_openai", side_effect=_make_timeout_error()),
-            patch.object(gen, "_call_gemini", side_effect=_make_timeout_error()),
-            patch("backend.pipeline.narrative_generator.time.sleep"),
+            patch.object(gen._client, "_call_claude", side_effect=_make_timeout_error()),
+            patch.object(gen._client, "_call_openai", side_effect=_make_timeout_error()),
+            patch.object(gen._client, "_call_gemini", side_effect=_make_timeout_error()),
+            patch("backend.core.llm_client.time.sleep"),
         ):
             result = gen.generate(insight_payload, pipeline_run_id)
 
@@ -276,10 +277,10 @@ class TestCircuitBreaker:
         gen = NarrativeGenerator()
 
         with (
-            patch.object(gen, "_call_claude", side_effect=_make_timeout_error()),
-            patch.object(gen, "_call_openai", side_effect=_make_timeout_error()),
-            patch.object(gen, "_call_gemini", side_effect=_make_timeout_error()),
-            patch("backend.pipeline.narrative_generator.time.sleep"),
+            patch.object(gen._client, "_call_claude", side_effect=_make_timeout_error()),
+            patch.object(gen._client, "_call_openai", side_effect=_make_timeout_error()),
+            patch.object(gen._client, "_call_gemini", side_effect=_make_timeout_error()),
+            patch("backend.core.llm_client.time.sleep"),
         ):
             gen.generate(insight_payload, pipeline_run_id)
 
@@ -301,7 +302,7 @@ class TestClientErrorNonRetry:
 
         with (
             patch.object(
-                gen, "_call_claude",
+                gen._client, "_call_claude",
                 side_effect=_make_api_status_error(400, "Bad request"),
             ),
             pytest.raises(LLMProviderError) as exc_info,
@@ -328,7 +329,7 @@ class TestClientErrorNonRetry:
             raise original_exc
 
         with (
-            patch.object(gen, "_call_claude", side_effect=_mock_claude),
+            patch.object(gen._client, "_call_claude", side_effect=_mock_claude),
             pytest.raises(LLMProviderError),
         ):
             gen.generate(insight_payload, pipeline_run_id)
@@ -345,7 +346,7 @@ class TestClientErrorNonRetry:
 
         with (
             patch.object(
-                gen, "_call_claude",
+                gen._client, "_call_claude",
                 side_effect=_make_api_status_error(422, "Unprocessable"),
             ),
             pytest.raises(LLMProviderError),
@@ -383,7 +384,7 @@ class TestClaudeProviderBody:
         mock_client.messages.parse.return_value = mock_result
 
         with patch.object(anthropic, "Anthropic", return_value=mock_client) as mock_ctor:
-            report = gen._call_claude("{}")
+            report = gen._client._call_claude("{}")
 
         # The provider was asked for the current Sonnet, not a retired snapshot.
         _, parse_kwargs = mock_client.messages.parse.call_args
