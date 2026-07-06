@@ -1,0 +1,27 @@
+# SavvyCortex pipeline configuration (Phase 2). Secrets live in .env, NOT here.
+# Loaded via PipelineConfig.load() — stateless, re-read on every scheduled run,
+# so edits here take effect without a process restart (FR10).
+
+# File path(s) or directory(ies) the agents pull data from.
+data_sources:
+  - data/sales.csv
+
+# One of: daily | weekly | monthly — OR a cron expression (mutually exclusive).
+report_schedule:
+  interval: weekly
+  # cron: "0 6 * * 1"
+
+# Per-metric fractional change thresholds; 0.15 == ±15%. Metrics without an
+# entry fall back to the default threshold of 0.15.
+metric_thresholds:
+  revenue: 0.15
+  units_sold: 0.20
+
+# Where drift/monitoring alerts are delivered.
+alert_recipients:
+  - ops@example.com
+
+# Report rendering options.
+output:
+  format: docx                # docx | pdf
+  output_dir: output/
