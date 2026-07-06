@@ -1,6 +1,6 @@
 # Story 2.1: Configuration Layer
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -297,8 +297,59 @@ output:
 
 ### Agent Model Used
 
+claude-fable-5 (Claude Code, autonomous scheduled run 2026-07-06)
+
 ### Debug Log References
+
+- Baseline before implementation: `pytest backend/tests/` → 123 passed, 1 skipped
+  (pre-existing skip: `anthropic` not installed in the env).
+- After implementation: 152 passed, 1 skipped — 29 new tests in `test_config.py`,
+  zero regressions.
 
 ### Completion Notes List
 
+- Followed the prescribed `PipelineConfig` location resolution exactly: Pydantic
+  models live in `backend/models/pipeline_config.py`; `backend/pipeline/config.py`
+  re-exports `PipelineConfig` so both import paths resolve to one class.
+  `configure_logging()` / `bind_pipeline_run_id()` untouched.
+- Root model uses `ConfigDict(extra="forbid")`, which structurally enforces
+  "no secrets in config.yaml": an `smtp:` section (or any typo'd key) is a
+  `ConfigurationError`, not silently ignored.
+- `SmtpSettings.password` is a Pydantic `SecretStr` and the whole `smtp` field
+  is `exclude=True`, so credentials never appear in reprs, validation errors,
+  or `model_dump_json()`.
+- Per-metric threshold fallback exposed as `PipelineConfig.threshold_for(metric)`
+  with module constant `DEFAULT_THRESHOLD = 0.15` for the Drift Engine (2.3)
+  and Monitoring Agent (2.4).
+- Deps added to BOTH `pyproject.toml` and `backend/requirements.txt`:
+  pyyaml>=6.0, croniter>=2.0, email-validator>=2.0; python-dotenv>=1.0 added to
+  pyproject (already in requirements.txt). Pre-existing manifest drift left
+  as-is per Task 4. `uv.lock` updated via `uv sync`.
+- Code review (fresh-context subagent) and security review both completed:
+  **zero Critical, zero High**. All Medium findings fixed before commit:
+  (a) explicit rejection of an `smtp:` section in config.yaml with a message
+  pointing at the env-var mechanism (was an accidental `TypeError` path),
+  plus a regression test pinning that YAML smtp values can never win over env;
+  (b) threshold validator now rejects NaN/inf (`math.isfinite`), closing the
+  "drift alerts silently never fire" hole; (c) invalid SMTP env values now
+  raise a `ConfigurationError` naming the env var (e.g. `SMTP_PORT`) instead
+  of blaming config.yaml; (d) `smtp` field is `repr=False` so a logged config
+  object never prints SMTP host/username; (e) empty-string `data_sources`
+  entries rejected (would coerce to `Path('.')`); (f) dotenv anchored to the
+  repo root and neutralized in the env-unset test (was dev-machine flaky);
+  (g) `[dependency-groups] dev` added so `uv run pytest backend/tests/` works
+  out of the box. Accepted as informational: YAML duplicate-key last-wins
+  (PyYAML default), safe_load resource bounds, error messages echoing YAML
+  parse context — all operator-trusted local-CLI surfaces.
+- Final suite: 158 passed, 1 skipped (pre-existing `anthropic` skip).
+
 ### File List
+
+- `backend/models/pipeline_config.py` (new)
+- `backend/tests/test_config.py` (new)
+- `config.yaml` (new, repo root)
+- `backend/pipeline/config.py` (modified — stub → re-export, docstring updated)
+- `.env.example` (modified — SMTP block)
+- `pyproject.toml` (modified — 4 config deps)
+- `backend/requirements.txt` (modified — 3 config deps; dotenv pre-existing)
+- `uv.lock` (regenerated)

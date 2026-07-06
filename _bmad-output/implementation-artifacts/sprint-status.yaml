@@ -42,7 +42,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-14
-last_updated: 2026-07-02  # updated: story 2-2-llm-client-abstraction created (ready-for-dev); inserted between 2.1 and original 2.2
+last_updated: 2026-07-06  # updated: story 2-1-configuration-layer done (code + security review clean, 158 passed / 1 pre-existing skip); Epic 2 keys renumbered to execution order after the 2026-07-02 insertion (drift 2.3, reporting 2.4, monitoring 2.5)
 project: SavvyCortex
 project_key: NOKEY
 tracking_system: file-system
@@ -83,12 +83,16 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Automated Reporting & Data Monitoring
+  # NOTE (2026-07-06): keys renumbered to execution order following the
+  # 2026-07-02 insertion of llm-client-abstraction. Mapping to epics.md
+  # originals: drift-engine (orig 2.2) -> 2.3, reporting-agent (orig 2.3)
+  # -> 2.4, monitoring-agent (orig 2.4) -> 2.5.
   epic-2: in-progress
-  2-1-configuration-layer: ready-for-dev
-  2-2-llm-client-abstraction: ready-for-dev  # inserted 2026-07-02: prerequisite for 2.3 and 2.4 LLM calls
-  2-2-drift-engine: backlog
-  2-3-reporting-agent: backlog
-  2-4-monitoring-agent-alert-delivery: backlog
+  2-1-configuration-layer: done  # 2026-07-06: reviews clean (0 Critical/High), 158 passed / 1 pre-existing skip
+  2-2-llm-client-abstraction: ready-for-dev  # inserted 2026-07-02: prerequisite for reporting/monitoring agent LLM calls
+  2-3-drift-engine: backlog
+  2-4-reporting-agent: backlog
+  2-5-monitoring-agent-alert-delivery: backlog
   epic-2-retrospective: optional
 
   # Epic 3: Web Application & Customer Dashboard
