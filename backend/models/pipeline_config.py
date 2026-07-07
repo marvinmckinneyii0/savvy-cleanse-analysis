@@ -16,23 +16,25 @@ Schema consumers (design constraints, do not break):
   and the env-sourced :class:`SmtpSettings`.
 
 Secrets discipline (NFR3): ``config.yaml`` holds non-secret structure
-only. SMTP credentials come exclusively from environment variables
-(``.env`` in dev via python-dotenv). A ``smtp`` key in the YAML is
-rejected outright, and the ``config_loaded`` log event carries a summary
-(schedule, threshold keys, recipient *count*) — never credentials, never
-the recipient list.
+only. SMTP credentials come exclusively from the process environment and
+``.env`` (read fresh on every ``load()`` — see :data:`_DOTENV_PATH` — so
+a credential rotation takes effect on the next run, same as a
+``config.yaml`` edit). Env-only keys in the YAML are rejected outright,
+and neither the ``config_loaded`` log event nor a
+:class:`ConfigurationError` message ever carries credential values,
+recipient addresses, or raw invalid input.
 """
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Any, Literal, Mapping
 
 import structlog
 import yaml
 from croniter import croniter
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -40,7 +42,6 @@ from pydantic import (
     Field,
     SecretStr,
     ValidationError,
-    field_validator,
     model_validator,
 )
 
@@ -50,13 +51,57 @@ from backend.errors.exceptions import ConfigurationError
 #: entry in ``metric_thresholds`` (0.15 == ±15%).
 DEFAULT_THRESHOLD = 0.15
 
-#: Repo root — ``backend/models/pipeline_config.py`` → up 2 → project root.
+#: Repo root — this file sits at backend/models/pipeline_config.py, so
+#: parents[0]=models, parents[1]=backend, parents[2]=repo root.
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 #: Default config file, per architecture target tree (config.yaml at root).
 DEFAULT_CONFIG_PATH = _PROJECT_ROOT / "config.yaml"
 
+#: The .env file read (without mutating ``os.environ``) on every load().
+#: Module-level so tests can point it at a nonexistent file for isolation.
+_DOTENV_PATH = _PROJECT_ROOT / ".env"
+
+#: SmtpSettings field name → environment variable. Single source of truth
+#: for env sourcing — .env.example and the test-isolation fixture derive
+#: from this mapping.
+SMTP_ENV_VARS: dict[str, str] = {
+    "host": "SMTP_HOST",
+    "port": "SMTP_PORT",
+    "username": "SMTP_USERNAME",
+    "password": "SMTP_PASSWORD",
+    "from_addr": "SMTP_FROM",
+}
+
+#: Top-level config keys whose values come exclusively from the
+#: environment. load() rejects them in the YAML (they are declared model
+#: fields, so ``extra="forbid"`` alone cannot catch them) and injects the
+#: env-sourced values itself. Future env-only blocks (e.g. LLM settings)
+#: must be added here alongside their injection.
+_ENV_ONLY_KEYS = frozenset({"smtp"})
+
 _logger = structlog.get_logger(__name__)
+
+
+class _UniqueKeyLoader(yaml.SafeLoader):
+    """SafeLoader that rejects duplicate mapping keys.
+
+    Plain ``safe_load`` silently applies last-wins to duplicated keys, so
+    a second ``metric_thresholds:`` block would discard the first with no
+    error — breaking the fail-fast contract that ``extra="forbid"``
+    provides for misspelled keys.
+    """
+
+    def construct_mapping(self, node: yaml.MappingNode, deep: bool = False) -> dict:
+        seen: set[Any] = set()
+        for key_node, _ in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            if key in seen:
+                raise yaml.YAMLError(
+                    f"duplicate key {key!r} (line {key_node.start_mark.line + 1})"
+                )
+            seen.add(key)
+        return super().construct_mapping(node, deep)
 
 
 class ScheduleConfig(BaseModel):
@@ -86,7 +131,13 @@ class ScheduleConfig(BaseModel):
 
 
 class OutputConfig(BaseModel):
-    """Report output settings."""
+    """Report output settings.
+
+    ``format`` must stay in sync with the vocabulary of
+    :class:`backend.pipeline.orchestrator.OutputFormat` (models must not
+    import pipeline, so the coupling is enforced by a test instead:
+    ``test_output_format_vocabulary_matches_orchestrator``).
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -107,14 +158,14 @@ class SmtpSettings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     host: str | None = None
-    port: int = 587
+    port: int = Field(default=587, ge=1, le=65535)
     username: str | None = None
     password: SecretStr | None = None
     from_addr: str | None = None
 
     @staticmethod
-    def env_values() -> dict[str, str]:
-        """Raw ``SMTP_*`` environment values keyed by field name.
+    def env_values(env: Mapping[str, str]) -> dict[str, str]:
+        """Raw ``SMTP_*`` values from ``env``, keyed by field name.
 
         Returned unvalidated so :meth:`PipelineConfig.load` can validate
         them alongside the YAML — a malformed ``SMTP_PORT`` then surfaces
@@ -122,18 +173,11 @@ class SmtpSettings(BaseModel):
         ``ValidationError``. Unset/empty vars are omitted (field defaults
         apply).
         """
-        raw: dict[str, str] = {}
-        for field, env_var in (
-            ("host", "SMTP_HOST"),
-            ("port", "SMTP_PORT"),
-            ("username", "SMTP_USERNAME"),
-            ("password", "SMTP_PASSWORD"),
-            ("from_addr", "SMTP_FROM"),
-        ):
-            value = os.environ.get(env_var)
-            if value:
-                raw[field] = value
-        return raw
+        return {
+            field: env[env_var]
+            for field, env_var in SMTP_ENV_VARS.items()
+            if env.get(env_var)
+        }
 
 
 class PipelineConfig(BaseModel):
@@ -148,20 +192,15 @@ class PipelineConfig(BaseModel):
 
     data_sources: list[Path] = Field(min_length=1)
     report_schedule: ScheduleConfig
-    metric_thresholds: dict[str, float] = Field(default_factory=dict)
+    # gt=0 rejects negative/zero AND NaN (NaN compares False against
+    # everything); allow_inf_nan=False closes the +inf hole — either
+    # would otherwise silently disable drift detection for that metric.
+    metric_thresholds: dict[str, Annotated[float, Field(gt=0, allow_inf_nan=False)]] = Field(
+        default_factory=dict
+    )
     alert_recipients: list[EmailStr] = Field(default_factory=list)
     output: OutputConfig = Field(default_factory=OutputConfig)
     smtp: SmtpSettings = Field(default_factory=SmtpSettings)
-
-    @field_validator("metric_thresholds")
-    @classmethod
-    def _thresholds_positive(cls, value: dict[str, float]) -> dict[str, float]:
-        for metric, threshold in value.items():
-            if threshold <= 0:
-                raise ValueError(
-                    f"metric_thresholds[{metric!r}] must be > 0, got {threshold}"
-                )
-        return value
 
     def threshold_for(self, metric: str) -> float:
         """Per-metric fractional change threshold, falling back to 0.15."""
@@ -174,33 +213,38 @@ class PipelineConfig(BaseModel):
         Stateless by design (FR10): every call re-reads ``path`` (default:
         ``config.yaml`` at the project root) and re-validates it, so a
         scheduled agent picks up on-disk edits on its next run without a
-        process restart. Keep this cheap and side-effect-free besides the
-        ``config_loaded`` log event.
+        process restart. That statelessness covers secrets too: ``.env``
+        is re-read per call via :func:`dotenv.dotenv_values` — never
+        ``load_dotenv()``, which would bake values into ``os.environ``
+        once and ignore rotations for the life of the process. Real
+        process environment variables take precedence over ``.env``.
+        Keep this cheap and side-effect-free besides the ``config_loaded``
+        log event.
 
-        SMTP secrets are merged from environment variables (``.env`` is
-        loaded first via python-dotenv, which never overrides variables
-        already set in the process environment).
+        Relative ``data_sources`` and ``output.output_dir`` entries are
+        anchored to the config file's directory, so agents launched with
+        an arbitrary working directory (cron/systemd) resolve the same
+        files a developer running from the repo root does.
 
         Raises:
-            ConfigurationError: missing file, malformed YAML, schema
-                violations, or secrets found in the YAML. Pydantic's
-                ``ValidationError`` never escapes this method.
+            ConfigurationError: missing/unreadable file, malformed or
+                duplicate-key YAML, schema violations, or env-only keys
+                found in the YAML. Pydantic's ``ValidationError`` never
+                escapes this method.
         """
         config_path = Path(path) if path is not None else DEFAULT_CONFIG_PATH
-        load_dotenv()
 
         try:
             raw_text = config_path.read_text(encoding="utf-8")
-        except FileNotFoundError as exc:
-            raise ConfigurationError(f"Config file not found: {config_path}") from exc
         except OSError as exc:
-            raise ConfigurationError(f"Config file unreadable: {config_path} ({exc})") from exc
+            raise ConfigurationError(f"Cannot read config file {config_path}: {exc}") from exc
 
-        # JSON is a strict subset of YAML, so safe_load parses .json config
-        # too — no separate JSON branch needed. NEVER yaml.load without a
-        # safe loader (arbitrary-object deserialization; NFR4).
+        # JSON is a strict subset of YAML, so this parses .json config
+        # too — no separate JSON branch needed. NEVER yaml.load with the
+        # default loader (arbitrary-object deserialization; NFR4) —
+        # _UniqueKeyLoader extends SafeLoader.
         try:
-            raw = yaml.safe_load(raw_text)
+            raw = yaml.load(raw_text, Loader=_UniqueKeyLoader)  # noqa: S506
         except yaml.YAMLError as exc:
             raise ConfigurationError(f"Malformed YAML in {config_path}: {exc}") from exc
 
@@ -211,30 +255,58 @@ class PipelineConfig(BaseModel):
 
         # Secrets live in env only (NFR3). Reject rather than silently
         # override so a credential committed to config.yaml is caught.
-        if "smtp" in raw:
+        for key in sorted(_ENV_ONLY_KEYS & raw.keys()):
             raise ConfigurationError(
-                "config.yaml must not contain an 'smtp' section — SMTP settings "
+                f"config.yaml must not contain an {key!r} section — its values "
                 "are sourced from environment variables (see .env.example)"
             )
 
-        raw["smtp"] = SmtpSettings.env_values()
+        # Fresh .env read per call, without mutating os.environ; process
+        # env wins over .env, matching python-dotenv's own precedence.
+        dotenv = {k: v for k, v in dotenv_values(_DOTENV_PATH).items() if v is not None}
+        raw["smtp"] = SmtpSettings.env_values({**dotenv, **os.environ})
 
         try:
             config = cls.model_validate(raw)
         except ValidationError as exc:
-            fields = ", ".join(
-                ".".join(str(part) for part in err["loc"]) or "<root>" for err in exc.errors()
+            problems = "; ".join(
+                f"{'.'.join(str(part) for part in err['loc']) or '<root>'}: {err['msg']}"
+                for err in exc.errors()
             )
+            # `from None`: the ValidationError repr embeds raw input
+            # values (recipient addresses, env-sourced credentials), so
+            # chaining it would leak them into logged tracebacks (DoD:
+            # ConfigurationError must not leak secret values).
             raise ConfigurationError(
-                f"Invalid configuration in {config_path} — offending field(s): "
-                f"{fields}. Details: {exc}"
-            ) from exc
+                f"Invalid configuration in {config_path} — {problems}"
+            ) from None
+
+        base_dir = config_path.resolve().parent
+        config = config.model_copy(
+            update={
+                "data_sources": [
+                    p if p.is_absolute() else base_dir / p for p in config.data_sources
+                ],
+                "output": config.output.model_copy(
+                    update={
+                        "output_dir": config.output.output_dir
+                        if config.output.output_dir.is_absolute()
+                        else base_dir / config.output.output_dir
+                    }
+                ),
+            }
+        )
 
         # Summary only — never SMTP credentials, never recipient addresses
-        # (PII-adjacent; count is enough).
+        # (PII-adjacent; count is enough), never absolute paths (they can
+        # carry usernames — project logging discipline).
+        try:
+            log_path = str(config_path.resolve().relative_to(_PROJECT_ROOT))
+        except ValueError:
+            log_path = config_path.name
         _logger.info(
             "config_loaded",
-            config_path=str(config_path),
+            config_path=log_path,
             schedule=config.report_schedule.describe(),
             threshold_keys=sorted(config.metric_thresholds),
             recipient_count=len(config.alert_recipients),

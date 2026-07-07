@@ -2,10 +2,11 @@
 
 Covers ``backend/models/pipeline_config.py`` and the re-export in
 ``backend/pipeline/config.py``: valid load with defaults, every AC2
-rejection path (missing field, bad cron, non-positive threshold, bad
-email) raising :class:`ConfigurationError` (never a bare Pydantic
-``ValidationError``), env-only SMTP secrets, stateless reload, and the
-secret-free ``config_loaded`` log event.
+rejection path (missing field, bad cron, non-positive/non-finite
+threshold, bad email) raising :class:`ConfigurationError` (never a bare
+Pydantic ``ValidationError``), env-only SMTP secrets with per-call
+``.env`` reads, stateless reload, path anchoring, and the secret-free
+``config_loaded`` log event.
 
 All config files are written under ``tmp_path`` — the real repo-root
 ``config.yaml`` is only ever *read* (default-path test), never mutated.
@@ -13,16 +14,18 @@ All config files are written under ``tmp_path`` — the real repo-root
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
 import structlog
 import yaml
-from pydantic import ValidationError
 
+import backend.models.pipeline_config as pipeline_config_module
 from backend.errors.exceptions import ConfigurationError
 from backend.models.pipeline_config import (
     DEFAULT_THRESHOLD,
+    SMTP_ENV_VARS,
     PipelineConfig,
     ScheduleConfig,
     SmtpSettings,
@@ -40,10 +43,17 @@ VALID_CONFIG: dict = {
 
 
 @pytest.fixture(autouse=True)
-def _clean_smtp_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Isolate every test from real SMTP_* env vars (and any local .env)."""
-    for var in ("SMTP_HOST", "SMTP_PORT", "SMTP_USERNAME", "SMTP_PASSWORD", "SMTP_FROM"):
+def _isolate_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Isolate every test from real SMTP_* env vars AND any local .env.
+
+    Deleting the env vars alone is not enough — load() reads the .env
+    file on every call, so a developer's repo-root .env would re-inject
+    exactly the values this fixture removes. Point the module's dotenv
+    path at a file that does not exist.
+    """
+    for var in SMTP_ENV_VARS.values():
         monkeypatch.delenv(var, raising=False)
+    monkeypatch.setattr(pipeline_config_module, "_DOTENV_PATH", tmp_path / "no-such.env")
 
 
 def write_config(tmp_path: Path, data: dict) -> Path:
@@ -57,13 +67,30 @@ class TestValidLoad:
         config = PipelineConfig.load(write_config(tmp_path, VALID_CONFIG))
 
         assert isinstance(config, PipelineConfig)
-        assert config.data_sources == [Path("data/sales.csv")]
         assert config.report_schedule.interval == "weekly"
         assert config.report_schedule.cron is None
         assert config.metric_thresholds == {"revenue": 0.15, "units_sold": 0.20}
         assert config.alert_recipients == ["ops@example.com"]
         assert config.output.format == "docx"
-        assert config.output.output_dir == Path("output")
+
+    def test_relative_paths_anchored_to_config_dir(self, tmp_path: Path) -> None:
+        # Agents run under cron/systemd with arbitrary cwd — relative
+        # entries must resolve against the config file, not the cwd.
+        config = PipelineConfig.load(write_config(tmp_path, VALID_CONFIG))
+
+        assert config.data_sources == [tmp_path.resolve() / "data/sales.csv"]
+        assert config.output.output_dir == tmp_path.resolve() / "output"
+
+    def test_absolute_paths_left_untouched(self, tmp_path: Path) -> None:
+        data = {
+            **VALID_CONFIG,
+            "data_sources": ["/srv/data/sales.csv"],
+            "output": {"output_dir": "/srv/reports"},
+        }
+        config = PipelineConfig.load(write_config(tmp_path, data))
+
+        assert config.data_sources == [Path("/srv/data/sales.csv")]
+        assert config.output.output_dir == Path("/srv/reports")
 
     def test_defaults_applied_when_sections_omitted(self, tmp_path: Path) -> None:
         minimal = {
@@ -73,7 +100,7 @@ class TestValidLoad:
         config = PipelineConfig.load(write_config(tmp_path, minimal))
 
         assert config.output.format == "docx"
-        assert config.output.output_dir == Path("output")
+        assert config.output.output_dir == tmp_path.resolve() / "output"
         assert config.metric_thresholds == {}
         assert config.threshold_for("anything") == DEFAULT_THRESHOLD == 0.15
         assert config.alert_recipients == []
@@ -103,10 +130,23 @@ class TestValidLoad:
 
         assert ReExported is PipelineConfig
 
+    def test_output_format_vocabulary_matches_orchestrator(self) -> None:
+        # OutputConfig.format (models layer) and orchestrator.OutputFormat
+        # (pipeline layer) must stay in sync; models cannot import
+        # pipeline, so the coupling is pinned here instead.
+        from typing import Literal, get_args, get_type_hints
+
+        from backend.pipeline.orchestrator import OutputFormat
+
+        hints = get_type_hints(pipeline_config_module.OutputConfig)
+        literal_values = set(get_args(hints["format"]))
+        assert literal_values == {member.value for member in OutputFormat}
+        assert get_args(hints["format"]) == get_args(Literal["docx", "pdf"])
+
 
 class TestInvalidConfig:
     def test_missing_file_raises_configuration_error(self, tmp_path: Path) -> None:
-        with pytest.raises(ConfigurationError, match="not found"):
+        with pytest.raises(ConfigurationError, match="Cannot read config file"):
             PipelineConfig.load(tmp_path / "nope.yaml")
 
     def test_malformed_yaml_raises_configuration_error(self, tmp_path: Path) -> None:
@@ -114,6 +154,21 @@ class TestInvalidConfig:
         path.write_text("data_sources: [unclosed", encoding="utf-8")
 
         with pytest.raises(ConfigurationError, match="Malformed YAML"):
+            PipelineConfig.load(path)
+
+    def test_duplicate_yaml_key_rejected(self, tmp_path: Path) -> None:
+        # safe_load's default last-wins would silently discard the first
+        # block — a fail-fast contract violation, not a valid config.
+        path = tmp_path / "config.yaml"
+        path.write_text(
+            "data_sources: [data/]\n"
+            "report_schedule: {interval: daily}\n"
+            "metric_thresholds: {revenue: 0.15}\n"
+            "metric_thresholds: {units_sold: 0.5}\n",
+            encoding="utf-8",
+        )
+
+        with pytest.raises(ConfigurationError, match="duplicate key"):
             PipelineConfig.load(path)
 
     def test_non_mapping_root_raises_configuration_error(self, tmp_path: Path) -> None:
@@ -159,8 +214,12 @@ class TestInvalidConfig:
         with pytest.raises(ConfigurationError, match="interval"):
             PipelineConfig.load(write_config(tmp_path, data))
 
-    @pytest.mark.parametrize("bad_threshold", [-0.15, 0.0, 0])
-    def test_non_positive_threshold_rejected(self, tmp_path: Path, bad_threshold: float) -> None:
+    @pytest.mark.parametrize("bad_threshold", [-0.15, 0.0, 0, float("nan"), float("inf")])
+    def test_non_positive_or_non_finite_threshold_rejected(
+        self, tmp_path: Path, bad_threshold: float
+    ) -> None:
+        # NaN passes a naive `<= 0` check and inf passes `> 0`; either
+        # would silently disable drift detection for the metric.
         data = {**VALID_CONFIG, "metric_thresholds": {"revenue": bad_threshold}}
 
         with pytest.raises(ConfigurationError, match="metric_thresholds"):
@@ -171,6 +230,19 @@ class TestInvalidConfig:
 
         with pytest.raises(ConfigurationError, match="alert_recipients"):
             PipelineConfig.load(write_config(tmp_path, data))
+
+    def test_error_message_does_not_echo_raw_input(self, tmp_path: Path) -> None:
+        # DoD: ConfigurationError must not leak secret/PII values. The
+        # raw Pydantic ValidationError embeds input_value=... — assert
+        # the wrapped message (and its cause chain) dropped it.
+        leaked_address = "jane.doe@secret-corp"
+        data = {**VALID_CONFIG, "alert_recipients": [leaked_address]}
+
+        with pytest.raises(ConfigurationError) as excinfo:
+            PipelineConfig.load(write_config(tmp_path, data))
+
+        assert leaked_address not in str(excinfo.value)
+        assert excinfo.value.__cause__ is None  # ValidationError not chained
 
     def test_invalid_output_format_rejected(self, tmp_path: Path) -> None:
         data = {**VALID_CONFIG, "output": {"format": "xlsx"}}
@@ -183,19 +255,6 @@ class TestInvalidConfig:
 
         with pytest.raises(ConfigurationError, match="metric_treshholds"):
             PipelineConfig.load(write_config(tmp_path, data))
-
-    def test_validation_error_never_escapes(self, tmp_path: Path) -> None:
-        data = {**VALID_CONFIG, "alert_recipients": ["not-an-email"]}
-        path = write_config(tmp_path, data)
-
-        try:
-            PipelineConfig.load(path)
-        except ConfigurationError:
-            pass
-        except ValidationError:  # pragma: no cover — the regression this guards
-            pytest.fail("Pydantic ValidationError escaped PipelineConfig.load()")
-        else:
-            pytest.fail("invalid config did not raise")
 
 
 class TestSecretsFromEnv:
@@ -240,6 +299,50 @@ class TestSecretsFromEnv:
 
         with pytest.raises(ConfigurationError, match="smtp.port"):
             PipelineConfig.load(write_config(tmp_path, VALID_CONFIG))
+
+    @pytest.mark.parametrize("bad_port", ["0", "-1", "70000"])
+    def test_out_of_range_smtp_port_rejected(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, bad_port: str
+    ) -> None:
+        # Fail at load time, not hours later inside smtplib.
+        monkeypatch.setenv("SMTP_PORT", bad_port)
+
+        with pytest.raises(ConfigurationError, match="smtp.port"):
+            PipelineConfig.load(write_config(tmp_path, VALID_CONFIG))
+
+    def test_dotenv_read_fresh_on_every_load(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # FR10 applies to secrets too: a .env credential rotation must
+        # take effect on the next load(), no process restart. load_dotenv
+        # semantics (bake into os.environ once, never override) would
+        # fail this test.
+        dotenv_path = tmp_path / ".env"
+        dotenv_path.write_text("SMTP_PASSWORD=old-password\n", encoding="utf-8")
+        monkeypatch.setattr(pipeline_config_module, "_DOTENV_PATH", dotenv_path)
+        config_path = write_config(tmp_path, VALID_CONFIG)
+
+        first = PipelineConfig.load(config_path)
+        assert first.smtp.password is not None
+        assert first.smtp.password.get_secret_value() == "old-password"
+        assert "SMTP_PASSWORD" not in os.environ  # no global mutation
+
+        dotenv_path.write_text("SMTP_PASSWORD=new-password\n", encoding="utf-8")
+        second = PipelineConfig.load(config_path)
+        assert second.smtp.password is not None
+        assert second.smtp.password.get_secret_value() == "new-password"
+
+    def test_process_env_wins_over_dotenv(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        dotenv_path = tmp_path / ".env"
+        dotenv_path.write_text("SMTP_HOST=from-dotenv\n", encoding="utf-8")
+        monkeypatch.setattr(pipeline_config_module, "_DOTENV_PATH", dotenv_path)
+        monkeypatch.setenv("SMTP_HOST", "from-process-env")
+
+        config = PipelineConfig.load(write_config(tmp_path, VALID_CONFIG))
+
+        assert config.smtp.host == "from-process-env"
 
     def test_password_repr_is_masked(self) -> None:
         settings = SmtpSettings(password=SECRET_SENTINEL)
@@ -295,6 +398,8 @@ class TestObservability:
         assert SECRET_SENTINEL not in payload
         # Recipient addresses are PII-adjacent — count only, never the list.
         assert "ops@example.com" not in payload
+        # Absolute paths can carry usernames — never logged verbatim.
+        assert str(tmp_path) not in payload
 
 
 def test_schedule_describe_shapes() -> None:
