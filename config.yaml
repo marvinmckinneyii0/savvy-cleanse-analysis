@@ -1,0 +1,31 @@
+# SavvyCortex pipeline configuration (Phase 2 automation agents).
+# Secrets (SMTP credentials, API keys) live in .env — NEVER here.
+# Loaded via PipelineConfig.load(); re-read on every scheduled run, so
+# edits take effect without a process restart.
+
+# File path(s) or directory(ies) the agents pull data from.
+# Relative paths resolve against this file's directory, not the process cwd.
+data_sources:
+  - data/sales.csv
+
+# When the Reporting Agent runs. EITHER an interval keyword OR a cron
+# expression — exactly one, not both.
+report_schedule:
+  interval: weekly            # one of: daily | weekly | monthly
+  # cron: "0 6 * * 1"         # OR a cron expression (mutually exclusive with interval)
+
+# Per-metric fractional change thresholds for drift detection.
+# 0.15 == ±15%. Metrics not listed here default to 0.15.
+metric_thresholds:
+  revenue: 0.15
+  units_sold: 0.20
+
+# Who the Monitoring Agent emails when a threshold is breached.
+# SMTP credentials come from the environment (see .env.example).
+alert_recipients:
+  - ops@example.com
+
+# Report rendering settings.
+output:
+  format: docx                # docx | pdf
+  output_dir: output/

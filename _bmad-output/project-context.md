@@ -124,7 +124,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 **Config files:**
 - `pyproject.toml` at repo root (pytest + project metadata)
-- `backend/pipeline/config.py` — `PipelineConfig` dataclass
+- `backend/models/pipeline_config.py` — `PipelineConfig` Pydantic model + `load()` (Story 2.1); re-exported via `backend/pipeline/config.py`, which also hosts `configure_logging()`
 - `config.yaml` at project root — Phase 2 thresholds/schedules
 - `.env` for secrets; `.env.example` committed with placeholders
 
