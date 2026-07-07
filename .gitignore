@@ -34,3 +34,6 @@ htmlcov/
 
 # Claude Code worktree metadata
 .claude/
+
+# Pipeline render output (Phase 2 report artifacts)
+output/

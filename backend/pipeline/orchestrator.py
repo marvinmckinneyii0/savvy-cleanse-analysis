@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import time
 import uuid
-from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
@@ -30,17 +29,13 @@ import structlog
 import typer
 
 from backend.errors.exceptions import ConfigurationError, SavvyCleanseError
+from backend.models.pipeline_config import OutputFormat
 from backend.models.pipeline_result import PipelineResult
 from backend.pipeline.config import bind_pipeline_run_id, configure_logging
 from backend.pipeline.data_quality import DataQualityAssessor
 from backend.pipeline.insight_engine import InsightEngine
 from backend.pipeline.narrative_generator import NarrativeGenerator
 from backend.renderers import DocxRenderer, PdfRenderer
-
-
-class OutputFormat(str, Enum):
-    docx = "docx"
-    pdf = "pdf"
 
 
 def run_full_pipeline(
