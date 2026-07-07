@@ -1,0 +1,31 @@
+# SavvyCortex pipeline configuration (Phase 2). Secrets live in .env, NOT here.
+#
+# Loaded and validated by backend/models/pipeline_config.py (PipelineConfig.load()).
+# Agents re-read this file at the start of every scheduled run, so edits take
+# effect without a restart. Invalid values fail fast with ConfigurationError.
+
+# File path(s) or directory(ies) the agents pull data from.
+data_sources:
+  - data/sales.csv
+
+# When reports are generated. Exactly one of `interval` or `cron`.
+report_schedule:
+  interval: weekly            # one of: daily | weekly | monthly
+  # cron: "0 6 * * 1"         # OR a cron expression (mutually exclusive with interval)
+
+# Per-metric fractional change thresholds; 0.15 == ±15%. Metrics without an
+# entry fall back to the 0.15 default.
+metric_thresholds:
+  revenue: 0.15
+  units_sold: 0.20
+
+# Who receives drift/monitoring alerts. SMTP credentials come from .env
+# (SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM) — never
+# from this file.
+alert_recipients:
+  - ops@example.com
+
+# Report output settings.
+output:
+  format: docx                # docx | pdf
+  output_dir: output/
