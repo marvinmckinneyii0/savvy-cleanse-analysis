@@ -1,6 +1,6 @@
 # Story 2.2: LLM Client Abstraction
 
-Status: ready-for-dev
+Status: done
 
 > 🔌 **Inserted story — not yet in epics.md.** Filed out-of-band between 2.1
 > (Configuration Layer) and the original 2.2 (Drift Engine, now effectively 2.3 in
@@ -66,73 +66,73 @@ consolidated in one place rather than scattered across pipeline stages.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 0 — Read the current implementation in full** (no AC, mandatory pre-work)
-  - [ ] Read `backend/pipeline/narrative_generator.py` completely — every method, every
+- [x] **Task 0 — Read the current implementation in full** (no AC, mandatory pre-work)
+  - [x] Read `backend/pipeline/narrative_generator.py` completely — every method, every
         constant, every import. The file is 287 lines. Do not skim.
-  - [ ] Read `backend/tests/test_narrative_generator.py` completely — identify every
+  - [x] Read `backend/tests/test_narrative_generator.py` completely — identify every
         mock target path that will change after the move. List them before writing
         a single line of new code.
-  - [ ] Read `backend/models/insight_payload.py`, `backend/models/insight_report.py`
+  - [x] Read `backend/models/insight_payload.py`, `backend/models/insight_report.py`
         — confirm the type contracts `LLMClient` will receive and return.
-  - [ ] Read `backend/errors/exceptions.py` — confirm `LLMProviderError` signature
+  - [x] Read `backend/errors/exceptions.py` — confirm `LLMProviderError` signature
         (takes `message: str`, `provider: str`, `cause: Exception`).
 
-- [ ] **Task 1 — Create `backend/core/__init__.py`** (AC: 5)
-  - [ ] Single line: `# backend/core — shared utilities (LLM client, future: cost tracking)`
-  - [ ] This is the only change to directory structure.
+- [x] **Task 1 — Create `backend/core/__init__.py`** (AC: 5)
+  - [x] Single line: `# backend/core — shared utilities (LLM client, future: cost tracking)`
+  - [x] This is the only change to directory structure.
 
-- [ ] **Task 2 — Create `backend/core/llm_client.py`** (AC: 1, 4, 6, 7)
-  - [ ] Move verbatim from `narrative_generator.py`:
+- [x] **Task 2 — Create `backend/core/llm_client.py`** (AC: 1, 4, 6, 7)
+  - [x] Move verbatim from `narrative_generator.py`:
         - Constants: `_BACKOFF_DELAYS`, `_MAX_ATTEMPTS`, `_CIRCUIT_BREAKER_THRESHOLD`,
           `_CLAUDE_MODEL`, `_OPENAI_MODEL`, `_GEMINI_MODEL`, `_SYSTEM_PROMPT`
         - Methods: `_call_claude`, `_call_openai`, `_call_gemini`, `_try_provider`,
           `_is_client_error`, `_build_report`, `_build_prompt`
         - All imports those methods require
-  - [ ] Define `class LLMClient:` with `__init__(self) -> None` that binds
+  - [x] Define `class LLMClient:` with `__init__(self) -> None` that binds
         `self._logger = structlog.get_logger().bind(stage="narrative_generator")`.
         **Keep `stage="narrative_generator"` in the logger binding** — changing it
         would alter structlog event payloads and break AC6.
-  - [ ] Public method: `def generate_narrative(self, payload_json: str, pipeline_run_id:
+  - [x] Public method: `def generate_narrative(self, payload_json: str, pipeline_run_id:
         str) -> InsightReport:` — this is the loop-and-fallback method currently named
         `generate()` in `NarrativeGenerator`, adapted to accept `payload_json` directly
         (the caller no longer passes an `InsightPayload` object — `narrative_generator.py`
         serializes it before calling).
-  - [ ] Module docstring: explain the resilience layers (copy from `narrative_generator.py`
+  - [x] Module docstring: explain the resilience layers (copy from `narrative_generator.py`
         docstring, update file reference).
 
-- [ ] **Task 3 — Refactor `backend/pipeline/narrative_generator.py`** (AC: 2, 6)
-  - [ ] Add import: `from backend.core.llm_client import LLMClient`
-  - [ ] In `__init__`: add `self._client = LLMClient()`
-  - [ ] Replace `generate()` body with:
-        ```python
-        bind_pipeline_run_id(pipeline_run_id)
-        payload_json = insight_payload.model_dump_json()
-        return self._client.generate_narrative(payload_json, pipeline_run_id)
-        ```
-  - [ ] Delete all moved constants and methods from this file.
-  - [ ] The remaining file should be ~25 lines: module docstring, imports
-        (`InsightPayload`, `InsightReport`, `LLMClient`, `bind_pipeline_run_id`),
+- [x] **Task 3 — Refactor `backend/pipeline/narrative_generator.py`** (AC: 2, 6)
+  - [x] Add import: `from backend.core.llm_client import LLMClient`
+  - [x] In `__init__`: add `self._client = LLMClient()`
+  - [x] Replace `generate()` body with serialize + delegate. (Deviation: `bind_pipeline_run_id`
+        moved into `LLMClient.generate_narrative` rather than the delegator, so the client is
+        self-contained for future direct callers — 2.3/2.4. Behavior identical; bind still
+        runs before any LLM log event.)
+  - [x] Delete all moved constants and methods from this file.
+  - [x] The remaining file is a thin shell: module docstring, imports
+        (`InsightPayload`, `InsightReport`, `LLMClient`),
         `NarrativeGenerator` class with `__init__` and `generate()` only.
-  - [ ] Update module docstring: note that resilience logic lives in
+  - [x] Update module docstring: note that resilience logic lives in
         `backend/core/llm_client.py` as of Story 2.2.
 
-- [ ] **Task 4 — Update mock targets in `backend/tests/test_narrative_generator.py`**
+- [x] **Task 4 — Update mock targets in `backend/tests/test_narrative_generator.py`**
       (AC: 3)
-  - [ ] Find every `@patch` or `mocker.patch` call. Current targets are of the form
-        `backend.pipeline.narrative_generator.NarrativeGenerator._call_claude` (or
-        similar). Update each to
-        `backend.core.llm_client.LLMClient._call_claude` (or the new path).
-  - [ ] Run `uv run pytest backend/tests/test_narrative_generator.py -v` — all tests
-        must pass before proceeding to Task 5.
-  - [ ] **Do not add, remove, or rewrite any test case.** Only update mock targets
-        and import paths.
+  - [x] Retargeted every `patch.object(gen, "_call_*")` and
+        `patch("backend.pipeline.narrative_generator.time.sleep")` to
+        `backend.core.llm_client.LLMClient._call_*` / `backend.core.llm_client.time.sleep`.
+        The `_call_claude` provider-body test now exercises an `LLMClient()` instance
+        (the method's new home). Added `from backend.core.llm_client import LLMClient`.
+  - [x] Run `uv run pytest backend/tests/test_narrative_generator.py -v` — all tests
+        pass (11 passed, 1 skipped for missing `anthropic`).
+  - [x] **Do not add, remove, or rewrite any test case.** Only mock targets, the object
+        under test for the `_call_claude` body test, and the import were changed —
+        no assertion was altered.
 
-- [ ] **Task 5 — Full suite regression** (AC: 3, 6)
-  - [ ] Run `uv run pytest backend/tests/ -v`
-  - [ ] All 111 previously-passing tests must still pass (1 skip for `anthropic`
-        missing from env is expected and acceptable).
-  - [ ] Zero new failures. If any test fails, fix the mock target — do not alter
-        the test's assertions.
+- [x] **Task 5 — Full suite regression** (AC: 3, 6)
+  - [x] Ran `uv run pytest backend/tests/ --ignore=backend/tests/test_parse_file.py`
+        (`test_parse_file.py` fails to collect on a pre-existing missing-`fastapi`
+        dependency, unrelated to this story).
+  - [x] 111 passed, 1 skipped (`anthropic` missing) — identical to the pre-change baseline.
+  - [x] Zero new failures.
 
 ## Dev Notes
 
@@ -276,8 +276,62 @@ update those too.
   models in this story; `InsightReport` and `NarrativeContent` are already defined
   in `backend/models/`
 
+## Dev Agent Record
+
+### Implementation Plan
+
+Pure internal extraction — no behavior change, no new dependencies. The 287-line
+`narrative_generator.py` held the retry/fallback/circuit-breaker loop, three
+`_call_*` provider methods, resilience constants, and the `_SYSTEM_PROMPT`. All of
+it moved verbatim into `backend/core/llm_client.py` as `class LLMClient`, with the
+loop method renamed `generate()` → `generate_narrative(payload_json, pipeline_run_id)`.
+`NarrativeGenerator` became a ~37-line Stage-3 adapter that serializes the payload and
+delegates to `self._client`. Tests were repointed at the methods' new home.
+
+### Completion Notes
+
+- **AC1** — `backend/core/llm_client.py` exists; `LLMClient.generate_narrative()` runs the
+  full resilience chain (retry ×3, backoff 1/2/4s, Claude→OpenAI→Gemini fallback, circuit
+  breaker at 3) and returns an `InsightReport`.
+- **AC2** — `NarrativeGenerator` is a thin delegator; all `_call_*`/`_try_provider`/
+  `_is_client_error`/`_build_report`/`_build_prompt` methods and the resilience constants
+  moved to `LLMClient`. `__init__` binds `self._client = LLMClient()` (per-instance, not a
+  singleton — matches other stages).
+- **AC3** — `test_narrative_generator.py` passes unchanged in substance; only mock targets,
+  the object-under-test for the provider-body test, and one import were updated.
+- **AC4** — `_CLAUDE_MODEL`/`_OPENAI_MODEL`/`_GEMINI_MODEL` (and all other constants) now
+  live once, in `llm_client.py`. Zero duplication in `narrative_generator.py`.
+- **AC5** — `backend/core/__init__.py` created (1 comment line).
+- **AC6** — `stage="narrative_generator"` logger binding and all event names
+  (`narrative_generated`, `llm_fallback`, `llm_retry`, `llm_client_error`,
+  `llm_circuit_breaker`) preserved byte-for-byte; log-asserting tests pass without
+  assertion changes.
+- **AC7** — No new dependency added to `pyproject.toml`. `anthropic`/`openai`/
+  `google.genai` remain lazy imports inside their `_call_*` methods.
+- **Design deviation (documented):** `bind_pipeline_run_id(pipeline_run_id)` was placed
+  inside `generate_narrative` rather than the delegator (Task 3's illustrative pseudo-code
+  showed it in the delegator). This makes `LLMClient` self-contained for the future direct
+  callers the story anticipates (2.3/2.4). Behavior is identical — the bind still runs
+  before any provider call or log event.
+- **Out-of-scope observation (not changed):** `backend/nlp_processor.py` has top-level
+  `import anthropic`/`openai`/`google.generativeai`. It is a pre-existing legacy module
+  unrelated to the narrative pipeline and outside this story's scope. A future
+  provider-import compliance gate would need to address or exempt it.
+- **Pre-existing env gap (not caused by this story):** `backend/tests/test_parse_file.py`
+  cannot collect because `fastapi` is not installed; `fastapi` is not in `pyproject.toml`.
+  Excluded from the regression run.
+
+### File List
+
+- `backend/core/__init__.py` (new)
+- `backend/core/llm_client.py` (new)
+- `backend/pipeline/narrative_generator.py` (modified — reduced to thin delegator)
+- `backend/tests/test_narrative_generator.py` (modified — mock targets + import repointed)
+
 ## Change Log
 
 | Date | Change |
 |---|---|
 | 2026-07-02 | Story filed out-of-band between 2.1 and original 2.2 (Drift Engine). Rationale: 2.3 Reporting Agent and 2.4 Monitoring Agent require LLM calls; extraction prevents duplication. |
+| 2026-07-05 | Implemented: extracted resilience logic to `backend/core/llm_client.py`; `NarrativeGenerator` now delegates. 111 passed / 1 skipped, zero regressions. Status → review. |
+| 2026-07-05 | Code review (scoped question: does the `bind_pipeline_run_id` placement create hidden coupling for 2.3/2.4?) found three issues — core→pipeline import leak, unguaranteed JSON logging for direct callers, unscoped contextvar binding. Filed and shipped as corrective Story 2.2b. Status → done. |
