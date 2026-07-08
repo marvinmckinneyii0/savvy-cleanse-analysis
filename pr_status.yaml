@@ -1,16 +1,28 @@
 # PR Status — SavvyCortex Daily Ops
 # Generated: 2026-07-01
+# Last reconciled: 2026-07-08 (against sprint-status.yaml at start of Epic 2 build loop)
 # Repo: marvinmckinneyii0/savvy-cleanse-analysis
 
 summary:
-  total_open: 1
+  total_open: 3
   ready_to_merge: 0
   needs_review: 1
   blocked: 0
   opus_flagged: 0
   sonnet_tier: 1
+  stale_superseded: 2   # PRs #29, #30 — duplicate Story 2.1 attempts, superseded by merged PR #31 (candidates to close)
 
 pull_requests:
+  - number: 30
+    title: "opus: claiming story 2.1 — configuration layer (tasks 0-5)"
+    branch: "claude/dazzling-shannon-oef3so"
+    classification: stale-superseded
+    note: "Story 2.1 already done and merged via PR #31 (2026-07-08). Duplicate attempt — recommend close. Not closed autonomously (out of build-loop scope)."
+  - number: 29
+    title: "Implement Story 2.1: Configuration Layer with Pydantic Models"
+    branch: "claude/intelligent-lamport-5pkjd5"
+    classification: stale-superseded
+    note: "Story 2.1 already done and merged via PR #31 (2026-07-08). Duplicate attempt — recommend close. Not closed autonomously (out of build-loop scope)."
   - number: 28
     title: "audit(issue-24): post-merge integrity check — .xls UI fix, Vitest setup, tracking docs"
     branch: "audit/issue-24-post-merge-integrity"

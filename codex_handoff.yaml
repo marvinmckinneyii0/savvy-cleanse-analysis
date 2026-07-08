@@ -1,7 +1,8 @@
 # Codex Handoff — SavvyCortex
 # Synced by: Daily Ops Agent
 # Source: _bmad-output/codex-handoff.md
-last_synced: "2026-07-01"
+# sprint-status.yaml is authoritative for story state.
+last_synced: "2026-07-08"
 
 tasks:
   completed: []
@@ -10,8 +11,8 @@ tasks:
 
 status:
   codex_idle: true
-  reason: "No Codex-owned pattern tasks available. Epic 1 fully complete. Epic 2 (backlog) stories not yet created. Waiting for sprint planning to kick off Epic 2."
-  waiting_on: "Sprint planning for Epic 2 to create story files with any Codex-tier work (scaffolding, config, fixture data, mock/sample data, documentation, boilerplate stubs)."
+  reason: "Epic 2 foundation (2-1 config, 2-2/2-2b LLM client) done and merged to main via PR #31 (2026-07-08). Autonomous build loop now in progress on 2-3-drift-engine (ready-for-dev)."
+  waiting_on: "Nothing Codex-tier queued. Drift Engine (2.3) is engine logic owned by the dev cycle, not Codex pattern work."
 
 files_touched:
   - path: _bmad-output/codex-handoff.md
