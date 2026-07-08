@@ -1,6 +1,6 @@
 # Story 2.3: Drift Engine
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -391,8 +391,54 @@ so that the Reporting Agent can include drift analysis in reports and the Monito
 
 ### Agent Model Used
 
+claude-opus-4-8 (autonomous Epic 2 build loop, 2026-07-08).
+
 ### Debug Log References
+
+- Full regression: `uv run pytest backend/tests/ --ignore=backend/tests/test_parse_file.py`
+  → 154 passed, 1 skipped (pre-existing `anthropic`-missing skip), 0 regressions
+  (Story 2.1 baseline was 133; +21 new drift tests).
+- `test_parse_file.py` is excluded because it imports `fastapi`, which is not in
+  `pyproject.toml` (only in the legacy `backend/requirements.txt`). Pre-existing
+  collection error on `main`, unrelated to this story.
 
 ### Completion Notes List
 
+- All 5 ACs met. `compute_drift` is pure (no I/O); `run` owns all baseline file
+  I/O (create / rotate / counter-reset).
+- **Deviation from Task 5 (scipy), applied deliberately:** Task 5 instructed
+  adding `scipy>=1.11` to `pyproject.toml`. The Epic 2 build-loop hard constraint
+  ("No scipy/scikit-learn in pyproject.toml before Phase 12; if scipy is in
+  requirements.txt but unused by Epic 2 code, remove it") overrides this. The
+  Drift Engine computes PSI/variance with `math`/pandas only — scipy is unused by
+  Epic 2 code (only legacy `comprehensive_analytics.py`/`advanced_pipeline.py`
+  reference it). Resolution: scipy was **removed from `backend/requirements.txt`**
+  and **not** added to `pyproject.toml`. → **Backlog note: the story-doc Task 5
+  text should be corrected to "remove scipy" for the historical record.**
+- **Two under-specified spots resolved (documented in code):** (1) `compute_drift`
+  takes an optional `pipeline_run_id=""` so the AC-1 two-arg call works while the
+  `DriftReport.pipeline_run_id` field is still populated by `run`; (2) categorical
+  PSI emits a finding at PSI ≥ 0.10 (standard "stable below 0.10" convention), with
+  `psi=None` below that — reconciling the architecture table's "LOW <0.10" band
+  with the `DriftFinding | None` model contract.
+- **Security (DoD gate):** baseline deserialization is `json.loads` + Pydantic
+  `model_validate` only (no eval/pickle); added a path-traversal guard on
+  `dataset_key` (`_SAFE_DATASET_KEY`) so a malicious key cannot escape
+  `baseline_dir`. No new PII surface beyond what Story 1.2's DQA already reads.
+- **Out-of-scope backlog notes logged during this story:**
+  - Legacy `backend/nlp_processor.py` imports `openai`/`anthropic`/`google.generativeai`
+    directly (Story 1.1 scaffold, orphaned — imported by no canonical layer). It
+    trips the provider-import grep gate but is not Epic 2 code. Candidate for
+    deletion or migration behind `backend/core/llm_client`.
+  - Legacy `comprehensive_analytics.py` / `advanced_pipeline.py` still import
+    scipy/sklearn; they need their own dependency story if revived (Phase 12+).
+- Orchestrator/insight-engine wiring intentionally NOT done here — that is the
+  Reporting Agent's job (filed 2.4).
+
 ### File List
+
+- `backend/models/drift_report.py` (new)
+- `backend/pipeline/drift_engine.py` (new)
+- `backend/tests/test_drift_engine.py` (new)
+- `backend/tests/conftest.py` (modified — additive fixtures only)
+- `backend/requirements.txt` (modified — scipy removed per hard constraint)
