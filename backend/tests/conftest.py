@@ -130,3 +130,23 @@ def mock_llm_client() -> MagicMock:
 def pipeline_run_id() -> str:
     """Fresh 32-char hex run ID, one per test invocation."""
     return uuid.uuid4().hex
+
+
+# --- Story 2.3 (Drift Engine) additive fixtures ---------------------------
+@pytest.fixture
+def baseline_profile_from_clean(clean_sales_df: pd.DataFrame):
+    """A ``BaselineProfile`` computed from ``clean_sales_df``.
+
+    Additive per this file's rule — does not mutate ``clean_sales_df``.
+    """
+    from backend.pipeline.drift_engine import DriftEngine
+
+    return DriftEngine()._build_profile(clean_sales_df, dataset_key="sales_test")
+
+
+@pytest.fixture
+def drifted_sales_df(clean_sales_df: pd.DataFrame) -> pd.DataFrame:
+    """``clean_sales_df`` with ``revenue`` scaled ~40% up — forces HIGH mean shift."""
+    drifted = clean_sales_df.copy()
+    drifted["revenue"] = (drifted["revenue"] * 1.4).round(2)
+    return drifted
