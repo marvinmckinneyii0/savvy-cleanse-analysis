@@ -6,7 +6,10 @@ openpyxl
 scikit-learn
 python-multipart
 joblib
-scipy
+# scipy removed 2026-07-08 (Story 2.3 dependency task): unused by Epic 2 code —
+# Phase 2 drift checks use NumPy/pandas/math only. Legacy modules
+# (comprehensive_analytics.py) still reference scipy/sklearn; re-declare when
+# those are revived (not before Phase 12). See Story 2.3 Dev Agent Record.
 numpy
 seaborn
 matplotlib
