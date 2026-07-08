@@ -92,7 +92,7 @@ development_status:
   # (epics.md 2.2) renumbered → 2.3; Reporting Agent (epics.md 2.3) → 2.4; Monitoring Agent (epics.md
   # 2.4) → 2.5. See _bmad-output/implementation-artifacts/2-3-drift-engine.md header for the full map.
   2-3-drift-engine: done  # implemented + reviewed + security-reviewed (path-traversal HIGH fixed) 2026-07-08; 154 passed / 0 regressions. scipy removed from requirements.txt (unused by Epic 2), NOT promoted to pyproject, per Phase-12 hard constraint (overrode story Task 5).
-  2-4-reporting-agent: backlog  # was 2-3-reporting-agent
+  2-4-reporting-agent: ready-for-dev  # story file created 2026-07-08 (Epic 2 build loop); was 2-3-reporting-agent
   2-5-monitoring-agent-alert-delivery: backlog  # was 2-4-monitoring-agent-alert-delivery
   epic-2-retrospective: optional
 
