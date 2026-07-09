@@ -1,6 +1,6 @@
 # Story 2.4: Reporting Agent
 
-Status: ready-for-dev
+Status: done
 
 <!-- Numbering: epics.md "Story 2.3: Reporting Agent" == filed 2.4 (renumbered per the
      Epic 2 reconciliation documented in 2-3-drift-engine.md). This story depends on the
@@ -201,8 +201,54 @@ so that reports are generated automatically without manual intervention.
 
 ### Agent Model Used
 
+claude-opus-4-8 (autonomous Epic 2 build loop, 2026-07-08/09).
+
 ### Debug Log References
+
+- Full regression: `uv run pytest backend/tests/ --ignore=backend/tests/test_parse_file.py`
+  → 165 passed, 1 skipped, 0 regressions (11 new reporting-agent tests).
+- DOCX template drift block verified via a render smoke (drift present, present on
+  fallback path, absent when no `drift_report`).
 
 ### Completion Notes List
 
+- All 5 ACs met. Drift is wired into the orchestrator (DQA → Drift → Insights →
+  Narrative → Render) per architecture.md §754-764 and gated on baseline existence
+  via `DriftEngine.run` returning `None` on first run.
+- **Design decision (as specced):** the guaranteed Drift Analysis section renders
+  deterministically from `DriftReport` (severity/summary/recommendations); drift is
+  still threaded into `InsightPayload` per §760 but excluded from the JSON sent to
+  the LLM (`model_dump_json(exclude={"drift_report"})`) — the model never sees/sets it.
+- All contract changes are additive-optional (`InsightPayload`, `InsightReport`,
+  `generate_insights`, `run_full_pipeline`) — no existing field/param modified or
+  removed. The orchestrator's own Typer CLI surface is unchanged (drift skipped when
+  no `dataset_key`).
+- **DOCX template** was hand-patched (Jinja `{% if drift_report %}` block inserted
+  into `word/document.xml` before `<w:sectPr>`) since it is a binary template; the
+  HTML template got an equivalent section. Both are covered by tests.
+- **Environment reconciliation (important, out-of-band but necessary):** `uv run
+  pytest` was previously executing under a **pip-populated global Python 3.13.7**
+  because `.venv` (uv-managed, 3.14) had no `pytest`. `uv add apscheduler` installs
+  into `.venv`, so tests could not see it. Fix: added `pytest`/`pytest-cov` as uv
+  **dev deps** and declared `pandera` (used by `data_quality.py` but only ever in
+  `requirements.txt`) so `.venv` is self-sufficient and `uv run pytest` now uses it
+  (all 154 prior tests still pass under 3.14). → **Backlog note:** `backend/requirements.txt`
+  still lists Phase-1 deps (pandera, etc.) not mirrored in `pyproject.toml`; a fuller
+  requirements.txt→pyproject reconciliation is worth a dedicated chore.
+- APScheduler is a scheduler (not a workflow/orchestration framework) — permitted and
+  arch-prescribed (§230, §320). Agent stays thin: no analytical computation, no LLM calls.
+- Regression baseline for the next story: **165 passed, 1 pre-existing skip**
+  (`anthropic` optional dep), `test_parse_file.py` excluded (pre-existing fastapi gap;
+  fastapi is not a pyproject dep).
+
 ### File List
+
+- `backend/agents/reporting_agent.py` (new)
+- `backend/tests/test_reporting_agent.py` (new)
+- `backend/pipeline/orchestrator.py` (drift stage + params)
+- `backend/pipeline/insight_engine.py` (drift_report param)
+- `backend/pipeline/narrative_generator.py` (server-side drift passthrough)
+- `backend/models/insight_payload.py`, `backend/models/insight_report.py` (optional drift_report)
+- `backend/renderers/docx_renderer.py`, `backend/renderers/pdf_renderer.py` (drift context)
+- `backend/renderers/templates/report_template.docx`, `report_template.html` (Drift Analysis section)
+- `pyproject.toml` (+apscheduler, +pandera, +dev pytest/pytest-cov), `uv.lock`
