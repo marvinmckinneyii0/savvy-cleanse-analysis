@@ -33,6 +33,7 @@ from backend.core.logging import bind_pipeline_run_id, configure_logging
 from backend.errors.exceptions import ConfigurationError, SavvyCleanseError
 from backend.models.pipeline_result import PipelineResult
 from backend.pipeline.data_quality import DataQualityAssessor
+from backend.pipeline.drift_engine import DriftEngine
 from backend.pipeline.insight_engine import InsightEngine
 from backend.pipeline.narrative_generator import NarrativeGenerator
 from backend.renderers import DocxRenderer, PdfRenderer
@@ -48,8 +49,11 @@ def run_full_pipeline(
     output_path: str | Path,
     fmt: OutputFormat = OutputFormat.docx,
     pipeline_run_id: str | None = None,
+    dataset_key: str | None = None,
+    enable_drift: bool = True,
+    baseline_dir: str | Path = "backend/baselines",
 ) -> PipelineResult:
-    """Run the complete DQA → Insights → Narrative → Render pipeline.
+    """Run the complete DQA → Drift → Insights → Narrative → Render pipeline.
 
     Parameters
     ----------
@@ -61,18 +65,31 @@ def run_full_pipeline(
         Output format — ``"docx"`` (default) or ``"pdf"``.
     pipeline_run_id:
         Optional pre-generated run ID; one is created if not supplied.
+    dataset_key:
+        Opaque per-dataset key for baseline storage. When ``None`` the drift
+        stage is skipped (the orchestrator's own CLI does not supply one — the
+        Reporting Agent does). Architecture.md §754-764.
+    enable_drift:
+        When ``True`` (default) and ``dataset_key`` is set, the Drift Engine
+        runs after DQA and feeds the Insight Engine.
+    baseline_dir:
+        Directory holding baseline JSON files (default ``backend/baselines``).
 
     Returns
     -------
     PipelineResult
         The run envelope. ``success=True`` on full completion;
         ``halted=True`` if critical data-quality findings stopped the run.
+        ``drift_report`` is populated when drift ran and a baseline existed
+        (``None`` on first run / when drift was skipped).
 
     Raises
     ------
     ConfigurationError
         If the input file is missing or cannot be parsed as CSV
         (pre-flight failure — no stages have run).
+    DriftComputationError
+        If the drift stage hits a corrupt baseline or degenerate statistic.
     ReportRenderError
         If the renderer fails to write the output document.
     """
@@ -110,16 +127,22 @@ def run_full_pipeline(
         )
         return result
 
-    # --- Stage 2: Insight Engine ---
+    # --- Stage 2: Drift Engine (Phase 2, optional; gated on dataset_key) ---
+    if enable_drift and dataset_key is not None:
+        result.drift_report = DriftEngine(baseline_dir=baseline_dir).run(
+            df, dataset_key, pipeline_run_id
+        )
+
+    # --- Stage 3: Insight Engine ---
     payload = InsightEngine().generate_insights(
-        df, result.quality_report, pipeline_run_id
+        df, result.quality_report, pipeline_run_id, drift_report=result.drift_report
     )
 
-    # --- Stage 3: Narrative Generator ---
+    # --- Stage 4: Narrative Generator ---
     insight_report = NarrativeGenerator().generate(payload, pipeline_run_id)
     result.insight_report = insight_report
 
-    # --- Stage 4: Render ---
+    # --- Stage 5: Render ---
     if fmt == OutputFormat.docx:
         DocxRenderer().render(insight_report, output_path)
     else:

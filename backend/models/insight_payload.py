@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
+from backend.models.drift_report import DriftReport
+
 
 class ColumnSummary(BaseModel):
     """Per-column aggregation summary."""
@@ -91,3 +93,6 @@ class InsightPayload(BaseModel):
     anomalies: list[AnomalyRecord]
     recommendations: list[Recommendation]
     metadata: dict
+    # Phase 2 (Story 2.4): drift analysis when a baseline exists for the dataset.
+    # None when drift was not run (first-run / no baseline / drift disabled).
+    drift_report: DriftReport | None = None

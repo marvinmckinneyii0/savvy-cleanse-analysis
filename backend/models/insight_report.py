@@ -23,6 +23,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from backend.models.drift_report import DriftReport
+
 
 class NarrativeSection(BaseModel):
     """A titled narrative section grounded in computed statistics."""
@@ -59,3 +61,7 @@ class InsightReport(BaseModel):
     metadata: dict = Field(default_factory=dict)
     fallback: bool = False
     fallback_reason: str | None = None
+    # Phase 2 (Story 2.4): populated server-side (never by the LLM) so the
+    # renderer can emit a deterministic Drift Analysis section. None when no
+    # baseline existed for the dataset.
+    drift_report: DriftReport | None = None

@@ -31,6 +31,14 @@ class NarrativeGenerator:
 
         The public call surface is unchanged — the orchestrator still calls
         ``NarrativeGenerator().generate(payload, run_id)`` as Stage 3.
+
+        Drift is carried through server-side: any ``drift_report`` on the
+        payload is copied onto the returned :class:`InsightReport` (both the
+        normal and fallback paths) so the renderer can emit a deterministic
+        Drift Analysis section. It is deliberately excluded from the JSON sent
+        to the LLM — the model never sees or sets it.
         """
-        payload_json = insight_payload.model_dump_json()
-        return self._client.generate_narrative(payload_json, pipeline_run_id)
+        payload_json = insight_payload.model_dump_json(exclude={"drift_report"})
+        report = self._client.generate_narrative(payload_json, pipeline_run_id)
+        report.drift_report = insight_payload.drift_report
+        return report

@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import structlog
 
+from backend.models.drift_report import DriftReport
 from backend.models.insight_payload import (
     AnomalyRecord,
     ColumnSummary,
@@ -43,6 +44,7 @@ class InsightEngine:
         df: pd.DataFrame,
         quality_report: DataQualityReport,
         pipeline_run_id: str,
+        drift_report: DriftReport | None = None,
     ) -> InsightPayload:
         logger = structlog.get_logger()
         structlog.contextvars.bind_contextvars(pipeline_run_id=pipeline_run_id)
@@ -102,6 +104,7 @@ class InsightEngine:
             anomalies=anomalies,
             recommendations=recommendations,
             metadata=metadata,
+            drift_report=drift_report,
         )
 
     def _classify_columns(self, df: pd.DataFrame) -> dict[str, list[str]]:

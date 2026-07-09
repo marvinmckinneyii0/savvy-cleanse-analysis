@@ -15,6 +15,8 @@ dependencies = [
     "croniter>=2.0",
     "email-validator>=2.0",
     "python-dotenv>=1.0",
+    "apscheduler>=3.10",
+    "pandera>=0.30",
 ]
 
 [tool.pytest.ini_options]
@@ -24,4 +26,10 @@ addopts = "-ra -q"
 markers = [
     "integration: stage-to-stage tests that exercise multiple pipeline modules together",
     "e2e: end-to-end tests that run the CLI or API against a real CSV fixture",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
 ]
