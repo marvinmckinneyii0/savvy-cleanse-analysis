@@ -102,6 +102,18 @@ class DriftEngine:
             )
         return self.baseline_dir / f"{dataset_key}.json"
 
+    def load_baseline(self, dataset_key: str) -> BaselineProfile | None:
+        """Public read-only baseline loader (Story 2.5).
+
+        Thin wrapper over :meth:`_load_baseline` for consumers — the Monitoring
+        Agent — that need the persisted baseline to run a *pure* ``compute_drift``
+        without triggering ``run``'s rotation/persistence side effects. Returns
+        ``None`` on first run (no baseline yet); raises ``DriftComputationError``
+        on a corrupt baseline, exactly like the private loader. Additive: does
+        not change existing behaviour.
+        """
+        return self._load_baseline(dataset_key)
+
     def _load_baseline(self, dataset_key: str) -> BaselineProfile | None:
         """Load a baseline profile, or ``None`` on first run.
 
