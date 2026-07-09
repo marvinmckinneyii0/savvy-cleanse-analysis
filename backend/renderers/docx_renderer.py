@@ -64,6 +64,7 @@ class DocxRenderer:
             "metadata": insight_report.metadata,
             "fallback": insight_report.fallback,
             "fallback_reason": insight_report.fallback_reason or "",
+            "drift_report": insight_report.drift_report,
         }
 
         try:
