@@ -1,49 +1,42 @@
 # generated: 2026-04-14
-# last_updated: 2026-06-22
-# project: SavvyCortex
+# last_updated: 2026-07-10
+# project: SAINT (Savvy Analytics Intelligence)   # was SavvyCortex — DOCS renamed; code package still savvycortex/ until Story R.1
 # project_key: NOKEY
 # tracking_system: file-system
 # story_location: C:/Users/marvi/savvy-cleanse-analysis/_bmad-output/implementation-artifacts
 
 # STATUS DEFINITIONS:
 # ==================
-# Epic Status:
-#   - backlog: Epic not yet started
-#   - in-progress: Epic actively being worked on
-#   - done: All stories in epic completed
+# Epic Status:      backlog | in-progress | done
+# Story Status:     backlog | ready-for-dev | in-progress | review | done
+#                   blocked-needs-review  (set by the unattended loop on HALT — see loop-runner-spec.md)
+# Retrospective:    optional | done
 #
-# Epic Status Transitions:
-#   - backlog → in-progress: Automatically when first story is created (via create-story)
-#   - in-progress → done: Manually when all stories reach 'done' status
+# loop_eligible: true | false   (Addition 1, 2026-07-09)
+#   Human-set. The unattended development loop (loop-runner-spec.md) may ONLY pick up a
+#   story that is ready-for-dev AND loop_eligible: true AND has all deps done. The loop
+#   NEVER modifies this field. Default false. true ONLY where ALL hold: sizing S or M
+#   (never L); model Sonnet or Haiku (never Opus); no security/auth/access-control
+#   surface; no schema-defining/extending work; no statistical-correctness surface
+#   (nothing whose error is invisible to unit tests); not marked load-bearing/invariant/
+#   must-not-drift in its own spec.
 #
-# Story Status:
-#   - backlog: Story only exists in epic file
-#   - ready-for-dev: Story file created in stories folder
-#   - in-progress: Developer actively working on implementation
-#   - review: Ready for code review (via Dev's code-review workflow)
-#   - done: Story completed
+# DAY COUNTS: intentionally omitted / TBD — requires a velocity baseline. Sizing (S/M/L)
+#   and model per §13 live in the per-epic definition files, not here.
 #
-# Retrospective Status:
-#   - optional: Can be completed but not required
-#   - done: Retrospective has been completed
+# Numbering: reconciled against the 16-phase master PRD — see
+#   _bmad-output/implementation-artifacts/prd-epic-reconciliation.md (authoritative map).
+#   sprint-status.yaml is the SOLE status source of truth; epics.md is read-only narrative.
 #
 # DEFINITION OF DONE (all stories):
-# ==================================
-# - All acceptance criteria met
-# - Tests pass (unit + integration where applicable)
-# - Run `/security-review` and resolve all Critical and High findings before marking done
-#   (Added 2026-06-22 — applies to all stories from 1.4 onward)
-#
-# WORKFLOW NOTES:
-# ===============
-# - Epic transitions to 'in-progress' automatically when first story is created
-# - Stories can be worked in parallel if team capacity allows
-# - SM typically creates next story after previous one is 'done' to incorporate learnings
-# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+#   - All acceptance criteria met
+#   - Tests pass (unit + integration where applicable)
+#   - Run /security-review and resolve all Critical and High findings before marking done
+#     (applies to all stories from 1.4 onward)
 
 generated: 2026-04-14
-last_updated: 2026-07-09  # story 2-5-monitoring-agent-alert-delivery done + merged → Epic 2 complete (all stories done).
-project: SavvyCortex
+last_updated: 2026-07-10  # SAINT roadmap restructure: renamed, renumbered (Epics 3–15), loop_eligible added. Epic 2 done (2.5 merged).
+project: SAINT
 project_key: NOKEY
 tracking_system: file-system
 story_location: C:/Users/marvi/savvy-cleanse-analysis/_bmad-output/implementation-artifacts
@@ -56,92 +49,221 @@ security_issues:
     resolution: "Removed SheetJS; xlsx parse moved server-side via openpyxl (FastAPI endpoint)"
     sprint_change_proposal: "_bmad-output/planning-artifacts/sprint-change-proposal-2026-06-30.md"
     story_impact: "1-4-llm-narrative-generation DoD security gate — now closed"
-    commits_on_main:
-      # NOTE: squash-merge branch-deletion race — two commits were not on the remote at
-      # merge time. Recovered from reflog and cherry-picked. Validated post-recovery
-      # (tsc clean, build green, 18/18 vitest, 0 xlsx HIGH). Archive tags pushed.
-      - sha: "2511998"
-        desc: "fix(security): remove client-side xlsx (SheetJS), move spreadsheet parse server-side — squash of PR #27 original scope"
-      - sha: "4b8c91c"
-        desc: "fix(security): drop legacy .xls support from upload UI (#24 follow-up) — cherry-picked from archive/issue-24-pre-cherrypick-xls (c6d99d5)"
-      - sha: "df7d6d5"
-        desc: "test(frontend): configure Vitest + cover Issue #24 migration surfaces — cherry-picked from archive/issue-24-pre-cherrypick-vitest (5bef3bd)"
-    archive_tags:
-      - "archive/issue-24-pre-cherrypick-xls → c6d99d5"
-      - "archive/issue-24-pre-cherrypick-vitest → 5bef3bd"
     integrity_validated: "2026-06-30"
 
 development_status:
-  # Epic 1: Data Quality & Insight Reports (CLI)
+  # =========================================================================
+  # Epic 1: Data Quality & Insight Reports (CLI)  — PRD Phase 1
+  # =========================================================================
   epic-1: done
-  1-1-project-scaffolding-pipeline-foundation: done
-  1-2-data-quality-assessment-engine: done
-  1-3-insight-engine: done
-  1-4-llm-narrative-generation: done  # DoD security gate (issue-24) resolved 2026-06-30 via PR #27
-  1-5-document-rendering: done
-  1-6-pipeline-orchestration-cli-entry-point: done
+  1-1-project-scaffolding-pipeline-foundation: { status: done, loop_eligible: false }
+  1-2-data-quality-assessment-engine:          { status: done, loop_eligible: false }
+  1-3-insight-engine:                          { status: done, loop_eligible: false }
+  1-4-llm-narrative-generation:                { status: done, loop_eligible: false }  # DoD security gate (issue-24) resolved 2026-06-30 via PR #27
+  1-5-document-rendering:                       { status: done, loop_eligible: false }
+  1-6-pipeline-orchestration-cli-entry-point:  { status: done, loop_eligible: false }
   epic-1-retrospective: optional
 
-  # Epic 2: Automated Reporting & Data Monitoring
+  # =========================================================================
+  # Epic 2: Automated Reporting & Data Monitoring  — PRD Phase 2  (COMPLETE)
+  # Numbering reconciled 2026-07-05: an out-of-band LLM-client story took the 2.2 slot,
+  # pushing Drift→2.3, Reporting→2.4, Monitoring→2.5 (see 2-3-drift-engine.md header).
+  # =========================================================================
   epic-2: done
-  2-1-configuration-layer: done  # implemented + reviewed (1 fix applied: mapping-vs-list silent-swallow bug) 2026-07-05
-  2-2-llm-client-abstraction: done  # inserted 2026-07-02: prerequisite for the Reporting (2.4) and Monitoring (2.5) agents' LLM calls; implemented + reviewed 2026-07-05
-  2-2b-harden-llm-client-multi-caller-use: done  # corrective story from 2-2 code review; implemented + re-reviewed (0 findings) 2026-07-05
-  # Numbering reconciliation (2026-07-05): epics.md Epic 2 sequence diverged from filed history because
-  # 2-2-llm-client-abstraction (+2-2b) was filed out-of-band and took the 2.2 slot. Drift Engine
-  # (epics.md 2.2) renumbered → 2.3; Reporting Agent (epics.md 2.3) → 2.4; Monitoring Agent (epics.md
-  # 2.4) → 2.5. See _bmad-output/implementation-artifacts/2-3-drift-engine.md header for the full map.
-  2-3-drift-engine: done  # implemented + reviewed + security-reviewed (path-traversal HIGH fixed) 2026-07-08; 154 passed / 0 regressions. scipy removed from requirements.txt (unused by Epic 2), NOT promoted to pyproject, per Phase-12 hard constraint (overrode story Task 5).
-  2-4-reporting-agent: done  # implemented + reviewed + security-reviewed 2026-07-09; drift wired into pipeline (arch §754-764), APScheduler schedule + hot-reload + error recovery; 165 passed / 0 regressions. Also unified test env onto uv-managed .venv (pytest/pandera declared) — see story completion notes.
-  2-5-monitoring-agent-alert-delivery: done  # implemented + reviewed + security-reviewed 2026-07-09; thin drift-consuming alert agent (evaluate CLI, dual log+SMTP delivery, hot-reload, SMTP failure isolation); 181 passed / 0 regressions (+16 tests). Additive DriftEngine.load_baseline wrapper. was 2-4-monitoring-agent-alert-delivery
+  2-1-configuration-layer:                 { status: done, loop_eligible: false }  # done+reviewed 2026-07-05 (PR #31)
+  2-2-llm-client-abstraction:              { status: done, loop_eligible: false }  # prerequisite for 2.4/2.5 LLM calls; PR #31
+  2-2b-harden-llm-client-multi-caller-use: { status: done, loop_eligible: false }  # corrective story from 2-2 review; PR #31
+  2-3-drift-engine:                        { status: done, loop_eligible: false }  # 154 tests, security-reviewed; scipy NOT promoted (Phase-12 constraint)
+  2-4-reporting-agent:                     { status: done, loop_eligible: false }  # drift wired into pipeline; APScheduler; 165 tests
+  2-5-monitoring-agent-alert-delivery:     { status: done, loop_eligible: false }  # done+reviewed+security-reviewed 2026-07-09; merged; 181 tests / 0 regressions
   epic-2-retrospective: optional
 
-  # Epic 3: Web Application & Customer Dashboard
+  # =========================================================================
+  # Epic 3: Cleaning Engine (Tiers 1–2) + Report Visualizations
+  # PRD Phase 9 (self-healing) PULLED FORWARD — cleaning is the core thesis. Def: epic-3-cleaning-engine.md
+  # =========================================================================
   epic-3: backlog
-  3-1-database-schema-auth-foundation: backlog
-  3-2-file-upload-pipeline-integration: backlog
-  3-3-analysis-configuration-ui: backlog
-  3-4-report-viewer-history: backlog
-  3-5-alert-dashboard-timeline: backlog
-  3-6-alert-configuration-ui: backlog
-  3-7-pipeline-health-dashboard: backlog
-  3-8-drift-history-view: backlog
-  3-9-usage-meter: backlog
+  3-1-classification-layer:                    { status: backlog, loop_eligible: false }  # M/Opus — remediation_class taxonomy; architecture-defining
+  3-2-cleaning-engine-core:                    { status: backlog, loop_eligible: false }  # L/Opus — deterministic only
+  3-3-healing-manifest:                        { status: backlog, loop_eligible: false }  # M/Opus — provenance-critical
+  3-4-opt-in-gate-config:                      { status: backlog, loop_eligible: false }  # M/Opus — Tier 2 policy boundary; default OFF
+  3-5-judgment-required-findings-handling:     { status: backlog, loop_eligible: false }  # M/Opus — Tier 3 boundary; LOAD-BEARING
+  3-6-cleaned-data-export:                     { status: backlog, loop_eligible: true  }  # S/Sonnet — mechanical
+  3-7-report-visualizations:                   { status: backlog, loop_eligible: false }  # L/Sonnet — extends visualization schema (analysis_class)
+  3-8-notebook-export-code-generation:         { status: backlog, loop_eligible: false }  # M/Sonnet — HOLD for first impl (provenance-vs-suggestion split)
+  3-9-cleaning-mode-definitions-disclosure:    { status: backlog, loop_eligible: true  }  # M/Sonnet — client-facing copy, no schema risk
   epic-3-retrospective: optional
 
-  # Epic 4: Subscription Billing
+  # =========================================================================
+  # Epic 4: Web Application & Customer Dashboard  — PRD Phase 3 (renumbered from Epic 3, 13 stories). Def: epic-4-web-application.md
+  # =========================================================================
   epic-4: backlog
-  4-1-stripe-integration-plan-tiers: backlog
-  4-2-webhook-handling-subscription-lifecycle: backlog
-  4-3-usage-tracking-limit-enforcement: backlog
-  4-4-billing-ui-free-trial: backlog
+  4-1-database-schema-auth-foundation:         { status: backlog, loop_eligible: false }  # L/Opus — AMENDED: includes the project entity (Task 4c); foundational
+  4-1a-config-to-project-migration:            { status: backlog, loop_eligible: false }  # M/Opus — NET-NEW; data-integrity risk
+  4-2-file-upload-pipeline-integration:        { status: backlog, loop_eligible: false }  # pending individual review at story-write time
+  4-3-analysis-configuration-ui:               { status: backlog, loop_eligible: false }  # pending individual review
+  4-4-report-viewer-history:                   { status: backlog, loop_eligible: false }  # pending individual review
+  4-5-alert-dashboard-timeline:                { status: backlog, loop_eligible: false }  # pending individual review
+  4-6-alert-configuration-ui:                  { status: backlog, loop_eligible: false }  # pending individual review
+  4-7-pipeline-health-dashboard:               { status: backlog, loop_eligible: false }  # pending individual review
+  4-8-drift-history-view:                      { status: backlog, loop_eligible: false }  # pending individual review
+  4-9-usage-meter:                             { status: backlog, loop_eligible: false }  # pending individual review
+  4-10-onboarding-flow-activation:             { status: backlog, loop_eligible: false }  # L/Sonnet — defines the `activated` event, consumed by 7.7
+  4-11-tier-capability-display:                { status: backlog, loop_eligible: true  }  # S/Sonnet — consumes 3.9's copy, no new logic
+  4-12-design-system-brand-tokens:             { status: backlog, loop_eligible: false }  # L/Sonnet — brand/design; needs a human eye
   epic-4-retrospective: optional
 
-  # Epic 5: Multi-Tenant Scale & Production Hardening
+  # =========================================================================
+  # Epic 5: Subscription Billing  — PRD Phase 4 (renumbered from Epic 4, 4 stories). Def: epic-5-subscription-billing.md
+  # =========================================================================
   epic-5: backlog
-  5-1-multi-tenant-data-isolation: backlog
-  5-2-async-processing-pipeline: backlog
-  5-3-observability-error-tracking: backlog
-  5-4-security-hardening-owasp-review: backlog
-  5-5-containerized-deployment-ci-cd: backlog
+  5-1-stripe-integration-plan-tiers:           { status: backlog, loop_eligible: false }  # billing surface
+  5-2-webhook-handling-subscription-lifecycle: { status: backlog, loop_eligible: false }  # billing surface
+  5-3-usage-tracking-capability-gating:        { status: backlog, loop_eligible: false }  # SCOPE WIDENED: gating middleware — security/billing surface; filters on analysis_class
+  5-4-billing-ui-free-trial:                   { status: backlog, loop_eligible: false }  # billing surface
   epic-5-retrospective: optional
 
-  # Epic 6: Admin Control Plane
+  # =========================================================================
+  # Epic 6: Multi-Tenant Scale & Production Hardening  — PRD Phase 5 (renumbered from Epic 5, 5 stories). Def: epic-6-multitenant-scale.md
+  # Async processing: FIFO with per-tenant fairness. NO priority queuing by tier (§3.2 "priority processing" STRUCK).
+  # =========================================================================
   epic-6: backlog
-  6-1-role-hierarchy-admin-auth: backlog
-  6-2-audit-log: backlog
-  6-3-tenant-management: backlog
-  6-4-user-management-api-tokens: backlog
-  6-5-system-health-dashboard: backlog
-  6-6-billing-overview: backlog
-  6-7-customer-journey-tracking: backlog
+  6-1-multi-tenant-data-isolation:             { status: backlog, loop_eligible: false }  # security surface (RLS)
+  6-2-async-processing-pipeline:               { status: backlog, loop_eligible: false }  # FIFO + per-tenant fairness; no priority queuing
+  6-3-observability-error-tracking:            { status: backlog, loop_eligible: false }  # infra correctness
+  6-4-security-hardening-owasp-review:         { status: backlog, loop_eligible: false }  # security surface
+  6-5-containerized-deployment-ci-cd:          { status: backlog, loop_eligible: false }  # infra/deploy
   epic-6-retrospective: optional
 
-  # Epic 7: Advanced Analytics & Self-Service API
+  # =========================================================================
+  # Epic 7: Admin Control Plane (+ Pricing Agent)  — PRD Phase 5 (renumbered from Epic 6, 8 stories). Def: epic-7-admin-control-plane.md
+  # =========================================================================
   epic-7: backlog
-  7-1-advanced-analytics-engine: backlog
-  7-2-custom-monitoring-rules-digest-reports: backlog
-  7-3-natural-language-querying: backlog
-  7-4-client-self-service-report-customization: backlog
-  7-5-versioned-rest-api-webhooks: backlog
+  7-1-role-hierarchy-admin-auth:               { status: backlog, loop_eligible: false }  # M/Opus — auth; security surface
+  7-2-audit-log:                               { status: backlog, loop_eligible: false }  # M/Opus — immutable append-only; correct-by-construction
+  7-3-tenant-management:                       { status: backlog, loop_eligible: true  }  # M/Sonnet — CRUD-shaped
+  7-4-user-management-api-tokens:              { status: backlog, loop_eligible: false }  # M/Opus — API token scoping; security surface
+  7-5-system-health-dashboard:                 { status: backlog, loop_eligible: true  }  # S/Sonnet — read-only
+  7-6-billing-overview:                        { status: backlog, loop_eligible: true  }  # M/Sonnet — read-only display
+  7-7-customer-journey-tracking:               { status: backlog, loop_eligible: true  }  # M/Sonnet — cross-tenant analytics view; consumes 4.10's `activated`
+  7-8-pricing-agent:                           { status: backlog, loop_eligible: false }  # L/Opus — billing consequence; recommends-never-executes
   epic-7-retrospective: optional
+
+  # =========================================================================
+  # Epic 8: Advanced Analytics, Predictive Layer & Self-Service API
+  # PRD Phase 6 + 12-A (renumbered from Epic 7, expanded, 9 stories). Def: epic-8-advanced-analytics.md
+  # Epic 8 DoD is part of the PRE-VERTICAL GATE (with Epics 3, 9, 10).
+  # =========================================================================
+  epic-8: backlog
+  8-1-advanced-analytics-engine:               { status: backlog, loop_eligible: false }  # L/Opus — statistical core (foundation for 13's A/B)
+  8-2-forecasting-core:                        { status: backlog, loop_eligible: false }  # L/Opus — Prophet/statsmodels
+  8-3-confidence-intervals-accuracy-scoring:   { status: backlog, loop_eligible: false }  # L/Opus
+  8-4-auto-model-selection:                    { status: backlog, loop_eligible: false }  # M/Opus — deterministic rule over fit metrics; no sklearn
+  8-5-recommendation-agent:                    { status: backlog, loop_eligible: false }  # L/Opus — opportunity ID only (impact est → Epic 10)
+  8-6-custom-monitoring-rules-digests:         { status: backlog, loop_eligible: true  }  # M/Sonnet
+  8-7-natural-language-querying:               { status: backlog, loop_eligible: false }  # L/Opus — safety-critical
+  8-8-client-self-service-customization:       { status: backlog, loop_eligible: true  }  # M/Sonnet
+  8-9-versioned-rest-api-webhooks:             { status: backlog, loop_eligible: true  }  # M/Sonnet — well-specified surface
+  epic-8-retrospective: optional
+
+  # =========================================================================
+  # Epic 9: Advanced Drift + Root-Cause Analysis  — PRD Phase 7 + §14 root-cause (6 stories). Def: epic-9-advanced-drift-rootcause.md
+  # ALL false — Opus-tier; diagnostic correctness not unit-test-catchable. Part of PRE-VERTICAL GATE.
+  # =========================================================================
+  epic-9: backlog
+  9-1-ks-test-numeric-drift:                   { status: backlog, loop_eligible: false }
+  9-2-binned-psi-numeric:                      { status: backlog, loop_eligible: false }
+  9-3-multivariate-drift:                      { status: backlog, loop_eligible: false }
+  9-4-baseline-versioning-adaptive-thresholds: { status: backlog, loop_eligible: false }
+  9-5-root-cause-diagnostic-chains:            { status: backlog, loop_eligible: false }
+  9-6-root-cause-narrative-integration:        { status: backlog, loop_eligible: false }
+  epic-9-retrospective: optional
+
+  # =========================================================================
+  # Epic 10: Prescriptive Layer (Simulation & Scenario Modeling)  — §14 vision→impl (6 stories). Def: epic-10-prescriptive-simulation.md
+  # ALL false — Opus-tier; deterministic-projection correctness is load-bearing. Part of PRE-VERTICAL GATE.
+  # =========================================================================
+  epic-10: backlog
+  10-1-scenario-definition-schema:             { status: backlog, loop_eligible: false }
+  10-2-deterministic-projection-engine:        { status: backlog, loop_eligible: false }
+  10-3-sensitivity-analysis:                   { status: backlog, loop_eligible: false }
+  10-4-constraint-modeling:                    { status: backlog, loop_eligible: false }
+  10-5-scenario-comparison-ranking:            { status: backlog, loop_eligible: false }
+  10-6-prescriptive-narrative-integration:     { status: backlog, loop_eligible: false }
+  epic-10-retrospective: optional
+
+  # =========================================================================
+  # Epic 11: Autonomous Judgment (Tier 4) + Eval Harness + Governance Advisory  — net-new (10 stories). Def: epic-11-autonomous-judgment-eval-governance.md
+  # ALL false — Tier-4/eval/governance correctness is not unit-test-catchable; Enterprise liability surface.
+  # =========================================================================
+  epic-11: backlog
+  11-1-eval-harness-infrastructure:            { status: backlog, loop_eligible: false }
+  11-2-gold-standard-benchmark-datasets:       { status: backlog, loop_eligible: false }
+  11-3-confidence-scoring-threshold-config:    { status: backlog, loop_eligible: false }
+  11-4-blast-radius-cap-halt-logic:            { status: backlog, loop_eligible: false }
+  11-5-decision-traceability-artifact:         { status: backlog, loop_eligible: false }
+  11-6-consequence-disclosure-per-finding:     { status: backlog, loop_eligible: false }
+  11-7-escalation-trigger-self-disable:        { status: backlog, loop_eligible: false }
+  11-8-jurisdiction-detection-risk-classification: { status: backlog, loop_eligible: false }
+  11-9-preflight-configuration-warnings:       { status: backlog, loop_eligible: false }
+  11-10-defensible-decision-record:            { status: backlog, loop_eligible: false }
+  epic-11-retrospective: optional
+
+  # =========================================================================
+  # Epic 12: Adapter Layer, Scoring Engine & Scoring Calibration  — PRD Phase 8 + 12-B (6 stories). Def: epic-12-adapter-scoring.md
+  # ALL false — scoring correctness is client-facing and Opus-tier. Begins only after PRE-VERTICAL GATE closes.
+  # =========================================================================
+  epic-12: backlog
+  12-1-baseadapter-abstract-interface:         { status: backlog, loop_eligible: false }
+  12-2-scoring-engine-core:                    { status: backlog, loop_eligible: false }
+  12-3-dqa-penalty-bridge:                     { status: backlog, loop_eligible: false }
+  12-4-generic-mode-backward-compat:           { status: backlog, loop_eligible: false }
+  12-5-scoring-backtesting-weight-optimization: { status: backlog, loop_eligible: false }
+  12-6-adapter-specific-predictions:           { status: backlog, loop_eligible: false }
+  epic-12-retrospective: optional
+
+  # =========================================================================
+  # Epic 13: Marketing Vertical + A/B Testing Intelligence  — PRD Phase 8/§17 + §14 A/B (9 stories). Def: epic-13-marketing-vertical-ab.md
+  # =========================================================================
+  epic-13: backlog
+  13-1-marketing-adapter:                      { status: backlog, loop_eligible: false }  # L/Opus — adapter core
+  13-2-mos-scoring-formula-weights:            { status: backlog, loop_eligible: false }  # M/Opus — scoring formula
+  13-3-lead-scoring-tiers:                     { status: backlog, loop_eligible: true  }  # S/Sonnet — threshold logic
+  13-4-crm-outreach-integration:               { status: backlog, loop_eligible: true  }  # L but Sonnet, well-bounded
+  13-5-campaign-analysis-funnel-velocity:      { status: backlog, loop_eligible: true  }  # M/Sonnet
+  13-6-pricing-agent-client-graduation:        { status: backlog, loop_eligible: false }  # L/Opus — pricing agent graduation
+  13-7-experiment-schema-ingestion:            { status: backlog, loop_eligible: false }  # statistically load-bearing
+  13-8-significance-testing-multiple-comparison: { status: backlog, loop_eligible: false }  # statistically load-bearing (errors cascade, not unit-test-caught)
+  13-9-power-analysis-result-interpretation:   { status: backlog, loop_eligible: false }  # statistically load-bearing
+  epic-13-retrospective: optional
+
+  # =========================================================================
+  # Epic 14: Financial Vertical  — PRD Phase 10. Scope per PRD; GLBA/adverse-action reason codes. Def: epic-14-financial-vertical.md
+  # Stories TBD (scope per PRD Phase 10). ALL loop_eligible: false — regulated vertical, no exceptions.
+  # =========================================================================
+  epic-14: backlog
+  14-scope: { status: backlog, loop_eligible: false }  # placeholder — story breakdown per PRD Phase 10 at story-write time; all stories false
+  epic-14-retrospective: optional
+
+  # =========================================================================
+  # Epic 15: Healthcare Vertical  — PRD Phase 11. Scope per PRD; HIPAA/PHI; anonymization before processing. Def: epic-15-healthcare-vertical.md
+  # Stories TBD (scope per PRD Phase 11). ALL loop_eligible: false — regulated vertical, no exceptions.
+  # =========================================================================
+  epic-15: backlog
+  15-scope: { status: backlog, loop_eligible: false }  # placeholder — story breakdown per PRD Phase 11 at story-write time; all stories false
+  epic-15-retrospective: optional
+
+  # =========================================================================
+  # Code rename story (documentation → code alignment). Def: R-1-code-rename-savvycortex-to-saint.md
+  # Scheduled AFTER Story 2.5 merges (done), BEFORE Story 3.1 begins.
+  # =========================================================================
+  R-1-code-rename-savvycortex-to-saint: { status: ready-for-dev, loop_eligible: false }  # M/Sonnet — whole-package rename; own branch/PR; repo rename needs Marvin
+
+# =========================================================================
+# BACKLOG (spec only — not story-filed). See prd-epic-reconciliation.md.
+# =========================================================================
+backlog:
+  chart-inference-option-c:   { status: backlog, blocked_on: epic-8 }        # consumes analysis_class
+  unstructured-extraction:    { status: backlog, blocked_on: epic-11-eval-harness }  # core/extraction_client.py interface spec only
+  real-estate-adapter:        { status: backlog, note: "deferred not cancelled; rejoins after Epic 15, demand-driven" }
+  marketplace-prd-phase-13:   { status: backlog, note: "unscoped" }
