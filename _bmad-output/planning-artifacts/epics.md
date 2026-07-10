@@ -7,11 +7,37 @@ inputDocuments:
   - 'external: savvycortex-dashboard-spec.docx'
 ---
 
-# SavvyCortex - Epic Breakdown
+# SAINT - Epic Breakdown
+
+> **READ-ONLY NARRATIVE REFERENCE (reconciled 2026-07-09).** This document is the
+> original SavvyCortex epic narrative, renamed to SAINT and with its Epic 2 story
+> numbering brought current (2.2→2.3 Drift, 2.3→2.4 Reporting, 2.4→2.5 Monitoring — an
+> out-of-band LLM-client story took the 2.2 slot). It is NO LONGER the status source of
+> truth: `_bmad-output/implementation-artifacts/sprint-status.yaml` is authoritative for
+> status, and `prd-epic-reconciliation.md` is authoritative for the PRD-phase→epic map.
+>
+> **Epic renumbering (this file's Epics 1–7 → operative structure).** The roadmap
+> restructure pulled data cleaning forward to a new Epic 3 and inserted new analytics/
+> autonomy/vertical epics. This file's Epic numbers below are the PRE-restructure numbers;
+> the operative mapping is:
+>
+> | This file (old) | Operative epic | Definition file |
+> |---|---|---|
+> | Epic 1 Data Quality (CLI) | Epic 1 (unchanged) | (Epic 1 stories) |
+> | Epic 2 Automation | Epic 2 (unchanged) | (Epic 2 stories) |
+> | — (PRD Phase 9 pulled forward) | **Epic 3 Cleaning Engine** (new) | epic-3-cleaning-engine.md |
+> | Epic 3 Web Application | Epic 4 | epic-4-web-application.md |
+> | Epic 4 Subscription Billing | Epic 5 | epic-5-subscription-billing.md |
+> | Epic 5 Multi-Tenant Scale | Epic 6 | epic-6-multitenant-scale.md |
+> | Epic 6 Admin Control Plane | Epic 7 (+ Pricing Agent) | epic-7-admin-control-plane.md |
+> | Epic 7 Advanced Analytics | Epic 8 (+ 12-A forecasting) | epic-8-advanced-analytics.md |
+> | — | Epics 9–15 (new) | epic-9…epic-15-*.md |
+>
+> Do not maintain status here; edit sprint-status.yaml. See prd-epic-reconciliation.md.
 
 ## Overview
 
-This document provides the complete epic and story breakdown for SavvyCortex, decomposing the requirements from the PRD, Architecture, and Dashboard Specification into implementable stories.
+This document provides the complete epic and story breakdown for SAINT, decomposing the requirements from the PRD, Architecture, and Dashboard Specification into implementable stories.
 
 ## Requirements Inventory
 
@@ -186,7 +212,7 @@ Users interact through a browser — upload data, configure analysis parameters,
 **Depends on:** Epic 1, Epic 2
 
 ### Epic 4: Subscription Billing
-Users subscribe to a tiered plan, manage billing through Stripe, and the system enforces usage limits per tier — making SavvyCortex a paid product.
+Users subscribe to a tiered plan, manage billing through Stripe, and the system enforces usage limits per tier — making SAINT a paid product.
 **FRs covered:** FR16, FR17, FR18, FR19, FR20
 **Phase:** 4 — Monetization
 **Depends on:** Epic 3
@@ -433,7 +459,7 @@ So that agents can be configured without code changes and settings can be modifi
 **Then** structlog entries are emitted with event="config_loaded" and a summary of active settings (without secrets)
 **And** backend/tests/test_config.py passes with tests covering: valid config, missing fields, invalid values, environment variable override, and reload behavior
 
-### Story 2.2: Drift Engine
+### Story 2.3: Drift Engine
 
 As a developer,
 I want a stateless computation module that compares a current DataFrame against a baseline profile and detects distributional drift across 7 checks,
@@ -471,7 +497,7 @@ So that the Reporting Agent can include drift analysis in reports and the Monito
 **And** structlog entries include pipeline_run_id, stage="drift_engine", columns checked, and findings count
 **And** backend/tests/test_drift_engine.py passes with tests covering: each of the 7 checks in isolation, first-run baseline creation, baseline auto-rotation after 4 clean runs, rotation counter reset on HIGH finding, and schema drift detection
 
-### Story 2.3: Reporting Agent
+### Story 2.4: Reporting Agent
 
 As a developer,
 I want a CLI agent that pulls the latest data, invokes the full pipeline (DQA → Drift Engine → Insight Engine → Narrative → Render), and can run on a schedule,
@@ -505,7 +531,7 @@ So that reports are generated automatically without manual intervention.
 **When** the agent runs
 **Then** backend/tests/test_reporting_agent.py passes with tests covering: manual generate, scheduled execution (mocked timer), drift-included pipeline, and error recovery
 
-### Story 2.4: Monitoring Agent & Alert Delivery
+### Story 2.5: Monitoring Agent & Alert Delivery
 
 As a developer,
 I want a CLI agent that compares current metrics against previous period, evaluates configurable thresholds, and delivers structured alerts via log file and email,
@@ -861,7 +887,7 @@ So that I understand my usage and can plan for upgrades before hitting caps.
 
 ## Epic 4: Subscription Billing
 
-Users subscribe to a tiered plan, manage billing through Stripe, and the system enforces usage limits per tier — making SavvyCortex a paid product.
+Users subscribe to a tiered plan, manage billing through Stripe, and the system enforces usage limits per tier — making SAINT a paid product.
 
 ### Story 4.1: Stripe Integration & Plan Tiers
 
@@ -1577,7 +1603,7 @@ So that my reports match my brand and my analysis settings persist across sessio
 
 ### Story 7.5: Versioned REST API & Webhooks
 
-As a developer integrating with SavvyCortex,
+As a developer integrating with SAINT,
 I want a versioned REST API with API key authentication, rate limiting, and webhook delivery for alerts,
 So that I can programmatically trigger pipelines, retrieve results, and receive real-time alert notifications in my existing tools.
 

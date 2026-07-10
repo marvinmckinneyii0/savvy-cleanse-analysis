@@ -1,0 +1,28 @@
+# Epic 15 — Healthcare Vertical
+
+<!-- Roadmap restructure 2026-07-09. PRD Phase 11. Scope per PRD. Read-only narrative;
+     sprint-status.yaml is authoritative. Day counts: TBD. Story breakdown per PRD Phase 11
+     at story-write time — ALL stories loop_eligible: false (regulated vertical, no exceptions). -->
+
+**PRD mapping:** Phase 11 (Healthcare Vertical — Outcome Scoring + Anonymization).
+
+**Vertical order:** marketing (Epic 13) → financial (Epic 14) → **healthcare (Epic 15)**.
+After Epic 15, real estate rejoins the vertical queue (deferred, not cancelled), demand-driven.
+
+## Scope (per PRD Phase 11)
+
+Healthcare adapter (patient flow, readmission, resource utilization → Outcome Score,
+Efficiency Index, Capacity Utilization, Readmission Risk, Cost Variance). Anonymization layer
+strips PHI before any processing. No PHI in any output. Outcome-based scoring weighted toward
+patient outcomes and efficiency.
+
+## Constraints
+
+- **Anonymization layer strips PHI before ANY processing** — HIPAA-aligned data handling
+  (formal certification out of scope per §10 / §15).
+- Governance advisory (Epic 11) extended here for **HIPAA / PHI.**
+- **NO sklearn without an explicit explainability architecture (Amendment 6).**
+- All stories `loop_eligible: false` — regulated vertical, no exceptions.
+
+Story-level breakdown is authored per PRD Phase 11 when this epic is scheduled (last in the
+initial vertical queue).

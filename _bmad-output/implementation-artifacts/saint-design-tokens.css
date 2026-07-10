@@ -1,0 +1,129 @@
+/* =============================================================================
+   SAINT — Design Tokens (Task 5 / Story 4.12)
+   Created 2026-07-09 roadmap restructure. Brand tokens are LITERAL — do not
+   substitute, approximate, or infer. Story 4.12 implements these in full in the
+   web app (against ui-ux-pro-max-skill + savyanalytics.info as canonical brand ref).
+
+   OPEN HALT (one token): --font-display is BLOCKED. Task 5 requires the display
+   family be read from savvyanalytics.info (NOT matched from a raster). Automated
+   fetch could not extract the site's @font-face/font-family declarations. The
+   lineage is known (wide-tracked geometric square sans, Eurostile / Microgramma
+   lineage) but the exact family must be confirmed by a human before this token
+   ships. See the placeholder below.
+   ============================================================================= */
+
+:root {
+  /* ---- TWO-TOKEN ACCENT SYSTEM -------------------------------------------
+     --gold        dark-mode text/links · ALL CTA fills (both modes)
+     --gold-dark   light-mode text/links ONLY (#E7AC18 on white is 2.04:1 — unusable)
+     Why two tokens: #8F6B0F is the same hue (42.9°) and saturation (81.2%) as
+     #E7AC18, darkened until it clears AA on both #FFFFFF (4.91:1) and #FCF9F6 (4.68:1). */
+  --gold:        #E7AC18;
+  --gold-dark:   #8F6B0F;
+  --gold-light:  #F6C337;  /* hover · focus ring */
+  --gold-deep:   #D78E15;  /* pressed · gradient start */
+
+  /* CTA label is ALWAYS #000000 on gold fill — 10.31:1, both modes.
+     NEVER white on gold (2.04:1, fails AA). */
+  --cta-fill:    var(--gold);
+  --cta-label:   #000000;
+
+  /* ---- SEVERITY (functional exception to brand palette — encodes state, not brand) ----
+     PRD §12's Medium #F1C40F is STRUCK — indistinguishable from brand gold at a
+     glance. Gold means "interactive"; yellow means "warning." High #E8833A sits
+     near --gold-deep #D78E15 — verify visually in an adjacent badge stack. */
+  --critical:    #E5484D;
+  --high:        #E8833A;
+  --medium:      #8B8B8B;
+  --low:         #30A46C;
+  --info:        #0091FF;
+
+  /* ---- TYPE SYSTEM --------------------------------------------------------
+     Display — wide-tracked geometric square sans (Eurostile / Microgramma
+       lineage). Wordmark and H1 ONLY. Cannot be used below ~14px.
+     UI — Inter. Everything else (tables, forms, dense analyst views).
+     Data — monospace. Metric values, code, IDs. */
+  --font-display: /* HALT — resolve exact family from savvyanalytics.info (do NOT raster-match) */
+                  "__RESOLVE_FROM_SAVVYANALYTICS_INFO__",
+                  "Eurostile", "Microgramma", ui-sans-serif, system-ui, sans-serif;
+  --font-ui:      "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data:    ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  /* Wordmark descriptor + hairline (muted, never gold). */
+  --wordmark-descriptor-dark:  #A1A1AA;
+  --wordmark-descriptor-light: #78716C;
+  --hairline-dark:  #2A2A2A;
+  --hairline-light: #E5E1DC;
+}
+
+/* ---- DARK SURFACES (analyst views default dark, per §2.2) ----------------- */
+:root,
+:root[data-theme="dark"] {
+  --bg:         #000000;
+  --surface:    #0A0A0A;   /* cards, panels */
+  --elevated:   #141414;   /* modals, popovers */
+  --text:       #FFFFFF;
+  --text-muted: #A1A1AA;
+  --accent-text: var(--gold);        /* gold-as-text is legible in dark mode */
+  --wordmark-descriptor: var(--wordmark-descriptor-dark);
+  --hairline:   var(--hairline-dark);
+
+  /* HERO GRADIENT (dark) — FIXED. Was #FCFCFC→#000000 (near-white top under a
+     black nav: white heading on #BEBDBC = 1.88:1; accent effectively invisible).
+     The direction had been copied from light mode without flipping. */
+  --hero-gradient: linear-gradient(180deg, #0A0A0A 0%, #000000 100%);
+}
+
+/* ---- LIGHT SURFACES (executive-facing reports default light) -------------- */
+:root[data-theme="light"] {
+  --bg:         #FFFFFF;
+  --surface:    #FCF9F6;   /* warm cream */
+  --elevated:   #F5F1EC;
+  --text:       #1C1917;   /* warm near-black */
+  --text-muted: #78716C;   /* warm grey */
+  --accent-text: var(--gold-dark);   /* #E7AC18 unusable on white; use --gold-dark */
+  --wordmark-descriptor: var(--wordmark-descriptor-light);
+  --hairline:   var(--hairline-light);
+
+  /* Light hero was already correct (#FFFFFF→#FCF9F6) — same pattern, right direction. */
+  --hero-gradient: linear-gradient(180deg, #FFFFFF 0%, #FCF9F6 100%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #FFFFFF; --surface: #FCF9F6; --elevated: #F5F1EC;
+    --text: #1C1917; --text-muted: #78716C;
+    --accent-text: var(--gold-dark);
+    --wordmark-descriptor: var(--wordmark-descriptor-light);
+    --hairline: var(--hairline-light);
+    --hero-gradient: linear-gradient(180deg, #FFFFFF 0%, #FCF9F6 100%);
+  }
+}
+
+/* =============================================================================
+   RETIRED — DO NOT USE (documented so they do not resurface)
+     #B5792E  current app bronze — fails AA both modes (3.66:1). Not the brand color.
+     #1B3A5C  PRD §12 navy — wrong color family.
+     #2E75B6  PRD §12 blue — wrong color family.
+     #64748B / #020817  Tailwind slate — blue-family neutrals against a gold accent
+                        read generic. Use the warm stone ramp above instead.
+     #F1C40F  PRD §12 Medium severity — struck (reads as brand gold).
+
+   WORDMARK LOCKUP
+     FULL (landing hero, login, report header):
+       [mark]  SAINT
+               SAVVY ANALYTICS INTELLIGENCE
+       - Descriptor in the UI face (Inter), NOT the display face.
+       - Cap height ~38% of wordmark. Tracked ~120 units. All caps.
+       - Left-aligned to the S of SAINT. Never centered.
+       - Muted (--wordmark-descriptor), never gold.
+       - Optional hairline rule (--hairline) between wordmark and descriptor; cut if fussy.
+     COMPACT (app nav, favicon): descriptor HIDES below ~32px wordmark height.
+     IN THE NAV: wordmark is WHITE, not gold (gold wordmark beside a gold CTA
+       creates two competing gold elements). White wordmark, gold mark, gold button.
+     NEVER "S.A.I.N.T." — SAINT is a name; the descriptor is a positioning line.
+
+   REPORTS RENDER LIGHT (client-facing docx/pdf): white ground, #1C1917 text,
+     gold accents only. CRITICAL: the Document Renderer uses --gold-dark (#8F6B0F)
+     for gold-as-text, NOT --gold (#E7AC18, 2.04:1 on white, unusable).
+   ============================================================================= */
