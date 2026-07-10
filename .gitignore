@@ -34,3 +34,4 @@ htmlcov/
 
 # Claude Code worktree metadata
 .claude/
+scratch_prd/
