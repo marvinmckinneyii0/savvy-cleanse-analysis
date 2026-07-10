@@ -42,7 +42,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-14
-last_updated: 2026-07-09  # stories 2-3-drift-engine + 2-4-reporting-agent done (Epic 2 build loop). Next: 2-5-monitoring-agent-alert-delivery (backlog → create-story).
+last_updated: 2026-07-09  # story 2-5-monitoring-agent-alert-delivery done + merged → Epic 2 complete (all stories done).
 project: SavvyCortex
 project_key: NOKEY
 tracking_system: file-system
@@ -83,7 +83,7 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Automated Reporting & Data Monitoring
-  epic-2: in-progress
+  epic-2: done
   2-1-configuration-layer: done  # implemented + reviewed (1 fix applied: mapping-vs-list silent-swallow bug) 2026-07-05
   2-2-llm-client-abstraction: done  # inserted 2026-07-02: prerequisite for the Reporting (2.4) and Monitoring (2.5) agents' LLM calls; implemented + reviewed 2026-07-05
   2-2b-harden-llm-client-multi-caller-use: done  # corrective story from 2-2 code review; implemented + re-reviewed (0 findings) 2026-07-05
@@ -93,7 +93,7 @@ development_status:
   # 2.4) → 2.5. See _bmad-output/implementation-artifacts/2-3-drift-engine.md header for the full map.
   2-3-drift-engine: done  # implemented + reviewed + security-reviewed (path-traversal HIGH fixed) 2026-07-08; 154 passed / 0 regressions. scipy removed from requirements.txt (unused by Epic 2), NOT promoted to pyproject, per Phase-12 hard constraint (overrode story Task 5).
   2-4-reporting-agent: done  # implemented + reviewed + security-reviewed 2026-07-09; drift wired into pipeline (arch §754-764), APScheduler schedule + hot-reload + error recovery; 165 passed / 0 regressions. Also unified test env onto uv-managed .venv (pytest/pandera declared) — see story completion notes.
-  2-5-monitoring-agent-alert-delivery: backlog  # was 2-4-monitoring-agent-alert-delivery
+  2-5-monitoring-agent-alert-delivery: done  # implemented + reviewed + security-reviewed 2026-07-09; thin drift-consuming alert agent (evaluate CLI, dual log+SMTP delivery, hot-reload, SMTP failure isolation); 181 passed / 0 regressions (+16 tests). Additive DriftEngine.load_baseline wrapper. was 2-4-monitoring-agent-alert-delivery
   epic-2-retrospective: optional
 
   # Epic 3: Web Application & Customer Dashboard

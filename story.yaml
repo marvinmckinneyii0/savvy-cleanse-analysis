@@ -51,7 +51,7 @@ epic_1:
 
 epic_2:
   name: "Automated Reporting & Data Monitoring"
-  status: in-progress
+  status: done
   # Numbering reconciled 2026-07-05 (see sprint-status.yaml + 2-3-drift-engine.md header):
   # an out-of-band LLM-client story took the 2.2 slot, pushing Drift→2.3, Reporting→2.4, Monitoring→2.5.
   stories:
@@ -73,7 +73,9 @@ epic_2:
     2-4-reporting-agent:
       status: done
       notes: "Done 2026-07-09 (Epic 2 build loop). Drift wired into pipeline + APScheduler schedule/hot-reload/error-recovery. 165 tests pass. Test env unified onto uv .venv."
-    2-5-monitoring-agent-alert-delivery: { status: backlog }
+    2-5-monitoring-agent-alert-delivery:
+      status: done
+      notes: "Done 2026-07-09 (Epic 2 build loop). Thin drift-consuming alert agent (evaluate CLI, dual JSON-log + SMTP delivery, threshold hot-reload, SMTP failure isolation). 181 tests pass (+16), security-reviewed 0 findings. Additive DriftEngine.load_baseline wrapper."
 
 epic_3:
   name: "Web Application & Customer Dashboard"
@@ -132,9 +134,9 @@ epic_7:
 
 summary:
   total_stories: 33   # +2 vs prior: 2-2-llm-client-abstraction and 2-2b filed into Epic 2
-  done: 11            # Epic 1 (6) + Epic 2: 2-1, 2-2, 2-2b, 2-3, 2-4
+  done: 12            # Epic 1 (6) + Epic 2 complete: 2-1, 2-2, 2-2b, 2-3, 2-4, 2-5
   review: 0
   in_progress: 0
   ready_for_dev: 0
-  backlog: 22
+  backlog: 21
   blocked: 0
