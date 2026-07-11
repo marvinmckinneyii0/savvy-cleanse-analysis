@@ -43,8 +43,8 @@ decisions that reorder them. Seven decisions drive the restructure:
 | none — net-new | Epic 11 | new (Tier 4 + Eval Harness + Governance) |
 | 8 Adapter + Scoring + 12-B Calibration (MERGED) | Epic 12 | new |
 | 8 / §17 Marketing Vertical + 14 A/B Intelligence | Epic 13 | new |
-| 10 Financial Vertical | Epic 14 | new |
-| 11 Healthcare Vertical | Epic 15 | new |
+| 10 Financial Vertical | Epic 14 | deferred-pending-research |
+| 11 Healthcare Vertical | Epic 15 | deferred-pending-research |
 | none | Chart inference (option c) | backlog, post-Epic-8 |
 | none | Unstructured / Extraction | backlog, blocked-on: eval-harness |
 | 13 Marketplace | — | backlog, unscoped |
@@ -78,6 +78,13 @@ adapters with revenue share.
 ### PRE-VERTICAL GATE
 Epics 3 (cleaning), 8 (descriptive/predictive/prescriptive), 9 (diagnostic), 10
 (simulation) must all close before Epic 12 begins.
+
+### VERTICALS 14–15 DEFERRED PENDING RESEARCH (decision 2026-07-11)
+Financial (Epic 14) and Healthcare (Epic 15) are `deferred-pending-research`: no story
+breakdown, no sizing, no loop_eligible values until real market research + client
+validation in those sectors inform actual scope. This is a deliberate decision, not a
+gap to revisit. It does NOT change sequencing before Epic 13 — Marketing (Epic 13) was
+already first in the vertical queue regardless.
 
 ### A/B TESTING INTELLIGENCE (§14, vision scope)
 Promoted to implementation WITHIN Epic 13, not before it. Statistical foundation from

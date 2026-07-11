@@ -7,7 +7,9 @@
 
 # STATUS DEFINITIONS:
 # ==================
-# Epic Status:      backlog | in-progress | done
+# Epic Status:      backlog | in-progress | done | deferred-pending-research
+#                   deferred-pending-research: deliberate decision to NOT scope yet (awaiting
+#                   market research + client validation). NOT a gap or oversight. Do not story-file.
 # Story Status:     backlog | ready-for-dev | in-progress | review | done
 #                   blocked-needs-review  (set by the unattended loop on HALT — see loop-runner-spec.md)
 # Retrospective:    optional | done
@@ -238,19 +240,23 @@ development_status:
   epic-13-retrospective: optional
 
   # =========================================================================
-  # Epic 14: Financial Vertical  — PRD Phase 10. Scope per PRD; GLBA/adverse-action reason codes. Def: epic-14-financial-vertical.md
-  # Stories TBD (scope per PRD Phase 10). ALL loop_eligible: false — regulated vertical, no exceptions.
+  # Epic 14: Financial Vertical  — PRD Phase 10. Def: epic-14-financial-vertical.md
+  # DEFERRED PENDING RESEARCH (deliberate decision 2026-07-11): no story breakdown, no sizing,
+  # no meaningful loop_eligible values until real market research + client validation in the
+  # financial sector inform actual scope. This is a DECISION, not a gap. Do NOT story-file until
+  # told. Does NOT change sequencing before Epic 13 (Marketing was already first in the vertical queue).
   # =========================================================================
-  epic-14: backlog
-  14-scope: { status: backlog, loop_eligible: false }  # placeholder — story breakdown per PRD Phase 10 at story-write time; all stories false
+  epic-14: deferred-pending-research
   epic-14-retrospective: optional
 
   # =========================================================================
-  # Epic 15: Healthcare Vertical  — PRD Phase 11. Scope per PRD; HIPAA/PHI; anonymization before processing. Def: epic-15-healthcare-vertical.md
-  # Stories TBD (scope per PRD Phase 11). ALL loop_eligible: false — regulated vertical, no exceptions.
+  # Epic 15: Healthcare Vertical  — PRD Phase 11. Def: epic-15-healthcare-vertical.md
+  # DEFERRED PENDING RESEARCH (deliberate decision 2026-07-11): no story breakdown, no sizing,
+  # no meaningful loop_eligible values until real market research + client validation in the
+  # healthcare sector inform actual scope. This is a DECISION, not a gap. Do NOT story-file until
+  # told. Does NOT change sequencing before Epic 13 (Marketing was already first in the vertical queue).
   # =========================================================================
-  epic-15: backlog
-  15-scope: { status: backlog, loop_eligible: false }  # placeholder — story breakdown per PRD Phase 11 at story-write time; all stories false
+  epic-15: deferred-pending-research
   epic-15-retrospective: optional
 
   # =========================================================================

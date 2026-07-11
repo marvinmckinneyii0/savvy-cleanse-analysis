@@ -24,5 +24,10 @@ Risk-adjusted scoring.
 - All stories `loop_eligible: false` — regulated vertical, no exceptions.
 - Anonymization/PII handling per §14.1 Phase 10 and §15 (GLBA, US financial).
 
-Story-level breakdown is authored per PRD Phase 10 when this epic is scheduled (after Epic 15
-in the vertical queue's gating, per the pre-vertical gate and vertical order).
+## Status: DEFERRED PENDING RESEARCH (deliberate decision, 2026-07-11)
+
+This epic is intentionally an unscoped placeholder — **no story breakdown, no sizing, no
+meaningful loop_eligible values** — until real market research and client validation in the
+financial sector inform its actual scope. This is a decision, not a gap or oversight; do NOT
+story-file it until explicitly told to. It does NOT change sequencing before Epic 13 —
+Marketing was already first in the vertical queue regardless.
