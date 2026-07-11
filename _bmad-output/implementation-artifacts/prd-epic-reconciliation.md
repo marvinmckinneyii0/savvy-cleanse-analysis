@@ -106,6 +106,12 @@ succeeds. Gate on quota, not speed.
 Documentation says SAINT; code says `savvycortex`. This is deliberate and time-boxed.
 Code rename is filed as Story R.1 (Task 8), executed after Story 2.5 merges and before
 Story 3.1 begins. This is not drift — drift is when nobody writes it down.
+CORRECTION (2026-07-11): R.1's original targets (a `savvycortex/` package, `from
+savvycortex.*` imports, a `dqa_engine.py` component, an `import savvyclean as sc` sample)
+reflect the PRD §7.3 ASPIRATIONAL layout and do NOT exist. In the real tree the package is
+`backend/`, the DQA engine is `data_quality.py`, and the FRONTEND is brand-named
+"SavvyClean". R.1 has been re-filed with corrected, deliberately-open scope — see
+R-1-code-rename-savvycortex-to-saint.md before scheduling it.
 Retired names: SavvyCortex (retired by this restructure) and the earlier retired name
 must not reappear in any documentation surface. Component filenames `dqa_engine.py` and
 `drift_engine.py` keep their current names permanently — the previously-held "cosmetic
