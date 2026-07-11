@@ -1,4 +1,11 @@
-
+> **DEPRECATED 2026-07-09. Superseded by the master PRD per that document's own
+> supersession clause. Retained for historical reference only. Do not maintain.
+> Do not reference.**
+>
+> The canonical source of truth is
+> `_bmad-output/planning-artifacts/saint-master-prd.md` (16-phase master PRD,
+> renamed SAINT, eight amendments applied). This six-phase roadmap is the earlier
+> document referenced in the 2026-07-09 roadmap restructure.
 
 **SAVVYCORTEX**
 Product Roadmap PRD
