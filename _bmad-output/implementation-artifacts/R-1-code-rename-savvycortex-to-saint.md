@@ -20,7 +20,7 @@ Verified against the actual tree on main:
 | `from savvycortex.*` imports | **None.** All imports are `from backend.*`. |
 | `backend.api.app:app` entrypoint | Exists (FastAPI title "SavvyCortex API"). Module is `backend.api.app`. |
 | Component filename `dqa_engine.py` (keep unchanged) | **Does not exist.** The DQA engine is `backend/pipeline/data_quality.py`. `drift_engine.py` does exist. |
-| Landing-page `import savvyclean as sc` code sample | **No such sample.** The entire frontend is brand-named **"SavvyClean"** (index.html + ~25 `src/` files). |
+| Landing-page `import savvyclean as sc` code sample | **No such sample.** The frontend is brand-named **"SavvyClean"** in **19 files** (index.html + 18 under src/; verified 2026-07-11). |
 
 **The product name in code is split, and neither half is a `savvycortex/` package:**
 - **Backend** carries "SavvyCortex" prose only (docstrings, Typer help, FastAPI title,
@@ -47,7 +47,10 @@ rename surface is different and must be scoped deliberately — hence this story
   modules (`advanced_pipeline.py`, `comprehensive_analytics.py`, `dashboard_api.py`,
   `main.py`, `main_enhanced.py`, `nlp_processor.py`). The `backend/` package directory and
   `from backend.*` imports are NOT the product name — leaving them is defensible.
-- **B. Frontend brand (SavvyClean → SAINT).** `index.html` title/meta + ~25 `src/` files.
+- **B. Frontend brand (SavvyClean → SAINT).** 19 files (verified 2026-07-11): `index.html`
+  (title + og meta), `src/components/{Hero,Navbar,Footer,AnalysisTypes,Feedback,SignupForm}`
+  + `src/components/dashboard/AdminDashboard`, and 11 `src/pages/*` (about, api, api-reference,
+  blog, careers, contact, documentation, features, guides, savvy-analytics, testimonials).
   Client-facing; wants its own visual/QA pass.
 - **C. Repo rename** `savvy-cleanse-analysis` → per Marvin's instruction. A GitHub action a
   human performs; also `README.md` clone URL / `savvycleanse/` references.
