@@ -24,8 +24,8 @@ const Guides = () => {
       ]
     },
     {
-      title: "Predictive Analytics with SavvyClean",
-      description: "Learn how to use SavvyClean's built-in regression models to forecast sales, predict customer behavior, and identify trends.",
+      title: "Predictive Analytics with SAINT",
+      description: "Learn how to use SAINT's built-in regression models to forecast sales, predict customer behavior, and identify trends.",
       duration: "25 min read",
       level: "Intermediate",
       category: "Analytics",

@@ -20,7 +20,7 @@ from fastapi import FastAPI
 
 from backend.api.parse_file import router as parse_router
 
-app = FastAPI(title="SavvyCortex API", version="0.1.0")
+app = FastAPI(title="SAINT API", version="0.1.0")
 app.include_router(parse_router)
 
 

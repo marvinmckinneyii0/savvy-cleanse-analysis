@@ -26,7 +26,7 @@ const Hero = () => {
               Clean, Transform, and <span className="text-savvy-gold">Analyze</span> Your Data
             </h1>
             <p className="text-muted-foreground md:text-xl">
-              SavvyClean is a Python-first data cleaning and analytics platform built for data scientists,
+              SAINT is a Python-first data cleaning and analytics platform built for data scientists,
               analysts, and business intelligence professionals.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
@@ -63,8 +63,8 @@ const Hero = () => {
                   />
                 </div>
                 <pre className="code-block text-xs md:text-sm overflow-x-auto">
-{`# SavvyClean Python Integration
-import savvyclean as sc
+{`# SAINT Python Integration
+import saint as sc
 
 # Load and clean your data
 df = sc.clean('messy_data.csv')

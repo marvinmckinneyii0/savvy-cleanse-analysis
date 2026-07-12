@@ -41,12 +41,12 @@ from backend.pipeline.drift_engine import DriftEngine
 
 _DEFAULT_BASELINE_DIR = "backend/baselines"
 
-app = typer.Typer(add_completion=False, help="SavvyCortex Monitoring Agent.")
+app = typer.Typer(add_completion=False, help="SAINT Monitoring Agent.")
 
 
 @app.callback()
 def _main() -> None:
-    """SavvyCortex Monitoring Agent.
+    """SAINT Monitoring Agent.
 
     Present so Typer keeps ``evaluate`` as an explicit subcommand (a single-
     command Typer app would otherwise drop the verb) — the AC-1 invocation is
@@ -180,9 +180,9 @@ def _send_email(alerts: list[AlertMessage], config: PipelineConfig) -> None:
         )
         return
 
-    from_address = smtp.from_address or smtp.username or "savvycortex@localhost"
+    from_address = smtp.from_address or smtp.username or "saint@localhost"
     message = EmailMessage()
-    message["Subject"] = f"[SavvyCortex] {len(alerts)} monitoring alert(s)"
+    message["Subject"] = f"[SAINT] {len(alerts)} monitoring alert(s)"
     message["From"] = from_address
     message["To"] = ", ".join(recipients)
     message.set_content(_build_email_body(alerts))

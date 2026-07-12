@@ -62,7 +62,7 @@ const Contact = () => {
     {
       icon: <MessageSquare className="h-8 w-8 text-savvy-blue" />,
       title: "General Support",
-      description: "Questions about using SavvyClean, troubleshooting, or account issues",
+      description: "Questions about using SAINT, troubleshooting, or account issues",
       email: "support@savvyanalytics.info"
     },
     {
@@ -81,8 +81,8 @@ const Contact = () => {
 
   const faqs = [
     {
-      question: "How quickly can I get started with SavvyClean?",
-      answer: "You can start using SavvyClean immediately after signing up. Simply upload your data and begin cleaning and analyzing within minutes."
+      question: "How quickly can I get started with SAINT?",
+      answer: "You can start using SAINT immediately after signing up. Simply upload your data and begin cleaning and analyzing within minutes."
     },
     {
       question: "What file formats do you support?",
@@ -112,7 +112,7 @@ const Contact = () => {
                 <span className="text-savvy-gold"> Touch</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Have questions about SavvyClean? Need help with your data analytics workflow? We're here to help.
+                Have questions about SAINT? Need help with your data analytics workflow? We're here to help.
               </p>
             </div>
           </div>
@@ -273,7 +273,7 @@ const Contact = () => {
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-4">Still Have Questions?</h2>
               <p className="text-gray-300 mb-8">
-                Our team is here to help you succeed with SavvyClean. Don't hesitate to reach out.
+                Our team is here to help you succeed with SAINT. Don't hesitate to reach out.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button className="bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">

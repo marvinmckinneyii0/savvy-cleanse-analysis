@@ -54,7 +54,7 @@ const About = () => {
     },
     {
       year: "2024",
-      title: "SavvyClean Launch",
+      title: "SAINT Launch",
       description: "Released our first product focusing on transparent data analytics"
     },
     {
@@ -79,7 +79,7 @@ const About = () => {
             <div className="text-center max-w-4xl mx-auto">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
                 About
-                <span className="text-savvy-gold"> SavvyClean</span>
+                <span className="text-savvy-gold"> SAINT</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
                 We're on a mission to turn data chaos into clarity, one dataset at a time.
@@ -104,7 +104,7 @@ const About = () => {
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-8">Our Mission</h2>
               <p className="text-xl text-muted-foreground leading-relaxed mb-8">
-                SavvyClean is built by <strong>Savvy Analytics</strong>, a consultancy dedicated to helping businesses adopt AI responsibly. We believe that powerful analytics should be transparent, accessible, and intelligent.
+                SAINT is built by <strong>Savvy Analytics</strong>, a consultancy dedicated to helping businesses adopt AI responsibly. We believe that powerful analytics should be transparent, accessible, and intelligent.
               </p>
               <div className="bg-gradient-to-r from-savvy-blue/10 to-savvy-gold/10 rounded-lg p-8">
                 <blockquote className="text-2xl font-semibold text-center italic">
@@ -150,7 +150,7 @@ const About = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Meet Our Team</h2>
               <p className="text-muted-foreground">
-                The passionate individuals behind SavvyClean's mission to democratize data analytics.
+                The passionate individuals behind SAINT's mission to democratize data analytics.
               </p>
             </div>
             
@@ -181,7 +181,7 @@ const About = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Our Journey</h2>
               <p className="text-muted-foreground">
-                Key milestones in SavvyClean's evolution from idea to platform.
+                Key milestones in SAINT's evolution from idea to platform.
               </p>
             </div>
             

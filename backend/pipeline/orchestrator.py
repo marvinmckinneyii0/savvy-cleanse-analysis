@@ -182,7 +182,7 @@ def cli(
         typer.Option("--format", help="Output format: docx or pdf."),
     ] = OutputFormat.docx,
 ) -> None:
-    """Run the SavvyCortex full analysis pipeline on a CSV file."""
+    """Run the SAINT full analysis pipeline on a CSV file."""
     configure_logging()
     pipeline_run_id = str(uuid.uuid4())
 

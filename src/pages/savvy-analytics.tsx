@@ -113,7 +113,7 @@ const SavvyAnalytics = () => {
               <h2 className="text-3xl font-bold mb-8">About Savvy Analytics</h2>
               <div className="bg-white dark:bg-card rounded-lg p-8 shadow-sm">
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                  Savvy Analytics is the parent company behind SavvyClean, specializing in AI strategy, 
+                  Savvy Analytics is the parent company behind SAINT, specializing in AI strategy, 
                   automation, and analytics solutions for businesses across the United States and Europe. 
                   We believe in responsible AI adoption that drives real business value while maintaining 
                   transparency and ethical standards.
@@ -223,22 +223,22 @@ const SavvyAnalytics = () => {
           </div>
         </section>
 
-        {/* SavvyClean Connection */}
+        {/* SAINT Connection */}
         <section className="py-16 bg-gradient-to-r from-savvy-blue/5 to-savvy-gold/5">
           <div className="container px-4 md:px-6">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-6">The SavvyClean Connection</h2>
+              <h2 className="text-3xl font-bold mb-6">The SAINT Connection</h2>
               <Card className="shadow-lg">
                 <CardContent className="p-8">
                   <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                    SavvyClean was born from our consulting experience. After helping dozens of organizations 
+                    SAINT was born from our consulting experience. After helping dozens of organizations 
                     with data analytics challenges, we identified a common pain point: the time-consuming, 
-                    error-prone process of data cleaning and preparation. SavvyClean is our solution to 
+                    error-prone process of data cleaning and preparation. SAINT is our solution to 
                     democratize access to clean, reliable data analytics.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button className="bg-savvy-blue hover:bg-savvy-blue/90">
-                      Try SavvyClean
+                      Try SAINT
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                     <Button variant="outline">

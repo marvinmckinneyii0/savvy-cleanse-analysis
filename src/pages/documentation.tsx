@@ -33,7 +33,7 @@ const Documentation = () => {
   const codeExamples = [
     {
       title: "Upload Dataset",
-      description: "Upload your dataset to SavvyClean",
+      description: "Upload your dataset to SAINT",
       code: `curl -F "file=@data.csv" \\
      -H "Authorization: Bearer YOUR_API_KEY" \\
      http://localhost:8000/upload`
@@ -100,7 +100,7 @@ const Documentation = () => {
                 <span className="text-savvy-gold"> & Guides</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Everything you need to get started with SavvyClean and master data analytics workflows.
+                Everything you need to get started with SAINT and master data analytics workflows.
               </p>
             </div>
           </div>
@@ -112,7 +112,7 @@ const Documentation = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Quick Start Guide</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Get up and running with SavvyClean in just 4 simple steps.
+                Get up and running with SAINT in just 4 simple steps.
               </p>
             </div>
             
@@ -140,7 +140,7 @@ const Documentation = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">API Examples</h2>
               <p className="text-muted-foreground">
-                Quick code examples to get you started with the SavvyClean API.
+                Quick code examples to get you started with the SAINT API.
               </p>
             </div>
             
@@ -173,7 +173,7 @@ const Documentation = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Documentation Sections</h2>
               <p className="text-muted-foreground">
-                Comprehensive guides covering all aspects of SavvyClean.
+                Comprehensive guides covering all aspects of SAINT.
               </p>
             </div>
             

@@ -9,7 +9,7 @@ import { Quote, Star } from 'lucide-react';
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "SavvyClean turned our messy CRM exports into usable insights in minutes. What used to take our team hours of manual cleaning now happens automatically. The transparency in methodology gives us confidence in our decisions.",
+      quote: "SAINT turned our messy CRM exports into usable insights in minutes. What used to take our team hours of manual cleaning now happens automatically. The transparency in methodology gives us confidence in our decisions.",
       author: "Amelia Richardson",
       title: "Product Manager",
       company: "TechFlow Solutions",
@@ -18,7 +18,7 @@ const Testimonials = () => {
       category: "Data Cleaning"
     },
     {
-      quote: "Finally, a tool that explains the math behind the numbers. Transparency is key in our industry, and SavvyClean delivers exactly that. The formula explanations and statistical methods are invaluable for our reports.",
+      quote: "Finally, a tool that explains the math behind the numbers. Transparency is key in our industry, and SAINT delivers exactly that. The formula explanations and statistical methods are invaluable for our reports.",
       author: "David Thompson",
       title: "Senior Data Analyst",
       company: "Financial Insights Corp",
@@ -27,7 +27,7 @@ const Testimonials = () => {
       category: "Analytics"
     },
     {
-      quote: "We reduced reporting time by 70% using SavvyClean's guided analytics. The predictive models are surprisingly accurate, and the Python export feature lets us integrate seamlessly with our existing workflows.",
+      quote: "We reduced reporting time by 70% using SAINT's guided analytics. The predictive models are surprisingly accurate, and the Python export feature lets us integrate seamlessly with our existing workflows.",
       author: "Sophia Kumar",
       title: "Operations Lead",
       company: "Supply Chain Dynamics",
@@ -36,7 +36,7 @@ const Testimonials = () => {
       category: "Efficiency"
     },
     {
-      quote: "The Jupyter notebook export is a game-changer. I can now share reproducible analysis with my team while maintaining the interactive exploration that SavvyClean provides. It's the best of both worlds.",
+      quote: "The Jupyter notebook export is a game-changer. I can now share reproducible analysis with my team while maintaining the interactive exploration that SAINT provides. It's the best of both worlds.",
       author: "Marcus Chen",
       title: "Research Scientist",
       company: "BioData Labs",
@@ -45,7 +45,7 @@ const Testimonials = () => {
       category: "Integration"
     },
     {
-      quote: "As a consultant, I need tools that work reliably across different client datasets. SavvyClean handles everything from survey data to financial records with the same level of sophistication.",
+      quote: "As a consultant, I need tools that work reliably across different client datasets. SAINT handles everything from survey data to financial records with the same level of sophistication.",
       author: "Elena Vasquez",
       title: "Data Science Consultant",
       company: "Independent",
@@ -84,7 +84,7 @@ const Testimonials = () => {
                 <span className="text-savvy-gold"> Worldwide</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                See how SavvyClean is transforming data workflows across industries and helping teams make better decisions faster.
+                See how SAINT is transforming data workflows across industries and helping teams make better decisions faster.
               </p>
             </div>
           </div>
@@ -112,7 +112,7 @@ const Testimonials = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">What Our Users Say</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Real feedback from data professionals who use SavvyClean to transform their workflows.
+                Real feedback from data professionals who use SAINT to transform their workflows.
               </p>
             </div>
             
@@ -163,7 +163,7 @@ const Testimonials = () => {
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-4">Join Thousands of Satisfied Users</h2>
               <p className="text-muted-foreground mb-8">
-                Start your free trial today and see why data professionals choose SavvyClean for their analytics needs.
+                Start your free trial today and see why data professionals choose SAINT for their analytics needs.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button className="bg-savvy-blue text-white px-8 py-3 rounded-lg hover:bg-savvy-blue/90 transition-colors">

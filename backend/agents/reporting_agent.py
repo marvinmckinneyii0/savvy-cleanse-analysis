@@ -36,7 +36,7 @@ from backend.pipeline.orchestrator import OutputFormat, run_full_pipeline
 
 _DEFAULT_BASELINE_DIR = "backend/baselines"
 
-app = typer.Typer(add_completion=False, help="SavvyCortex Reporting Agent.")
+app = typer.Typer(add_completion=False, help="SAINT Reporting Agent.")
 
 
 def _dataset_key_from_path(input_path: str | Path) -> str:

@@ -1,10 +1,10 @@
 # STATUS: Legacy reference implementation
-# This module is NOT part of the SavvyCortex pipeline.
+# This module is NOT part of the SAINT pipeline.
 # Reusable logic has been extracted into pipeline/ and models/.
 # Retained for web API compatibility until Phase 3 integration.
 
 """
-Natural Language Processing module for SavvyCleanse
+Natural Language Processing module for SAINT
 Handles natural language queries and maps them to appropriate analytics
 """
 

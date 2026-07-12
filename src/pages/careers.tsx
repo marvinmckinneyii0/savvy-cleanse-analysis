@@ -35,7 +35,7 @@ const Careers = () => {
       location: "Remote",
       type: "Full-time", 
       department: "Engineering",
-      description: "Extend the SavvyClean platform with new features and integrations. Work across our React frontend and Python backend to deliver exceptional user experiences.",
+      description: "Extend the SAINT platform with new features and integrations. Work across our React frontend and Python backend to deliver exceptional user experiences.",
       requirements: [
         "4+ years full-stack development experience",
         "Proficiency in React, TypeScript, and Python",

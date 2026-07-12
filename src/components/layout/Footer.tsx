@@ -14,7 +14,7 @@ const Footer = () => {
                 alt="Savvy Analytics Logo" 
                 className="w-8 h-8"
               />
-              <span className="text-xl font-semibold tracking-tight">SavvyClean</span>
+              <span className="text-xl font-semibold tracking-tight">SAINT</span>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
               Turn chaos into clarity, one dataset at a time.
