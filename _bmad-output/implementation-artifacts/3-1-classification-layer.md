@@ -38,7 +38,7 @@ Original data is never touched (detect-don't-fix, §2.1). No client-facing surfa
    - **Tier 3 → `human_only`** (agent detects & scores, never acts): near-duplicates, statistical red flags (outliers, suspicious distributions), unreadable/ambiguous structure (pipeline halts).
    - **Tier 4** is **out of scope** (Epic 11): it is an opt-in overlay on `human_only` findings, not a fourth `remediation_class` value. Do NOT add a fourth enum value.
 
-4. **Every current `defect_type` classified** per the authoritative mapping in Dev Notes. The three ambiguous types (`negative_values`, `infinite_values`, `duplicate_measurement`) are resolved during this story's review per the Open Classification Decisions section before dev proceeds on them.
+4. **Every current `defect_type` classified** per the authoritative mapping in Dev Notes. All 12 emitted defect types are covered (verified against `data_quality.py`), each mapped exactly once. The three formerly-ambiguous types (`negative_values`, `infinite_values`, `duplicate_measurement`) are locked to `human_only` per the Resolved Classification Decisions section.
 
 5. **Classification is centralized and pure.** The `defect_type → remediation_class` mapping lives in exactly one place (a pure, side-effect-free classifier), not scattered across the assessor's detection branches. Re-classifying the same finding is idempotent.
 
@@ -85,19 +85,21 @@ Derived from the assessor's actual emitted `defect_type` strings (`backend/pipel
 | `zero_variance` | statistical_red_flag | `human_only` | 3 | suspicious distribution |
 | `extreme_outliers` | statistical_red_flag | `human_only` | 3 | outliers |
 | `extreme_cardinality` | statistical_red_flag | `human_only` | 3 | suspicious distribution |
-| `negative_values` | consistency | **`human_only` (proposed — CONFIRM)** | 3? | See Open Decisions |
-| `infinite_values` | statistical_red_flag | **`human_only` (proposed — CONFIRM)** | 3? | See Open Decisions |
-| `duplicate_measurement` | referential_integrity | **`human_policy_agent_execution` (proposed — CONFIRM)** | 2/3? | See Open Decisions |
+| `negative_values` | consistency | `human_only` | 3 | domain plausibility red flag (locked — see notes) |
+| `infinite_values` | statistical_red_flag | `human_only` | 3 | statistical red flag, fail-safe (locked — see notes) |
+| `duplicate_measurement` | referential_integrity | `human_only` | 3 | redundant-column correlation signal, irreversible schema call (locked — see notes) |
 
 > **Do not key classification on `category` alone.** `uniqueness` and `structural_integrity` each split across tiers in the spec (exact duplicates = Tier 1 vs near-duplicates = Tier 3; header misalignment = Tier 1 vs unreadable/ambiguous = Tier 3). The current assessor happens not to emit the Tier-3 variants of those categories yet, so the mapping is keyed on `defect_type`. Keep it keyed on `defect_type` so adding a future `near_duplicate` type cannot silently inherit `duplicate_rows`'s autonomous class.
+>
+> **`duplicate_rows` ≠ `duplicate_measurement` — they are unrelated findings.** `duplicate_rows` (`data_quality.py:252`, category `uniqueness`) is exact duplicate *records* — the genuine Tier-1 dedup candidate → `agent_autonomous`. `duplicate_measurement` (`data_quality.py:400`, category `referential_integrity`, severity LOW) is a *column-pair* signal: two numeric columns with Pearson |corr| > 0.99, i.e. a redundant-column hint, with action "verify if one is derived from the other." It has nothing to do with duplicate records and is **not** a dedup candidate. Classify each on its own `defect_type`; never let the name similarity conflate them.
 
-### 🚩 Open Classification Decisions (resolve in review before dev — AC 4)
+### ✅ Resolved Classification Decisions (locked 2026-07-12)
 
-These three are genuine judgment calls; mis-tiering toward autonomy is a data-integrity hazard, so all three **default to the conservative class** unless the reviewer confirms otherwise:
+All three resolve to **`human_only`**. Mis-tiering toward autonomy is a data-integrity hazard, so each lands on the conservative class:
 
-1. **`negative_values`** — emitted as `consistency`, but only for columns whose name implies non-negativity (`_NON_NEGATIVE_KEYWORDS`: revenue, quantity, count, price, amount, volume). This is a *domain/plausibility* red flag ("revenue is negative"), not a mechanical whitespace/case normalization. **Proposed: `human_only`** — a human must decide whether a negative revenue is an error, a refund, or valid. Do NOT auto-fix.
-2. **`infinite_values`** — `inf`/`-inf` in numerics. Mechanically coercible (→ null/remove) but usually signals an upstream computation error a human should see. **Proposed: `human_only`** (fail-safe).
-3. **`duplicate_measurement`** — a referential near-duplicate signal (same measurement across `col_a`/`col_b`). Spec Tier 2 referential covers "orphaned-FK resolution rule"; this is closer to near-duplicate (Tier 3). **Proposed: `human_policy_agent_execution` if treated as a resolution-rule finding, else `human_only`.** Confirm intent.
+1. **`negative_values` → `human_only`.** Emitted as `consistency`, but only for columns whose name implies non-negativity (`_NON_NEGATIVE_KEYWORDS`: revenue, quantity, count, price, amount, volume). This is a *domain/plausibility* red flag ("revenue is negative"), not a mechanical whitespace/case normalization. A human must decide whether a negative value is an error, a refund, or valid. Do NOT auto-fix.
+2. **`infinite_values` → `human_only`.** `inf`/`-inf` in numerics. Mechanically coercible (→ null/remove) but usually signals an upstream computation error a human should see. Fail-safe to human review.
+3. **`duplicate_measurement` → `human_only`.** Correlation-based redundant-column signal (`data_quality.py:400`, Pearson |corr| > 0.99), **not** a duplicate-record finding. Remediation = dropping/merging one of two correlated columns, which is an irreversible, domain-specific schema decision (which column is canonical cannot be determined mechanically). Tier 3. *The earlier Tier-2 "resolution-rule" framing was based on a misread of the defect semantics (confusing it with row dedup / `duplicate_rows`) and is withdrawn.*
 
 ### Where things live / conventions to follow (from Epic 1/2, all `done`)
 
