@@ -6,7 +6,7 @@ A comprehensive React + FastAPI–based data cleaning and analytics tool from **
 
 Overview
 
-SavvyCortex is a data cleaning and analytics application that combines a React/Vite + TypeScript frontend with a Python/FastAPI backend. It enables businesses, analysts, and product owners to:
+SAINT is a data cleaning and analytics application that combines a React/Vite + TypeScript frontend with a Python/FastAPI backend. It enables businesses, analysts, and product owners to:
 
 Clean messy datasets with ML-powered strategies
 
