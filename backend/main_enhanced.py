@@ -4,7 +4,7 @@
 # whole remains off-limits to any new code. Phase 3 supersedes it entirely.
 
 """
-Enhanced FastAPI backend for SavvyCleanse with comprehensive analytics,
+Enhanced FastAPI backend for SAINT with comprehensive analytics,
 authentication, and multi-tenancy support
 """
 
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
 app = FastAPI(
-    title="SavvyCleanse Enhanced Backend",
+    title="SAINT Enhanced Backend",
     description="Comprehensive data analytics platform with NLP querying",
     version="2.0.0"
 )

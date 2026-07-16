@@ -1,5 +1,5 @@
 # STATUS: Legacy reference implementation
-# This module is NOT part of the SavvyCortex pipeline.
+# This module is NOT part of the SAINT pipeline.
 # Reusable logic has been extracted into pipeline/ and models/.
 # Retained for web API compatibility until Phase 3 integration.
 
@@ -18,7 +18,7 @@ from cleaner import clean_dataframe
 from analytics import analyze_goal
 from dashboard_api import router as dashboard_router
 
-app = FastAPI(title="SavvyClean Backend")
+app = FastAPI(title="SAINT Backend")
 
 app.add_middleware(
     CORSMiddleware,

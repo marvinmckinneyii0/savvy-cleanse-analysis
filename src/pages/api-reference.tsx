@@ -162,7 +162,7 @@ const APIReference = () => {
                 <span className="text-savvy-gold"> Reference</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
-                Complete reference for all SavvyClean API endpoints, parameters, and responses.
+                Complete reference for all SAINT API endpoints, parameters, and responses.
               </p>
               <Badge className="bg-savvy-gold/20 text-savvy-gold border-savvy-gold/30">
                 Private Beta - Coming Soon
@@ -320,7 +320,7 @@ const APIReference = () => {
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-4">Ready to Integrate?</h2>
               <p className="text-gray-300 mb-8">
-                Join our private beta program and get early access to the SavvyClean API.
+                Join our private beta program and get early access to the SAINT API.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button className="bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">

@@ -39,7 +39,7 @@ const AnalysisTypes = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold">Four Types of Analytics</h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            From understanding what happened to determining what actions to take, SavvyClean guides you through the complete analytics journey.
+            From understanding what happened to determining what actions to take, SAINT guides you through the complete analytics journey.
           </p>
         </div>
         

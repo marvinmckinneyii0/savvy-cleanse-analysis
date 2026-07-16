@@ -22,7 +22,7 @@ const Navbar = () => {
             alt="Savvy Analytics Logo" 
             className="w-8 h-8"
           />
-          <span className="text-xl font-semibold tracking-tight">SavvyClean</span>
+          <span className="text-xl font-semibold tracking-tight">SAINT</span>
         </Link>
         
         <nav className="hidden md:flex items-center gap-6 text-sm">

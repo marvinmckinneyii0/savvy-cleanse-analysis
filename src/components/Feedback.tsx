@@ -27,7 +27,7 @@ const Feedback = () => {
     
     toast({
       title: "Thank you for your feedback!",
-      description: "Your input helps us improve SavvyClean.",
+      description: "Your input helps us improve SAINT.",
     });
     
     // Reset the form
@@ -41,7 +41,7 @@ const Feedback = () => {
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold mb-2">We Value Your Feedback</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Help us improve SavvyClean by sharing your experience and suggestions.
+            Help us improve SAINT by sharing your experience and suggestions.
           </p>
         </div>
         

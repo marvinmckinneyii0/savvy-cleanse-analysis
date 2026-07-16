@@ -40,7 +40,7 @@ const API = () => {
     }
   ];
 
-  const codeExample = `# Upload and clean data with SavvyClean API
+  const codeExample = `# Upload and clean data with SAINT API
 import requests
 
 # Upload dataset
@@ -79,7 +79,7 @@ cleaned_data = requests.get(
                 Private Beta
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                SavvyClean
+                SAINT
                 <span className="text-savvy-gold"> API</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
@@ -163,7 +163,7 @@ cleaned_data = requests.get(
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">API Endpoints</h2>
               <p className="text-muted-foreground">
-                SavvyClean API is in private beta. Here's a preview of the planned endpoints:
+                SAINT API is in private beta. Here's a preview of the planned endpoints:
               </p>
             </div>
             
@@ -206,7 +206,7 @@ cleaned_data = requests.get(
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
               <p className="text-gray-300 mb-8">
-                Join our private beta and be among the first to experience the power of SavvyClean API.
+                Join our private beta and be among the first to experience the power of SAINT API.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button className="bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">

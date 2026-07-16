@@ -9,7 +9,7 @@ import { Calendar, Clock, User, ArrowRight, BookOpen } from 'lucide-react';
 const Blog = () => {
   const featuredPost = {
     title: "Why Formula Transparency Matters in AI Analytics",
-    excerpt: "In an era where AI-driven analytics are becoming the norm, transparency isn't just a nice-to-have—it's essential for building trust and making informed decisions. Learn why SavvyClean shows you the math behind every insight.",
+    excerpt: "In an era where AI-driven analytics are becoming the norm, transparency isn't just a nice-to-have—it's essential for building trust and making informed decisions. Learn why SAINT shows you the math behind every insight.",
     author: "Sarah Chen",
     date: "December 15, 2024",
     readTime: "8 min read",
@@ -20,7 +20,7 @@ const Blog = () => {
   const posts = [
     {
       title: "From Data Chaos to Clarity: A Founder's Journey",
-      excerpt: "The story behind SavvyClean's creation, from frustrating late nights cleaning messy datasets to building a platform that transforms how teams approach data analytics.",
+      excerpt: "The story behind SAINT's creation, from frustrating late nights cleaning messy datasets to building a platform that transforms how teams approach data analytics.",
       author: "Marcus Rodriguez",
       date: "December 10, 2024",
       readTime: "12 min read",
@@ -84,7 +84,7 @@ const Blog = () => {
             <div className="text-center max-w-4xl mx-auto">
               <BookOpen className="h-16 w-16 text-savvy-gold mx-auto mb-6" />
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                SavvyClean
+                SAINT
                 <span className="text-savvy-gold"> Blog</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">

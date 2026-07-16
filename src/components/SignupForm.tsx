@@ -51,7 +51,7 @@ const SignupForm = () => {
           Get Early Access
         </CardTitle>
         <CardDescription>
-          Join the waitlist for SavvyClean and be among the first to experience next-generation data cleaning.
+          Join the waitlist for SAINT and be among the first to experience next-generation data cleaning.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -102,7 +102,7 @@ const SignupForm = () => {
         </form>
         
         <p className="text-xs text-muted-foreground text-center mt-4">
-          By signing up, you agree to receive updates about SavvyClean. Unsubscribe anytime.
+          By signing up, you agree to receive updates about SAINT. Unsubscribe anytime.
         </p>
       </CardContent>
     </Card>

@@ -1,4 +1,4 @@
-"""SavvyCortex exception hierarchy.
+"""SAINT exception hierarchy.
 
 The pipeline distinguishes two kinds of failures — this split is
 architectural, not cosmetic, and is enforced by the types defined here.
@@ -43,10 +43,10 @@ from __future__ import annotations
 
 
 class SavvyCleanseError(Exception):
-    """Root of the SavvyCortex exception hierarchy.
+    """Root of the SAINT exception hierarchy.
 
     Catch this at the outermost orchestrator boundary to ensure no
-    SavvyCortex-internal failure escapes as an unclassified
+    SAINT-internal failure escapes as an unclassified
     :class:`Exception`. Never catch this inside a stage — stages should
     catch specific subclasses or let them propagate.
     """

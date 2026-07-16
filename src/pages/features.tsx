@@ -51,7 +51,7 @@ const Features = () => {
                 <span className="text-savvy-gold"> Data Excellence</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Discover the comprehensive toolkit that makes SavvyClean the preferred choice for data professionals worldwide.
+                Discover the comprehensive toolkit that makes SAINT the preferred choice for data professionals worldwide.
               </p>
             </div>
           </div>
@@ -82,7 +82,7 @@ const Features = () => {
         <section className="py-16 bg-gradient-to-r from-savvy-blue/10 to-savvy-gold/10">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Why Choose SavvyClean?</h2>
+              <h2 className="text-3xl font-bold mb-4">Why Choose SAINT?</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Built by data scientists, for data scientists. Every feature is designed to save time while maintaining the highest standards of analytical rigor.
               </p>

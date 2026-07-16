@@ -247,7 +247,7 @@ const AdminDashboard: React.FC = () => {
             Admin Dashboard
           </h1>
           <p className="text-muted-foreground">
-            System overview and user management for SavvyCleanse
+            System overview and user management for SAINT
           </p>
         </div>
       </div>

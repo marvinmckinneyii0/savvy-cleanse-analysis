@@ -1,10 +1,10 @@
 # STATUS: Legacy reference implementation
-# This module is NOT part of the SavvyCortex pipeline.
+# This module is NOT part of the SAINT pipeline.
 # Reusable logic has been extracted into pipeline/ and models/.
 # Retained for web API compatibility until Phase 3 integration.
 
 """
-Enhanced Dashboard API for SavvyCleanse
+Enhanced Dashboard API for SAINT
 Provides chart data and analytics endpoints for the dashboard
 """
 
