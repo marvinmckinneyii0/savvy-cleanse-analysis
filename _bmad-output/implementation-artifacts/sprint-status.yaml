@@ -1,6 +1,6 @@
 # generated: 2026-04-14
 # last_updated: 2026-07-10
-# project: SAINT (Savvy Analytics Intelligence)   # was SavvyCortex — DOCS renamed; code package still savvycortex/ until Story R.1
+# project: SAINT (Savvy Analytics Intelligence)   # was SavvyCortex. Code renamed 2026-07-16 (R.1/PR #36): product-name prose + frontend brand → SAINT. NB: the Python package dir is backend/ (a savvycortex/ package never existed — see R-1 story's reality correction); it and SavvyCleanseError keep their names by design.
 # project_key: NOKEY
 # tracking_system: file-system
 # story_location: C:/Users/marvi/savvy-cleanse-analysis/_bmad-output/implementation-artifacts
@@ -37,7 +37,7 @@
 #     (applies to all stories from 1.4 onward)
 
 generated: 2026-04-14
-last_updated: 2026-07-12  # Story 3.1 story-filed (ready-for-dev); epic-3 → in-progress. R.1 rename PR #36 open (awaiting merge).
+last_updated: 2026-07-16  # R.1 code rename merged (PR #36) → done, seam closed. Story 3.1 story-filed (ready-for-dev); epic-3 → in-progress.
 project: SAINT
 project_key: NOKEY
 tracking_system: file-system
@@ -263,7 +263,7 @@ development_status:
   # Code rename story (documentation → code alignment). Def: R-1-code-rename-savvycortex-to-saint.md
   # Scheduled AFTER Story 2.5 merges (done), BEFORE Story 3.1 begins.
   # =========================================================================
-  R-1-code-rename-savvycortex-to-saint: { status: ready-for-dev, loop_eligible: false }  # M/Sonnet — whole-package rename; own branch/PR; repo rename needs Marvin
+  R-1-code-rename-savvycortex-to-saint: { status: done, loop_eligible: false }  # scope A+B merged 2026-07-16 (PR #36): backend prose + frontend brand; 181 passed/0 regressions; security-reviewed. OPEN FOLLOW-UPS (not blocking): (1) area C repo rename savvy-cleanse-analysis → new name — GitHub action, needs Marvin; (2) api.savvyclean.com URLs in API-doc pages await a domain decision; (3) SavvyCleanseError class + backend/ package intentionally NOT renamed (code identifiers, out of scope A per AC#1).
 
 # =========================================================================
 # BACKLOG (spec only — not story-filed). See prd-epic-reconciliation.md.
