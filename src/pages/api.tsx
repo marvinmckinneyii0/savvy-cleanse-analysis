@@ -45,7 +45,7 @@ import requests
 
 # Upload dataset
 response = requests.post(
-    'https://api.savvyclean.com/v1/upload',
+    'https://api.savvyanalytics.info/v1/upload',
     files={'file': open('data.csv', 'rb')},
     headers={'Authorization': 'Bearer YOUR_API_KEY'}
 )
@@ -53,7 +53,7 @@ dataset_id = response.json()['dataset_id']
 
 # Run cleaning pipeline
 clean_response = requests.post(
-    f'https://api.savvyclean.com/v1/datasets/{dataset_id}/clean',
+    f'https://api.savvyanalytics.info/v1/datasets/{dataset_id}/clean',
     json={
         'operations': ['remove_duplicates', 'handle_missing', 'detect_outliers'],
         'options': {'missing_strategy': 'median'}
@@ -63,7 +63,7 @@ clean_response = requests.post(
 
 # Get cleaned data
 cleaned_data = requests.get(
-    f'https://api.savvyclean.com/v1/datasets/{dataset_id}/export',
+    f'https://api.savvyanalytics.info/v1/datasets/{dataset_id}/export',
     headers={'Authorization': 'Bearer YOUR_API_KEY'}
 )`;
 

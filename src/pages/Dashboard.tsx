@@ -120,7 +120,7 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center">
             <img
-              src="/lovable-uploads/bce4ab85-e6f8-4810-9883-f33ee1cfb90d.png"
+              src="/lovable-uploads/1a5ff488-1ca2-4dda-8f25-3e165a31f539.png"
               alt="Savvy Analytics Logo"
               className="w-8 h-8 mr-2"
             />

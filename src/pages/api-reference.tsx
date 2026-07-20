@@ -180,7 +180,7 @@ const APIReference = () => {
                   <Database className="h-8 w-8 text-savvy-blue mx-auto mb-3" />
                   <h3 className="font-semibold mb-2">Base URL</h3>
                   <code className="text-sm bg-muted px-2 py-1 rounded">
-                    https://api.savvyclean.com/v1
+                    https://api.savvyanalytics.info/v1
                   </code>
                 </CardContent>
               </Card>
