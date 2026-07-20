@@ -17,6 +17,7 @@ from backend.models.quality_report import (
     DataQualityDefect,
     DataQualityReport,
     DefectCategory,
+    RemediationClass,
     Severity,
 )
 
@@ -73,6 +74,64 @@ class TestDataQualityDefect:
         data = defect.model_dump()
         restored = DataQualityDefect.model_validate(data)
         assert restored == defect
+
+    def test_remediation_class_defaults_to_human_only(self) -> None:
+        """Story 3.1 AC 2 — omitting the field must fail safe, never autonomous."""
+        defect = DataQualityDefect(
+            defect_type="null_values",
+            category=DefectCategory.COMPLETENESS,
+            severity=Severity.HIGH,
+            affected_columns=["revenue"],
+            count=1,
+            percentage=1.0,
+            details="d",
+            recommended_action="a",
+        )
+        assert defect.remediation_class == RemediationClass.HUMAN_ONLY
+
+    def test_legacy_payload_without_remediation_class_validates(self) -> None:
+        """Story 3.1 AC 1 — reports serialized before Epic 3 still load."""
+        legacy = {
+            "defect_type": "duplicate_rows",
+            "category": "uniqueness",
+            "severity": "low",
+            "affected_columns": [],
+            "count": 2,
+            "percentage": 4.0,
+            "details": "4% duplicate rows",
+            "recommended_action": "Deduplicate",
+        }
+        restored = DataQualityDefect.model_validate(legacy)
+        assert restored.remediation_class == RemediationClass.HUMAN_ONLY
+
+    def test_explicit_remediation_class_is_preserved(self) -> None:
+        defect = DataQualityDefect(
+            defect_type="duplicate_rows",
+            category=DefectCategory.UNIQUENESS,
+            severity=Severity.LOW,
+            affected_columns=[],
+            count=2,
+            percentage=4.0,
+            details="d",
+            recommended_action="a",
+            remediation_class=RemediationClass.AGENT_AUTONOMOUS,
+        )
+        assert defect.remediation_class == RemediationClass.AGENT_AUTONOMOUS
+        assert defect.model_dump()["remediation_class"] == "agent_autonomous"
+
+
+class TestRemediationClass:
+    def test_exactly_three_values(self) -> None:
+        """Tier 4 (Epic 11) is an opt-in overlay, not a fourth class."""
+        assert len(RemediationClass) == 3
+
+    def test_values(self) -> None:
+        assert RemediationClass.AGENT_AUTONOMOUS.value == "agent_autonomous"
+        assert (
+            RemediationClass.HUMAN_POLICY_AGENT_EXECUTION.value
+            == "human_policy_agent_execution"
+        )
+        assert RemediationClass.HUMAN_ONLY.value == "human_only"
 
 
 class TestColumnProfile:
