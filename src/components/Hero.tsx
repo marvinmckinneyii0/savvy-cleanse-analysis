@@ -57,7 +57,7 @@ const Hero = () => {
               <div className="bg-white dark:bg-savvy-dark/90 p-4">
                 <div className="flex items-center mb-4 justify-center">
                   <img 
-                    src="/lovable-uploads/bce4ab85-e6f8-4810-9883-f33ee1cfb90d.png" 
+                    src="/lovable-uploads/1a5ff488-1ca2-4dda-8f25-3e165a31f539.png" 
                     alt="Savvy Analytics Logo" 
                     className="w-12 h-12"
                   />
