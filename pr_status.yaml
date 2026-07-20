@@ -1,61 +1,36 @@
 # PR Status — SavvyCortex Daily Ops
 # Generated: 2026-07-01
-# Last reconciled: 2026-07-08 (against sprint-status.yaml at start of Epic 2 build loop)
+# Last reconciled: 2026-07-20 (PR queue cleanup — #28 closed unmerged, #29/#30 closed as superseded)
 # Repo: marvinmckinneyii0/savvy-cleanse-analysis
 
 summary:
-  total_open: 3
+  total_open: 1
   ready_to_merge: 0
   needs_review: 1
   blocked: 0
-  opus_flagged: 0
-  sonnet_tier: 1
-  stale_superseded: 2   # PRs #29, #30 — duplicate Story 2.1 attempts, superseded by merged PR #31 (candidates to close)
+  opus_flagged: 1
+  sonnet_tier: 0
+  stale_superseded: 0
 
 pull_requests:
-  - number: 30
-    title: "opus: claiming story 2.1 — configuration layer (tasks 0-5)"
-    branch: "claude/dazzling-shannon-oef3so"
-    classification: stale-superseded
-    note: "Story 2.1 already done and merged via PR #31 (2026-07-08). Duplicate attempt — recommend close. Not closed autonomously (out of build-loop scope)."
-  - number: 29
-    title: "Implement Story 2.1: Configuration Layer with Pydantic Models"
-    branch: "claude/intelligent-lamport-5pkjd5"
-    classification: stale-superseded
-    note: "Story 2.1 already done and merged via PR #31 (2026-07-08). Duplicate attempt — recommend close. Not closed autonomously (out of build-loop scope)."
-  - number: 28
-    title: "audit(issue-24): post-merge integrity check — .xls UI fix, Vitest setup, tracking docs"
-    branch: "audit/issue-24-post-merge-integrity"
-    author: "marvinmckinneyii0"
-    draft: false
-    mergeable: true
-    review_decision: ""
-    labels: []
+  - number: 39
+    title: "Story 3.1: Classification Layer (remediation_class taxonomy)"
+    branch: "story/3-1-impl-classification-layer"
     classification: needs-review
-    tier: sonnet
-    opus_flag: false
-    files:
-      - "_bmad-output/implementation-artifacts/sprint-status.yaml"
-      - "_bmad-output/planning-artifacts/sprint-change-proposal-2026-06-30.md"
-      - "package.json"
-      - "package-lock.json"
-      - "src/components/dashboard/UploadArea.tsx"
-      - "src/test/DataPreview.test.tsx"
-      - "src/test/UploadArea.test.tsx"
-      - "src/test/fileParser.test.ts"
-      - "src/test/setup.ts"
-      - "tsconfig.app.json"
-      - "vite.config.ts"
-    rationale: "Audit/integrity check for Issue #24. Tests + UI wiring + build config — Sonnet-tier. No engine logic, schema changes, or security-core code. Ready for review by Marvin."
+    tier: opus
+    opus_flag: true
+    rationale: "Architecture-defining taxonomy work (remediation_class) — Opus-tier review per sprint-status flag. Blocks Story 3.2 (Cleaning Engine consumes classification output)."
 
 alerts: []
 
 notes:
-  - "PR #28 opened 2026-07-01 — post-merge audit for Issue #24 SheetJS migration."
-  - "Epic 2 now in-progress — story 2-1-configuration-layer is ready-for-dev (story file created 2026-06-30)."
+  - "PR #39 opened 2026-07-20 — Story 3.1 implementation; only open PR."
+  - "Epic 3 in-progress — 3-1 impl in review, 3-2-cleaning-engine-core story creation started 2026-07-20."
   - "Epic 1 remains fully complete (6/6 stories, PRs #16 #19 #20 #22 #25 #26 + security PR #27)."
 
 changelog:
+  - date: "2026-07-20"
+    note: "PR queue reconciled: #28 closed without merging (stale/conflicting audit branch, superseded on main); #29 and #30 closed as superseded (Story 2.1/2.2 landed via PR #31). PR #39 (Story 3.1 impl) is the only open PR."
   - date: "2026-07-01"
     note: "PR #28 opened (audit/issue-24-post-merge-integrity — Sonnet-tier, needs-review). story.yaml reconciled: epic_2 → in-progress, 2-1 → ready-for-dev."
   - date: "2026-06-30"
