@@ -150,3 +150,60 @@ def drifted_sales_df(clean_sales_df: pd.DataFrame) -> pd.DataFrame:
     drifted = clean_sales_df.copy()
     drifted["revenue"] = (drifted["revenue"] * 1.4).round(2)
     return drifted
+
+
+# --- Story 3.2 (Cleaning Engine) additive fixture -------------------------
+# Row layout (12 rows) — positions chosen so the ONE dedup-removed row does not
+# overlap the Tier-2/Tier-3 findings in `quantity`, letting tests assert those
+# human-owned findings survive cleaning unchanged.
+_CLEAN_DIRTY_NULL_QTY_IDX = (0, 1)  # Tier-2 null_values
+_CLEAN_DIRTY_NEG_QTY_IDX = 2  # Tier-3 negative_values (quantity implies >= 0)
+_CLEAN_DIRTY_DUP_SRC_IDX = 5  # Tier-1 duplicate_rows source
+_CLEAN_DIRTY_DUP_DST_IDX = 6  # exact duplicate of row 5
+
+
+@pytest.fixture
+def cleaning_dirty_df() -> pd.DataFrame:
+    """12-row frame seeded with a KNOWN mix of Tier-1/2/3 defects.
+
+    The assessor emits exactly these defect types against it:
+
+    * Tier 1 (``agent_autonomous`` — the engine SHOULD fix):
+      - ``case_inconsistency`` in ``region`` (north/North/NORTH collapse).
+      - ``mixed_types`` in ``code`` (ints + numeric-as-string — fully coercible,
+        so coercion resolves the column and the defect disappears on re-assess).
+      - ``duplicate_rows`` (row 6 is an exact duplicate of row 5).
+      - ``column_naming`` in the header ``"amount#"`` (special char).
+    * Tier 2 (``human_policy_agent_execution`` — the engine must NOT touch):
+      - ``null_values`` in ``quantity`` (rows 0, 1).
+    * Tier 3 (``human_only`` — the engine must NEVER touch):
+      - ``negative_values`` in ``quantity`` (row 2 is ``-5``; ``quantity``
+        implies non-negativity).
+
+    The duplicate row (5/6) carries a positive, non-null ``quantity``, so
+    removing it leaves the Tier-2/Tier-3 quantity findings intact.
+    """
+    regions = [
+        "north", "North", "NORTH", "south", "south",
+        "east", "east", "west", "north", "south",
+        "NORTH", "west",
+    ]
+    quantity: list[Any] = [float(v) for v in (10, 20, -5, 40, 50, 60, 70, 80, 90, 100, 110, 120)]
+    quantity[_CLEAN_DIRTY_NULL_QTY_IDX[0]] = None
+    quantity[_CLEAN_DIRTY_NULL_QTY_IDX[1]] = None
+    quantity[_CLEAN_DIRTY_NEG_QTY_IDX] = -5.0
+    # code: object column mixing int and numeric-as-string (all coercible).
+    code: list[Any] = [10, 20, "30", 40, "50", 60, 70, "80", 90, 100, "110", 120]
+    amount = [float(v) for v in range(100, 220, 10)]  # 12 clean positive floats
+
+    df = pd.DataFrame(
+        {
+            "region": regions,
+            "quantity": quantity,
+            "code": code,
+            "amount#": amount,  # special char in header -> column_naming
+        }
+    )
+    # Make row DST an exact duplicate of row SRC across every column.
+    df.iloc[_CLEAN_DIRTY_DUP_DST_IDX] = df.iloc[_CLEAN_DIRTY_DUP_SRC_IDX]
+    return df

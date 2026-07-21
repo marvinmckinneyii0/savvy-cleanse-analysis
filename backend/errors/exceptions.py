@@ -29,7 +29,8 @@ Hierarchy
     ├── PipelineStageError             (any stage failed internally)
     │   ├── LLMProviderError           (Claude/OpenAI/Gemini call failed)
     │   ├── ReportRenderError          (DOCX/PDF render failed)
-    │   └── DriftComputationError      (baseline vs current stats failed)
+    │   ├── DriftComputationError      (baseline vs current stats failed)
+    │   └── CleaningEngineError        (cleaning contract violated / primitive failed)
     └── ConfigurationError             (bad env / YAML / missing key)
 
 ``ConfigurationError`` is intentionally a *sibling* of
@@ -94,6 +95,24 @@ class DriftComputationError(PipelineStageError):
 
     Typical causes: baseline file corrupt, insufficient rows for the
     chosen statistical test, scipy raised on degenerate input.
+    """
+
+
+class CleaningEngineError(PipelineStageError):
+    """The deterministic Cleaning Engine hit a contract violation (Story 3.2).
+
+    This is NOT raised for bad data — cleaning bad data is the engine's job.
+    It is raised when the engine is asked to do something the cleaning
+    invariants forbid, the load-bearing case being **a non-``agent_autonomous``
+    finding reaching the private per-finding dispatch**. The public
+    :meth:`CleaningEngine.clean` path filters to autonomous findings before
+    dispatch; this exception is the independent second guard, so a Tier-2/Tier-3
+    (or unknown-class) finding that somehow reaches the dispatch fails loudly
+    rather than silently mutating data that must stay human-owned.
+
+    Also raised if the private dispatch is handed a ``defect_type`` with no
+    registered autonomous operation (fail-closed: the engine refuses rather
+    than guesses).
     """
 
 

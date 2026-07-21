@@ -450,3 +450,71 @@ class TestInsightReport:
         assert '"executive_summary":"Test summary."' in json_str
         restored = InsightReport.model_validate_json(json_str)
         assert restored == report
+
+
+# --- Story 3.2: Cleaning-engine models ------------------------------------
+from backend.models.cleaning_result import (  # noqa: E402
+    CleaningAction,
+    CleaningOperation,
+    CleaningResult,
+    CleaningScope,
+    CleaningStatus,
+)
+
+
+class TestCleaningOperation:
+    def test_values(self) -> None:
+        assert CleaningOperation.DEDUPLICATION.value == "deduplication"
+        assert CleaningOperation.CASE_NORMALIZATION.value == "case_normalization"
+        assert CleaningOperation.TYPE_COERCION.value == "type_coercion"
+        assert CleaningOperation.HEADER_NORMALIZATION.value == "header_normalization"
+        assert CleaningOperation.NULL_IMPUTATION.value == "null_imputation"
+        assert CleaningOperation.NO_OP.value == "no_op"
+
+
+class TestCleaningAction:
+    def test_minimal_construction_defaults(self) -> None:
+        action = CleaningAction(
+            operation=CleaningOperation.DEDUPLICATION,
+            defect_type="duplicate_rows",
+            remediation_class=RemediationClass.AGENT_AUTONOMOUS,
+            status=CleaningStatus.APPLIED,
+            scope=CleaningScope.ROW,
+        )
+        assert action.target_columns == []
+        assert action.rows_affected == 0
+        assert action.values_changed == 0
+        assert action.value_mapping == {}
+        assert action.parameters == {}
+        assert action.error is None
+
+    def test_roundtrip_json(self) -> None:
+        action = CleaningAction(
+            operation=CleaningOperation.CASE_NORMALIZATION,
+            defect_type="case_inconsistency",
+            remediation_class=RemediationClass.AGENT_AUTONOMOUS,
+            status=CleaningStatus.APPLIED,
+            scope=CleaningScope.COLUMN,
+            target_columns=["region"],
+            values_changed=2,
+            value_mapping={"North": "north"},
+        )
+        restored = CleaningAction.model_validate_json(action.model_dump_json())
+        assert restored == action
+
+
+class TestCleaningResult:
+    def test_construction(self) -> None:
+        result = CleaningResult(
+            pipeline_run_id="r1",
+            total_findings=3,
+            autonomous_findings=1,
+            actions=[],
+            rows_before=10,
+            rows_after=9,
+            columns_before=4,
+            columns_after=4,
+            cleaned_at="2026-07-20T00:00:00+00:00",
+        )
+        assert result.actions == []
+        assert result.rows_before == 10 and result.rows_after == 9
