@@ -1,6 +1,6 @@
 # Story 3.2: Cleaning Engine Core (deterministic only)
 
-Status: ready-for-dev
+Status: review
 
 Sizing: L · Model: Opus · loop_eligible: false
 <!-- Opus + loop_eligible:false because this is the first code path in the product that
@@ -60,20 +60,38 @@ This story builds the **engine and its action record** — nothing else. Explici
 
 ## Tasks / Subtasks
 
-- [ ] **Task 0 — Confirm prerequisite (AC: 2)**
-  - [ ] Verify PR #39 (Story 3.1) is merged to main; `RemediationClass` and `remediation_classifier.classify` importable. HALT if not.
-- [ ] **Task 1 — Models (AC: 5)**
-  - [ ] `backend/models/cleaning_result.py`: `CleaningOperation(str, Enum)` (five values), `CleaningAction`, `CleaningResult` (Pydantic, PascalCase noun pattern per `quality_report.py`).
-- [ ] **Task 2 — Error type (AC: 7)**
-  - [ ] Add `CleaningEngineError(PipelineStageError)` to `backend/errors/exceptions.py`.
-- [ ] **Task 3 — Primitives (AC: 3, 4)**
-  - [ ] Pure functions: `normalize_whitespace`, `coerce_column_type` (incl. ISO-8601 date standardization), `drop_exact_duplicates`, `normalize_case`, `normalize_column_names`, `impute_nulls` (method required).
-- [ ] **Task 4 — Engine (AC: 1, 2, 5, 6, 7)**
-  - [ ] `CleaningEngine.clean(df, quality_report, pipeline_run_id) -> tuple[pd.DataFrame, CleaningResult]`: deep-copy at entry; filter to `AGENT_AUTONOMOUS`; registry `defect_type → operation` (four entries); fail-closed private dispatch; stable operation order (registry order, then column order); structlog events.
-- [ ] **Task 5 — Tests (AC: 8)**
-  - [ ] Dirty fixture in `conftest.py`; unit + integration tests per AC 8; full suite green, 0 regressions.
-- [ ] **Task 6 — Verify + security (AC: 8, 9)**
-  - [ ] Full backend suite; `/security-review`; resolve Critical/High.
+- [x] **Task 0 — Confirm prerequisite (AC: 2)**
+  - [x] Verify PR #39 (Story 3.1) is merged to main; `RemediationClass` and `remediation_classifier.classify` importable. HALT if not. → confirmed on main; `classify('unknown')==human_only`.
+- [x] **Task 1 — Models (AC: 5)**
+  - [x] `backend/models/cleaning_result.py`: `CleaningOperation(str, Enum)`, `CleaningAction`, `CleaningResult` (Pydantic). Added `CleaningScope`, `CleaningStatus`, and a `NO_OP` operation sentinel for skipped records.
+- [x] **Task 2 — Error type (AC: 7)**
+  - [x] Added `CleaningEngineError(PipelineStageError)` to `backend/errors/exceptions.py`.
+- [x] **Task 3 — Primitives (AC: 3, 4)**
+  - [x] Pure functions in `backend/pipeline/cleaning_primitives.py`: `strip_whitespace`, `coerce_column_type` (incl. ISO-8601 date standardization), `drop_exact_duplicates`, `normalize_case`, `normalize_column_names`, `impute_nulls` (method required, no default).
+- [x] **Task 4 — Engine (AC: 1, 2, 5, 6, 7)**
+  - [x] `CleaningEngine.clean(df, quality_report, pipeline_run_id) -> tuple[pd.DataFrame, CleaningResult]`: deep-copy at entry; filter to `AGENT_AUTONOMOUS`; registry `defect_type → operation` (four entries); fail-closed private dispatch (`_apply_operation` + `_normalize_headers` re-check + raise); deterministic processing order (coercion → case → dedup → header-last); structlog events (counts/columns only).
+- [x] **Task 5 — Tests (AC: 8)**
+  - [x] `cleaning_dirty_df` fixture in `conftest.py`; `test_cleaning_engine.py` (unit + integration) + cleaning-model tests in `test_models.py`. Full suite green, 0 regressions.
+- [x] **Task 6 — Verify + security (AC: 8, 9)**
+  - [x] Full backend suite: 268 passed / 1 skipped / 0 regressions. `/security-review`: no Critical/High (no external attack surface — pure in-memory transforms).
+
+### Review Findings
+
+Reviewed by Sonnet (dev was Opus) via `bmad-code-review` — 3 parallel layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor) against PR #42's branch diff.
+
+- [x] [Review][Patch] Header normalization renamed every column in the frame, not just the ones with a flagged `column_naming` finding — violated AC2/AC3 Tier-1-only scoping (a non-flagged, no-defect column could be silently re-slugged) [backend/pipeline/cleaning_engine.py:355, backend/pipeline/cleaning_primitives.py:836] — fixed: `normalize_column_names` gained a `targets` param; untouched columns are reserved in a first pass so renames de-collide against them without ever touching them.
+- [x] [Review][Patch] `_normalize_headers` call site not wrapped in try/except unlike the per-finding loop — an unexpected exception there would abort `clean()` instead of degrading to a FAILED action [backend/pipeline/cleaning_engine.py:120] — fixed: wrapped identically to the per-finding loop.
+- [x] [Review][Patch] `dominant_python_type` tie-break relied on `Series.value_counts()` iteration/hash order — could pick a different "dominant" type across process runs on an exact count tie, violating AC6 "no iteration-order dependence" [backend/pipeline/cleaning_primitives.py:688] — fixed: counts via `Counter`, ties broken deterministically on `(module, qualname)`.
+- [x] [Review][Patch] `_failed_action` hardcoded `scope=CleaningScope.COLUMN` regardless of which operation actually failed (e.g. a failed dedup was recorded as column-scoped, contradicting `CleaningScope`'s own semantics) [backend/pipeline/cleaning_engine.py:602] — fixed: `_SCOPE_BY_OPERATION` lookup; also truncated `error` message to 200 chars as defense-in-depth against embedding raw cell values.
+- [x] [Review][Patch] `impute_nulls` called `.mean()`/`.median()` on a non-numeric column with only pandas' own (less clear) TypeError as a guard [backend/pipeline/cleaning_primitives.py:868] — fixed: explicit `ValueError` with a clear message, matching the primitive's own "fail loudly rather than guess" stated intent.
+- [x] [Review][Defer] Only `affected_columns[0]` consulted for `case_inconsistency`/`mixed_types` — a multi-column finding would be under-fixed — deferred, not reachable: `data_quality.py` always emits single-element `affected_columns` for these types.
+- [x] [Review][Defer] Deduplication dispatched per-finding though it's a whole-table op — a second `duplicate_rows` finding would produce a confusing "removed 0 rows" action — deferred, not reachable: the assessor emits at most one `duplicate_rows` defect per run.
+- [x] [Review][Defer] `normalize_column_names` mapping collisions / primitive breakage on duplicate column labels — deferred, not reachable: `pd.read_csv` (the only ingestion path) disambiguates duplicate headers upstream.
+- [x] [Review][Defer] `df.copy(deep=True)` doesn't recursively deep-copy nested mutable objects in object-dtype cells — deferred, theoretical: CSV-sourced data never carries nested list/dict cells.
+
+Dismissed as noise/false-positive: "`cleaning_action_applied` never emitted" (verified present in the actual source — an artifact of a condensed diff given to one review layer), "independent second guard is unreachable dead code" (this is exactly what AC2 requires as defense-in-depth for future/direct callers), "case tie-break can pick an ALL-CAPS canonical" (matches AC3's literal "ties break lexicographically" spec), "`_skipped_action` leaves before/after state empty" (cosmetic), "`_cell_changed` raises on array-like cells" (unreachable via CSV-sourced data), "`actions` list mixes SKIPPED entries" and "`target_columns` vs spec's `affected_columns` naming" (both pre-disclosed, intentional deviations in Completion Notes below).
+
+Post-fix verification: 11 new tests added (78 total in `test_cleaning_engine.py` + `test_models.py`, up from 67); full backend suite **279 passed / 1 skipped / 0 regressions** (up from 268).
 
 ## Dev Notes
 
@@ -135,8 +153,38 @@ This story builds the **engine and its action record** — nothing else. Explici
 
 ### Agent Model Used
 
+Claude Opus 4.8 (high effort) — first data-mutating path, treated as architecture-critical per story sizing.
+
 ### Debug Log References
+
+- Assessor emission verified against `cleaning_dirty_df` before writing assertions: 4 Tier-1 (`mixed_types`/code, `column_naming`/amount#, `case_inconsistency`/region, `duplicate_rows`), 1 Tier-2 (`null_values`/quantity), 1 Tier-3 (`negative_values`/quantity); not halted.
+- Full suite: 268 passed / 1 skipped (optional `anthropic` SDK) / 0 regressions. New tests: 67 (55 in `test_cleaning_engine.py`, 12 model tests in `test_models.py`). Frontend unaffected: vitest 18/18, vite build OK.
 
 ### Completion Notes List
 
+- **Module split:** pure `cleaning_primitives.py` (mechanics) + `cleaning_engine.py` (dispatch/policy). Lets Story 3.4 import `impute_nulls` without pulling in the autonomous engine.
+- **Fail-closed twice:** public `clean()` filters to `AGENT_AUTONOMOUS`; private `_apply_operation`/`_normalize_headers` independently re-check and raise `CleaningEngineError`. No flag widens this.
+- **Deterministic order:** coercion → case → dedup → header-last (header rename last so column-name-keyed ops resolve against original names). Documented in the engine.
+- **Non-destructive coercion:** uncoercible values are preserved and counted (`uncoerced`), never nulled. Confirmed by test.
+- **Imputation boundary:** `impute_nulls(df, column, method)` — `method` mandatory (no default arg), not in the operation registry, unreachable from the autonomous path. A mis-stamped `null_values` finding produces a SKIPPED/`NO_OP` record and zero data change.
+- **Provenance:** `CleaningAction`/`CleaningResult` carry defect_type, operation, scope, target, before/after state, rows/values changed, value_mapping, deterministic rule, remediation_class, status, and safe error — the single source for Story 3.3's manifest. No parallel manifest format.
+- **Added `NO_OP` operation + `SKIPPED`/`FAILED` statuses** beyond the story's minimal enum list to give the manifest honest records for the fail-closed and error paths.
+- **Legacy `backend/cleaner.py`:** left behaviorally untouched; added a STATUS header marking it legacy (delegates to legacy `advanced_pipeline`) and pointing to the new engine. Not imported, extended, or deleted.
+- **Not wired to the orchestrator** — deferred to Story 3.4 (opt-in gate; cleaning stays default-off).
+- **Deviations from spec:** none material. Additive-only refinements: the `NO_OP`/`SKIPPED`/`FAILED` records and the `CleaningScope` field (not enumerated in the story's minimal model list) improve manifest fidelity without changing the contract.
+
 ### File List
+
+- `backend/models/cleaning_result.py` (new) — `CleaningOperation`, `CleaningScope`, `CleaningStatus`, `CleaningAction`, `CleaningResult`.
+- `backend/pipeline/cleaning_primitives.py` (new) — pure deterministic primitives incl. policy-less `impute_nulls`.
+- `backend/pipeline/cleaning_engine.py` (new) — `CleaningEngine` (Tier-1-only, fail-closed, working-copy).
+- `backend/errors/exceptions.py` (modified) — added `CleaningEngineError(PipelineStageError)`.
+- `backend/cleaner.py` (modified) — legacy STATUS header only (no behavior change).
+- `backend/tests/conftest.py` (modified) — added `cleaning_dirty_df` fixture.
+- `backend/tests/test_cleaning_engine.py` (new) — engine + primitives + integration tests.
+- `backend/tests/test_models.py` (modified) — cleaning-model tests.
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` (modified) — 3-2 → in-progress → review.
+
+## Change Log
+
+- 2026-07-20: Implemented deterministic Cleaning Engine core (Story 3.2). Four Tier-1 autonomous operations (dedup, case normalization, type coercion, header normalization) on a working copy; policy-less imputation primitive for Story 3.4; `CleaningAction`/`CleaningResult` provenance for Story 3.3. 67 new tests; 268 passed / 0 regressions; security review clean. Not wired to orchestrator (deferred to 3.4). Status → review.
