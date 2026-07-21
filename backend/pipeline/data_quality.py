@@ -25,6 +25,7 @@ from backend.models.quality_report import (
     DefectCategory,
     Severity,
 )
+from backend.pipeline.remediation_classifier import classify_defects
 
 _NON_NEGATIVE_KEYWORDS = ("revenue", "quantity", "count", "price", "amount", "volume")
 
@@ -477,6 +478,12 @@ class DataQualityAssessor:
         all_defects.extend(self._check_uniqueness(df))
         all_defects.extend(self._check_statistical_red_flags(df))
         all_defects.extend(self._check_referential_integrity(df))
+
+        # Stamp ownership on every finding (Story 3.1). Applied once, here,
+        # so no detector has to remember to set it — and so an unmapped
+        # defect_type fails safe to HUMAN_ONLY rather than going unstamped.
+        # Purely additive: severity, scoring and halt logic below are unchanged.
+        all_defects = classify_defects(all_defects)
 
         # Overall severity
         if not all_defects:

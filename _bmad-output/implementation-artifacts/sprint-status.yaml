@@ -85,7 +85,7 @@ development_status:
   # PRD Phase 9 (self-healing) PULLED FORWARD — cleaning is the core thesis. Def: epic-3-cleaning-engine.md
   # =========================================================================
   epic-3: in-progress
-  3-1-classification-layer:                    { status: ready-for-dev, loop_eligible: false }  # M/Opus — remediation_class taxonomy; architecture-defining; story-filed 2026-07-12
+  3-1-classification-layer:                    { status: review, loop_eligible: false }  # M/Opus — remediation_class taxonomy; architecture-defining; story-filed 2026-07-12; implemented 2026-07-20 (220 passed/0 regressions, security-reviewed) — awaiting review/merge
   3-2-cleaning-engine-core:                    { status: backlog, loop_eligible: false }  # L/Opus — deterministic only
   3-3-healing-manifest:                        { status: backlog, loop_eligible: false }  # M/Opus — provenance-critical
   3-4-opt-in-gate-config:                      { status: backlog, loop_eligible: false }  # M/Opus — Tier 2 policy boundary; default OFF
