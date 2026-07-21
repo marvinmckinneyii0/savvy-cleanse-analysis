@@ -1,6 +1,6 @@
 # Story 3.2: Cleaning Engine Core (deterministic only)
 
-Status: review
+Status: done
 
 Sizing: L · Model: Opus · loop_eligible: false
 <!-- Opus + loop_eligible:false because this is the first code path in the product that
@@ -188,3 +188,4 @@ Claude Opus 4.8 (high effort) — first data-mutating path, treated as architect
 ## Change Log
 
 - 2026-07-20: Implemented deterministic Cleaning Engine core (Story 3.2). Four Tier-1 autonomous operations (dedup, case normalization, type coercion, header normalization) on a working copy; policy-less imputation primitive for Story 3.4; `CleaningAction`/`CleaningResult` provenance for Story 3.3. 67 new tests; 268 passed / 0 regressions; security review clean. Not wired to orchestrator (deferred to 3.4). Status → review.
+- 2026-07-21: Code review (Sonnet, different model than the Opus dev) via `bmad-code-review` — 3 parallel adversarial layers. Found and fixed a high-severity scoping bug (header normalization was touching every column, not just flagged ones) plus 4 smaller correctness/determinism/provenance fixes. 4 findings deferred (unreachable today; tracked in `deferred-work.md`). 11 new tests (78 total); full suite 279 passed / 0 regressions. Merged via PR #42. Status → done.

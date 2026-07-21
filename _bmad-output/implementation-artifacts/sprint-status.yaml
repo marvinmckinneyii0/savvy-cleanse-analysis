@@ -37,7 +37,7 @@
 #     (applies to all stories from 1.4 onward)
 
 generated: 2026-04-14
-last_updated: 2026-07-20  # Story 3.2 (Cleaning Engine core) implemented → review. 268 passed/0 regressions; security-reviewed; not wired to orchestrator (deferred to 3.4).
+last_updated: 2026-07-21  # 3-1 and 3-2 both done. 3-2 code-reviewed (Sonnet): 1 high-sev header-normalization scoping bug + 4 smaller fixes resolved, 4 deferred (deferred-work.md). 3-1 post-merge reviewed: no findings. 279 passed/0 regressions. Neither wired to orchestrator (deferred to 3.4). Next: 3-4-opt-in-gate-config.
 project: SAINT
 project_key: NOKEY
 tracking_system: file-system
@@ -85,8 +85,8 @@ development_status:
   # PRD Phase 9 (self-healing) PULLED FORWARD — cleaning is the core thesis. Def: epic-3-cleaning-engine.md
   # =========================================================================
   epic-3: in-progress
-  3-1-classification-layer:                    { status: review, loop_eligible: false }  # M/Opus — remediation_class taxonomy; architecture-defining; story-filed 2026-07-12; implemented 2026-07-20 (232 passed/0 regressions, security-reviewed) — merged via PR #39
-  3-2-cleaning-engine-core:                    { status: review, loop_eligible: false }  # L/Opus — deterministic only; implemented 2026-07-20 (268 passed/0 regressions, security-reviewed) — awaiting review/merge
+  3-1-classification-layer:                    { status: done, loop_eligible: false }  # M/Opus — remediation_class taxonomy; architecture-defining; story-filed 2026-07-12; implemented 2026-07-20, merged PR #39; post-merge review (Sonnet) 2026-07-21 — no findings, drift-guarded mapping verified
+  3-2-cleaning-engine-core:                    { status: done, loop_eligible: false }  # L/Opus — deterministic only; implemented 2026-07-20, code-reviewed (Sonnet) 2026-07-21 — 1 high-sev scoping bug + 4 smaller fixes resolved, 4 items deferred (see deferred-work.md); 279 passed/0 regressions; security-reviewed; merged PR #42. NOT wired to orchestrator (deferred to 3.4).
   3-3-healing-manifest:                        { status: backlog, loop_eligible: false }  # M/Opus — provenance-critical
   3-4-opt-in-gate-config:                      { status: backlog, loop_eligible: false }  # M/Opus — Tier 2 policy boundary; default OFF
   3-5-judgment-required-findings-handling:     { status: backlog, loop_eligible: false }  # M/Opus — Tier 3 boundary; LOAD-BEARING

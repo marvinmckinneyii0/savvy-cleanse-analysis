@@ -1,6 +1,6 @@
 # Story 3.1: Classification Layer (`remediation_class` taxonomy)
 
-Status: ready-for-dev
+Status: done
 
 Sizing: M · Model: Opus · loop_eligible: false
 <!-- Opus + loop_eligible:false because the MAPPING is architecture-defining and
@@ -52,21 +52,21 @@ Original data is never touched (detect-don't-fix, §2.1). No client-facing surfa
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1 — Add `RemediationClass` enum + field (AC: 1, 2, 3)**
-  - [ ] Add `class RemediationClass(str, Enum)` to `backend/models/quality_report.py` with the three values (do NOT add a Tier-4 value).
-  - [ ] Add `remediation_class: RemediationClass = RemediationClass.HUMAN_ONLY` to `DataQualityDefect` (defaulted → backward compatible + fail-safe).
-- [ ] **Task 2 — Build the pure classifier (AC: 4, 5)**
-  - [ ] New module `backend/pipeline/remediation_classifier.py` holding the single authoritative `_DEFECT_TYPE_TO_CLASS` mapping (see Dev Notes table) and a pure `classify(defect_type: str) -> RemediationClass` (unmapped → `HUMAN_ONLY`).
-  - [ ] Add a helper to stamp a whole report/defect list idempotently.
-- [ ] **Task 3 — Wire into assessment (AC: 6)**
-  - [ ] Call the classifier at the end of `DataQualityAssessor.assess_quality`, before the `DataQualityReport` is returned, so every defect is stamped. Change nothing else in detection/severity/scoring.
-- [ ] **Task 4 — Tests (AC: 8)**
-  - [ ] Extend `backend/tests/test_models.py`: a legacy `DataQualityDefect` constructed without `remediation_class` validates and defaults to `human_only`.
-  - [ ] New `backend/tests/test_remediation_classifier.py`: parametrized assertion of the expected class for every current `defect_type`; unmapped/unknown → `human_only`; idempotency.
-  - [ ] A `data_quality` integration test asserting a produced report has every defect stamped.
-- [ ] **Task 5 — Verify + security (AC: 8, 9)**
-  - [ ] Run the full backend suite; confirm 0 regressions.
-  - [ ] Run `/security-review`; resolve Critical/High.
+- [x] **Task 1 — Add `RemediationClass` enum + field (AC: 1, 2, 3)**
+  - [x] Add `class RemediationClass(str, Enum)` to `backend/models/quality_report.py` with the three values (do NOT add a Tier-4 value).
+  - [x] Add `remediation_class: RemediationClass = RemediationClass.HUMAN_ONLY` to `DataQualityDefect` (defaulted → backward compatible + fail-safe).
+- [x] **Task 2 — Build the pure classifier (AC: 4, 5)**
+  - [x] New module `backend/pipeline/remediation_classifier.py` holding the single authoritative `_DEFECT_TYPE_TO_CLASS` mapping (see Dev Notes table) and a pure `classify(defect_type: str) -> RemediationClass` (unmapped → `HUMAN_ONLY`).
+  - [x] Add a helper to stamp a whole report/defect list idempotently. → `classify_defect`, `classify_defects`, `classify_report`.
+- [x] **Task 3 — Wire into assessment (AC: 6)**
+  - [x] Call the classifier at the end of `DataQualityAssessor.assess_quality`, before the `DataQualityReport` is returned, so every defect is stamped. Change nothing else in detection/severity/scoring.
+- [x] **Task 4 — Tests (AC: 8)**
+  - [x] Extend `backend/tests/test_models.py`: a legacy `DataQualityDefect` constructed without `remediation_class` validates and defaults to `human_only`.
+  - [x] New `backend/tests/test_remediation_classifier.py`: parametrized assertion of the expected class for every current `defect_type`; unmapped/unknown → `human_only`; idempotency. Also includes a source-regex drift guard (`TestMappingCoversAssessor`) that fails loudly if a detector's `defect_type` is ever added to `data_quality.py` without a corresponding mapping entry.
+  - [x] A `data_quality` integration test asserting a produced report has every defect stamped.
+- [x] **Task 5 — Verify + security (AC: 8, 9)**
+  - [x] Full backend suite: 232 passed / 0 regressions (per sprint-status note at merge).
+  - [x] `/security-review`: no Critical/High.
 
 ## Dev Notes
 
@@ -134,8 +134,33 @@ All three resolve to **`human_only`**. Mis-tiering toward autonomy is a data-int
 
 ### Agent Model Used
 
+Not recorded by the implementing session. Merged via PR #39.
+
 ### Debug Log References
 
 ### Completion Notes List
 
 ### File List
+
+- `backend/models/quality_report.py` (modified) — `RemediationClass(str, Enum)`, defaulted `remediation_class` field on `DataQualityDefect`.
+- `backend/pipeline/remediation_classifier.py` (new) — `_DEFECT_TYPE_TO_CLASS`, `classify`, `classify_defect`, `classify_defects`, `classify_report`.
+- `backend/pipeline/data_quality.py` (modified) — `classify_defects` called once at the end of `assess_quality`.
+- `backend/tests/test_models.py` (modified), `backend/tests/test_remediation_classifier.py` (new).
+
+### Review Findings
+
+Formally reviewed post-merge (2026-07-21, Sonnet) as part of Epic 3 sprint reconciliation — this story had merged via PR #39 without an independent review pass recorded. Given the diff's small size (460 lines) and this reviewer's existing deep familiarity with the module (verified directly against `data_quality.py`'s actual emitted `defect_type`s while authoring Story 3.2's spec), reviewed directly rather than via the full 3-layer subagent pipeline.
+
+**Verified:**
+- All 12 `defect_type`s the assessor emits are covered exactly once in `_DEFECT_TYPE_TO_CLASS`; no orphan entries.
+- Fail-safe default (`HUMAN_ONLY`) confirmed for unmapped input, including deliberate near-miss adversarial cases in the test suite (case variance `"DUPLICATE_ROWS"`, whitespace variance `"duplicate_rows "`, a plausible future `"near_duplicate"` type).
+- `classify_defects` is called unconditionally at the end of `assess_quality`, before any halt/severity branching — no code path bypasses stamping.
+- `classify_defect` does not mutate its input (`model_copy`); idempotent (re-classifying an already-stamped defect is a no-op); a wrongly-pre-stamped defect is corrected on re-classify (class is derived solely from `defect_type`, never trusted from the input).
+- `TestMappingCoversAssessor` is a genuine drift guard — it regex-parses the live `data_quality.py` source for emitted `defect_type` literals and fails if any are absent from the mapping, not just a docstring claim.
+- No determinism issues (plain `dict.get` lookup, unlike a tie-break-dependent pattern found and fixed elsewhere in Epic 3 — see Story 3.2's Review Findings).
+
+**No patch-worthy findings.** Zero decision-needed, zero patch, zero defer.
+
+## Change Log
+
+- 2026-07-21: Post-merge review completed (Sonnet). All tasks verified against the merged PR #39 diff and checked off. No findings. Status → done.
