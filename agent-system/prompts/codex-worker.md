@@ -27,9 +27,10 @@ The handoff appended below contains the selected story, its status metadata, rep
    ```
 
    Also run every additional check required by the story.
-8. Never merge a pull request.
-9. Do not change the canonical story status to `done`; that happens only after review and merge.
-10. Stop immediately rather than infer a product, architecture, security, data-loss, billing, tenancy, authentication, authorization, migration, or deployment decision.
+8. Commit the completed implementation to the already-created story branch with a concise story-scoped commit message. Do not push unless Claude explicitly asks after review.
+9. Never merge a pull request.
+10. Do not change the canonical story status to `done`; that happens only after review and merge.
+11. Stop immediately rather than infer a product, architecture, security, data-loss, billing, tenancy, authentication, authorization, migration, or deployment decision.
 
 ## Completion response
 
@@ -45,6 +46,7 @@ Then report:
 - files changed;
 - acceptance criteria satisfied;
 - tests and checks run with results;
+- commit created;
 - unresolved risks or assumptions;
 - recommended human review focus.
 
