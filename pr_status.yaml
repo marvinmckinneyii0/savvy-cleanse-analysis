@@ -1,44 +1,30 @@
 # PR Status — SavvyCortex Daily Ops
 # Generated: 2026-07-01
-# Last reconciled: 2026-07-20 (Epic 3 merge sequence — #40 merged; #39, #41 in ordered merge)
+# Last reconciled: 2026-07-20 (Epic 3 merge sequence complete — #40, #39, #41 all merged; queue clear)
 # Repo: marvinmckinneyii0/savvy-cleanse-analysis
 
 summary:
-  total_open: 2
-  ready_to_merge: 2
+  total_open: 0
+  ready_to_merge: 0
   needs_review: 0
   blocked: 0
-  opus_flagged: 1
+  opus_flagged: 0
   sonnet_tier: 0
   stale_superseded: 0
 
-pull_requests:
-  - number: 39
-    title: "Story 3.1: Classification Layer (remediation_class taxonomy)"
-    branch: "story/3-1-impl-classification-layer"
-    classification: ready-to-merge
-    tier: opus
-    opus_flag: true
-    rationale: "Architecture-defining taxonomy work (remediation_class) — implemented, 220 passed/0 regressions, security-reviewed. Merges 2nd in the Epic 3 sequence (after CI #40, before spec #41). Unblocks Story 3.2 implementation."
-  - number: 41
-    title: "Story 3.2: Cleaning Engine Core (deterministic only) — story file"
-    branch: "story/3-2-cleaning-engine-core"
-    classification: ready-to-merge
-    tier: opus
-    opus_flag: true
-    rationale: "Story specification file only (no engine code). Merges 3rd, after 3.1 lands RemediationClass on main. Implementation follows in a dedicated PR."
+pull_requests: []
 
 alerts: []
 
 notes:
-  - "PR #40 merged 2026-07-20 (GitHub Actions CI — backend/frontend/build). Merged 1st in Epic 3 sequence."
-  - "Merge order: #40 (CI) → #39 (3.1 impl) → #41 (3.2 spec). Then Story 3.2 implementation begins."
-  - "Epic 3 in-progress — 3-1 impl in review; 3-2 spec filed (ready-for-dev, dev gated on #39)."
+  - "PR queue clear. Merge sequence #40 (CI) → #39 (3.1 impl) → #41 (3.2 spec) landed in order 2026-07-20."
+  - "Story 3.1 (remediation_class) merged (PR #39); RemediationClass live on main. sprint-status 3-1 = review (merged, pending formal review sign-off)."
+  - "Story 3.2 spec merged (PR #41); 3-2 = ready-for-dev. Implementation in progress in a dedicated PR next."
   - "Epic 1 remains fully complete (6/6 stories, PRs #16 #19 #20 #22 #25 #26 + security PR #27)."
 
 changelog:
   - date: "2026-07-20"
-    note: "Epic 3 merge sequence: PR #40 (CI) merged 1st. Next #39 (3.1 impl), then #41 (3.2 spec). Local CI-equivalent green after #40: pytest 193/1, vitest 18, vite build OK."
+    note: "Epic 3 merge sequence COMPLETE: #40 (CI), #39 (3.1 impl), #41 (3.2 spec) merged in order. #41 had a sprint-status conflict — resolved keeping main's 3-1=review (prevented stale ready-for-dev overwrite from the older branch). Local CI-equivalent green after each merge; final: pytest 232/1, vitest 18, vite build OK."
   - date: "2026-07-20"
     note: "PR queue reconciled: #28 closed without merging (stale/conflicting audit branch, superseded on main); #29 and #30 closed as superseded (Story 2.1/2.2 landed via PR #31). PR #39 (Story 3.1 impl) is the only open PR."
   - date: "2026-07-01"
