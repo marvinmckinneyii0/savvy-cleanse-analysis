@@ -1,0 +1,13 @@
+# Deferred Work
+
+Items surfaced during code review that are real but not currently reachable — not actionable now, tracked here so they aren't lost if the assumption that makes them unreachable ever changes.
+
+## Deferred from: code review of 3-2-cleaning-engine-core (2026-07-21)
+
+- **`CleaningEngine._normalize_case` / `_coerce_types` only consult `defect.affected_columns[0]`.** If Story 3.1's classifier (or a future detector) ever emits a `case_inconsistency`/`mixed_types` finding spanning more than one column, only the first would be remediated and the rest would go silently unfixed with no corresponding action. Currently unreachable: `backend/pipeline/data_quality.py` always constructs these defects with a single-element `affected_columns` list. If a future detector changes this, `cleaning_engine.py`'s per-column dispatch needs to iterate `affected_columns` instead of indexing `[0]`.
+
+- **`CleaningEngine` dispatches `duplicate_rows` (deduplication) per-finding like a column-scoped op, even though it's a whole-table operation.** If the classifier ever emitted more than one `duplicate_rows` finding in a single report, every call after the first would find zero further exact duplicates and log a confusing "Removed 0 exact duplicate row(s)" action. Currently unreachable: `backend/pipeline/data_quality.py`'s `_check_uniqueness` emits at most one `duplicate_rows` defect per assessment. If that ever changes, dedup should be batch-dispatched like `HEADER_NORMALIZATION` already is.
+
+- **`cleaning_primitives.normalize_column_names`'s `value_mapping` can silently drop an entry, and the per-column primitives (`normalize_case`, `coerce_column_type`) can misbehave, when the input frame has duplicate column labels** (pandas permits this; `working[column]` for a duplicate-labeled column returns a `DataFrame` slice, not a `Series`). Currently unreachable via this pipeline: the only ingestion path is `pd.read_csv` (`backend/pipeline/orchestrator.py`), which disambiguates duplicate headers on read. Would need a guard if a non-CSV ingestion path is ever added.
+
+- **`working = df.copy(deep=True)` does not recursively deep-copy nested mutable Python objects living in `object`-dtype cells** (e.g. a cell holding a `list`/`dict`). No current primitive mutates cell contents in place, so this is inert today, but the engine's module docstring makes an unconditional "never mutated on any path" claim that is broader than what `deep=True` technically guarantees. Worth revisiting if a future primitive ever does in-place cell mutation, or if the pipeline ever ingests a format that can produce non-scalar cell values.

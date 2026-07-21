@@ -20,7 +20,7 @@ from __future__ import annotations
 import datetime as _dt
 import re
 from collections import Counter
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -63,15 +63,22 @@ def strip_whitespace(series: pd.Series) -> tuple[pd.Series, int]:
 def dominant_python_type(series: pd.Series) -> type | None:
     """Return the most common Python ``type`` among non-null cells.
 
-    Mirrors the assessor's own derivation
-    (``non_null.apply(type).value_counts().index[0]``,
-    :mod:`backend.pipeline.data_quality`) so the engine coerces toward exactly
-    the type the assessor considered dominant. ``None`` if all cells are null.
+    Counts via a plain :class:`collections.Counter` rather than
+    ``Series.value_counts()`` and breaks ties on ``(module, qualname)`` —
+    deterministically, independent of hash-seed or iteration order. An exact
+    count tie between two types (e.g. equally many ints and numeric strings)
+    is a realistic input; ``value_counts()`` does not guarantee a stable
+    tie-break across process runs (dict/hashtable iteration order can vary
+    under hash randomization), which would violate this engine's "no
+    iteration-order dependence" invariant. ``None`` if all cells are null.
     """
     non_null = series.dropna()
     if non_null.empty:
         return None
-    return non_null.map(type).value_counts().index[0]
+    counts = Counter(type(v) for v in non_null)
+    max_count = max(counts.values())
+    candidates = [t for t, c in counts.items() if c == max_count]
+    return sorted(candidates, key=lambda t: (t.__module__, t.__qualname__))[0]
 
 
 def _is_numeric_type(t: type) -> bool:
@@ -210,22 +217,52 @@ def _slug(name: Any, position: int) -> str:
 
 def normalize_column_names(
     columns: list[Any],
+    targets: set[str] | None = None,
 ) -> tuple[list[str], dict[str, str]]:
-    """Normalize a list of column names deterministically, collision-safe.
+    """Normalize column names deterministically, collision-safe.
 
-    Each name: strip → collapse non-``[A-Za-z0-9_]`` runs to ``_`` → collapse
-    repeats → trim ``_`` → lowercase. Empty or purely-numeric results become
-    ``column_{position}`` (0-based). A normalized name colliding with one already
-    assigned (in column order) is suffixed ``_2``, ``_3``, ….
+    Each name in ``targets`` (matched by ``str(name)``) is renamed: strip →
+    collapse non-``[A-Za-z0-9_]`` runs to ``_`` → collapse repeats → trim ``_``
+    → lowercase; empty or purely-numeric results become ``column_{position}``
+    (0-based). Columns NOT in ``targets`` pass through with their original name
+    **unchanged** — but still occupy a slot in collision detection, so a
+    renamed column can never silently collide with an untouched one.
+
+    ``targets=None`` renames every column (the historical/full-frame
+    behavior). Passing an explicit set is how the Cleaning Engine scopes a
+    header-normalization action to only the columns a finding actually
+    flagged, leaving every other column — including ones with no finding at
+    all — byte-identical.
+
+    A normalized name colliding with one already assigned is suffixed ``_2``,
+    ``_3``, …. Untouched columns are reserved in a first pass — before any
+    renaming — so a rename always de-collides against the FULL untouched set,
+    not just the untouched names that happen to appear earlier in the frame.
+    Untouched columns are therefore guaranteed byte-identical and never
+    suffixed, regardless of column order.
 
     Returns the new column list and a mapping of old → new for names that
     actually changed.
     """
-    new_columns: list[str] = []
+    new_columns: list[str | None] = [None] * len(columns)
     assigned: set[str] = set()
-    mapping: dict[str, str] = {}
 
+    # Pass 1: reserve every untouched name so renames can never collide with
+    # one, independent of position.
     for position, name in enumerate(columns):
+        name_str = str(name)
+        if targets is not None and name_str not in targets:
+            new_columns[position] = name_str
+            assigned.add(name_str)
+
+    # Pass 2: slug + de-collide every targeted (or, with targets=None, every)
+    # column against the reserved set plus renames assigned so far.
+    mapping: dict[str, str] = {}
+    for position, name in enumerate(columns):
+        name_str = str(name)
+        if targets is not None and name_str not in targets:
+            continue
+
         base = _slug(name, position)
         candidate = base
         suffix = 2
@@ -233,11 +270,13 @@ def normalize_column_names(
             candidate = f"{base}_{suffix}"
             suffix += 1
         assigned.add(candidate)
-        new_columns.append(candidate)
-        if candidate != str(name):
-            mapping[str(name)] = candidate
+        new_columns[position] = candidate
+        if candidate != name_str:
+            mapping[name_str] = candidate
 
-    return new_columns, mapping
+    # Every position is filled by exactly one of the two passes above
+    # (untouched vs. targeted are mutually exclusive and exhaustive).
+    return cast("list[str]", new_columns), mapping
 
 
 def impute_nulls(df: pd.DataFrame, column: str, method: str) -> pd.DataFrame:
@@ -271,6 +310,13 @@ def impute_nulls(df: pd.DataFrame, column: str, method: str) -> pd.DataFrame:
         )
     if column not in df.columns:
         raise ValueError(f"column {column!r} not in frame")
+    if method in ("mean", "median") and not pd.api.types.is_numeric_dtype(
+        df[column]
+    ):
+        raise ValueError(
+            f"method {method!r} requires a numeric column; "
+            f"{column!r} has dtype {df[column].dtype}"
+        )
 
     out = df.copy()
     col = out[column]

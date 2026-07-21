@@ -252,6 +252,19 @@ class TestTypeCoercion:
         cleaned, _ = CleaningEngine().clean(df, _report(df, [d]), RUN_ID)
         assert cleaned["code"].isna().sum() == 0
 
+    def test_dominant_type_tie_break_is_deterministic(self) -> None:
+        # Exact 3-vs-3 split between int and numeric-string: value_counts()'s
+        # tie-break can depend on hash/iteration order; ours must not.
+        series = pd.Series([1, 2, 3, "4", "5", "6"], dtype=object)
+        results = {prim.dominant_python_type(series) for _ in range(20)}
+        assert len(results) == 1  # same winner every call, no flapping
+
+    def test_dominant_type_tie_break_matches_qualname_order(self) -> None:
+        # int vs str tie: sorted by (module, qualname) -> ('builtins', 'int')
+        # sorts before ('builtins', 'str').
+        series = pd.Series([1, 2, "a", "b"], dtype=object)
+        assert prim.dominant_python_type(series) is int
+
 
 class TestHeaderNormalization:
     def test_normalizes_special_and_numeric_names(self) -> None:
@@ -262,6 +275,20 @@ class TestHeaderNormalization:
     def test_collision_suffixing_is_deterministic(self) -> None:
         cols, _ = prim.normalize_column_names(["A", "a", "a!"])
         assert cols == ["a", "a_2", "a_3"]
+
+    def test_targets_none_renames_every_column(self) -> None:
+        cols, mapping = prim.normalize_column_names(["Bad Name", "2024"])
+        assert cols == ["bad_name", "column_1"]
+        assert mapping == {"Bad Name": "bad_name", "2024": "column_1"}
+
+    def test_targets_scopes_rename_to_only_named_columns(self) -> None:
+        cols, mapping = prim.normalize_column_names(
+            ["amount#", "Region", "2024"], targets={"amount#"}
+        )
+        # Only "amount#" renamed; "Region" and "2024" pass through untouched
+        # even though "2024" would itself be re-slugged under targets=None.
+        assert cols == ["amount", "Region", "2024"]
+        assert mapping == {"amount#": "amount"}
 
     def test_engine_renames_flagged_headers_in_one_action(self) -> None:
         df = pd.DataFrame({"amount#": [1.0, 2.0], "clean": [3, 4]})
@@ -274,6 +301,48 @@ class TestHeaderNormalization:
         ]
         assert len(header_actions) == 1
         assert header_actions[0].value_mapping == {"amount#": "amount"}
+
+    def test_header_normalization_does_not_touch_unflagged_columns(self) -> None:
+        # "Region" would itself be re-slugged (lowercased) by a blanket rename,
+        # but it carries no column_naming finding — only "amount#" does. Only
+        # the flagged column may change; "Region" must survive byte-identical.
+        df = pd.DataFrame({"amount#": [1.0], "Region": ["north"]})
+        d = _autonomous("column_naming", ["amount#"])
+        cleaned, result = CleaningEngine().clean(df, _report(df, [d]), RUN_ID)
+        assert list(cleaned.columns) == ["amount", "Region"]
+        header_actions = [
+            a for a in result.actions
+            if a.operation == CleaningOperation.HEADER_NORMALIZATION
+        ]
+        assert header_actions[0].value_mapping == {"amount#": "amount"}
+        assert "Region" not in header_actions[0].value_mapping
+
+    def test_header_normalization_renamed_column_avoids_untouched_collision(self) -> None:
+        # "amount#" slugifies to "amount", which already exists untouched.
+        # Collision detection must still fire even though "amount" itself has
+        # no finding and is never renamed.
+        df = pd.DataFrame({"amount#": [1.0], "amount": [2.0]})
+        d = _autonomous("column_naming", ["amount#"])
+        cleaned, _ = CleaningEngine().clean(df, _report(df, [d]), RUN_ID)
+        assert list(cleaned.columns) == ["amount_2", "amount"]
+
+    def test_header_normalization_failure_degrades_to_failed_action(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        df = pd.DataFrame({"amount#": [1.0]})
+        d = _autonomous("column_naming", ["amount#"])
+
+        def _boom(_columns, targets=None):
+            raise RuntimeError("header primitive exploded")
+
+        monkeypatch.setattr(prim, "normalize_column_names", _boom)
+        cleaned, result = CleaningEngine().clean(df, _report(df, [d]), RUN_ID)
+        # clean() must not raise — the failure degrades to a FAILED action.
+        pd.testing.assert_frame_equal(cleaned, df)
+        failed = [a for a in result.actions if a.status == CleaningStatus.FAILED]
+        assert len(failed) == 1
+        assert failed[0].scope.value == "table"
+        assert "RuntimeError" in failed[0].error
 
 
 # --------------------------------------------------------------------------
@@ -297,6 +366,18 @@ class TestImputationPrimitive:
         df = pd.DataFrame({"x": [1.0, None]})
         with pytest.raises(ValueError, match="unknown imputation method"):
             prim.impute_nulls(df, "x", "magic")
+
+    def test_mean_median_reject_non_numeric_column(self) -> None:
+        df = pd.DataFrame({"x": ["a", None, "c"]})
+        with pytest.raises(ValueError, match="requires a numeric column"):
+            prim.impute_nulls(df, "x", "mean")
+        with pytest.raises(ValueError, match="requires a numeric column"):
+            prim.impute_nulls(df, "x", "median")
+
+    def test_mode_and_forward_fill_accept_non_numeric_column(self) -> None:
+        df = pd.DataFrame({"x": ["a", None, "a"]})
+        assert prim.impute_nulls(df, "x", "mode")["x"].tolist() == ["a", "a", "a"]
+        assert prim.impute_nulls(df, "x", "forward_fill")["x"].tolist() == ["a", "a", "a"]
 
     def test_impute_does_not_mutate_input(self) -> None:
         df = pd.DataFrame({"x": [1.0, None, 3.0]})
@@ -360,6 +441,40 @@ class TestActionRecord:
         failed = [a for a in result.actions if a.status == CleaningStatus.FAILED]
         assert len(failed) == 1
         assert failed[0].error is not None and "RuntimeError" in failed[0].error
+        assert failed[0].scope.value == "column"  # case normalization is column-scoped
+
+    def test_failed_action_scope_matches_the_failed_operation(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        df = pd.DataFrame({"a": [1, 1]})
+        d = _autonomous("duplicate_rows", ["a"])
+
+        def _boom(_df: pd.DataFrame):
+            raise RuntimeError("dedup primitive exploded")
+
+        monkeypatch.setattr(prim, "drop_exact_duplicates", _boom)
+        cleaned, result = CleaningEngine().clean(df, _report(df, [d]), RUN_ID)
+        pd.testing.assert_frame_equal(cleaned, df)
+        failed = [a for a in result.actions if a.status == CleaningStatus.FAILED]
+        assert len(failed) == 1
+        assert failed[0].scope.value == "row"  # NOT the old hardcoded "column"
+
+    def test_failed_action_error_message_is_truncated(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        df = pd.DataFrame({"region": ["a", "A"]})
+        d = _autonomous("case_inconsistency", ["region"])
+        long_message = "x" * 5000
+
+        def _boom(_series: pd.Series):
+            raise RuntimeError(long_message)
+
+        monkeypatch.setattr(prim, "normalize_case", _boom)
+        _, result = CleaningEngine().clean(df, _report(df, [d]), RUN_ID)
+        failed = [a for a in result.actions if a.status == CleaningStatus.FAILED]
+        assert len(failed) == 1
+        assert failed[0].error is not None
+        assert len(failed[0].error) < 300
 
 
 # --------------------------------------------------------------------------

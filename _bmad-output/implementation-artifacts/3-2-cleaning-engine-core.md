@@ -75,6 +75,24 @@ This story builds the **engine and its action record** — nothing else. Explici
 - [x] **Task 6 — Verify + security (AC: 8, 9)**
   - [x] Full backend suite: 268 passed / 1 skipped / 0 regressions. `/security-review`: no Critical/High (no external attack surface — pure in-memory transforms).
 
+### Review Findings
+
+Reviewed by Sonnet (dev was Opus) via `bmad-code-review` — 3 parallel layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor) against PR #42's branch diff.
+
+- [x] [Review][Patch] Header normalization renamed every column in the frame, not just the ones with a flagged `column_naming` finding — violated AC2/AC3 Tier-1-only scoping (a non-flagged, no-defect column could be silently re-slugged) [backend/pipeline/cleaning_engine.py:355, backend/pipeline/cleaning_primitives.py:836] — fixed: `normalize_column_names` gained a `targets` param; untouched columns are reserved in a first pass so renames de-collide against them without ever touching them.
+- [x] [Review][Patch] `_normalize_headers` call site not wrapped in try/except unlike the per-finding loop — an unexpected exception there would abort `clean()` instead of degrading to a FAILED action [backend/pipeline/cleaning_engine.py:120] — fixed: wrapped identically to the per-finding loop.
+- [x] [Review][Patch] `dominant_python_type` tie-break relied on `Series.value_counts()` iteration/hash order — could pick a different "dominant" type across process runs on an exact count tie, violating AC6 "no iteration-order dependence" [backend/pipeline/cleaning_primitives.py:688] — fixed: counts via `Counter`, ties broken deterministically on `(module, qualname)`.
+- [x] [Review][Patch] `_failed_action` hardcoded `scope=CleaningScope.COLUMN` regardless of which operation actually failed (e.g. a failed dedup was recorded as column-scoped, contradicting `CleaningScope`'s own semantics) [backend/pipeline/cleaning_engine.py:602] — fixed: `_SCOPE_BY_OPERATION` lookup; also truncated `error` message to 200 chars as defense-in-depth against embedding raw cell values.
+- [x] [Review][Patch] `impute_nulls` called `.mean()`/`.median()` on a non-numeric column with only pandas' own (less clear) TypeError as a guard [backend/pipeline/cleaning_primitives.py:868] — fixed: explicit `ValueError` with a clear message, matching the primitive's own "fail loudly rather than guess" stated intent.
+- [x] [Review][Defer] Only `affected_columns[0]` consulted for `case_inconsistency`/`mixed_types` — a multi-column finding would be under-fixed — deferred, not reachable: `data_quality.py` always emits single-element `affected_columns` for these types.
+- [x] [Review][Defer] Deduplication dispatched per-finding though it's a whole-table op — a second `duplicate_rows` finding would produce a confusing "removed 0 rows" action — deferred, not reachable: the assessor emits at most one `duplicate_rows` defect per run.
+- [x] [Review][Defer] `normalize_column_names` mapping collisions / primitive breakage on duplicate column labels — deferred, not reachable: `pd.read_csv` (the only ingestion path) disambiguates duplicate headers upstream.
+- [x] [Review][Defer] `df.copy(deep=True)` doesn't recursively deep-copy nested mutable objects in object-dtype cells — deferred, theoretical: CSV-sourced data never carries nested list/dict cells.
+
+Dismissed as noise/false-positive: "`cleaning_action_applied` never emitted" (verified present in the actual source — an artifact of a condensed diff given to one review layer), "independent second guard is unreachable dead code" (this is exactly what AC2 requires as defense-in-depth for future/direct callers), "case tie-break can pick an ALL-CAPS canonical" (matches AC3's literal "ties break lexicographically" spec), "`_skipped_action` leaves before/after state empty" (cosmetic), "`_cell_changed` raises on array-like cells" (unreachable via CSV-sourced data), "`actions` list mixes SKIPPED entries" and "`target_columns` vs spec's `affected_columns` naming" (both pre-disclosed, intentional deviations in Completion Notes below).
+
+Post-fix verification: 11 new tests added (78 total in `test_cleaning_engine.py` + `test_models.py`, up from 67); full backend suite **279 passed / 1 skipped / 0 regressions** (up from 268).
+
 ## Dev Notes
 
 ### Operation specs (deterministic, keyed on `defect_type`)

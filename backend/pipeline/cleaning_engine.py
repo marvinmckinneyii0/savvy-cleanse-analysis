@@ -73,6 +73,16 @@ class CleaningEngine:
         CleaningOperation.HEADER_NORMALIZATION,
     )
 
+    # Scope each operation would use in a FAILED provenance record, so a
+    # failure is never mis-recorded under the wrong CleaningScope (e.g. a
+    # failed dedup must read ROW, not COLUMN).
+    _SCOPE_BY_OPERATION: dict[CleaningOperation, CleaningScope] = {
+        CleaningOperation.DEDUPLICATION: CleaningScope.ROW,
+        CleaningOperation.CASE_NORMALIZATION: CleaningScope.COLUMN,
+        CleaningOperation.TYPE_COERCION: CleaningScope.COLUMN,
+        CleaningOperation.HEADER_NORMALIZATION: CleaningScope.TABLE,
+    }
+
     def clean(
         self,
         df: pd.DataFrame,
@@ -120,7 +130,23 @@ class CleaningEngine:
             if operation == CleaningOperation.HEADER_NORMALIZATION:
                 # Frame-level op: one action for all flagged columns at once so
                 # collision suffixing is consistent across the whole header row.
-                working, action = self._normalize_headers(bucket, working, log)
+                # Wrapped identically to the per-finding loop below so a failure
+                # here degrades to a FAILED action instead of aborting clean().
+                try:
+                    working, action = self._normalize_headers(bucket, working, log)
+                except CleaningEngineError:
+                    raise
+                except Exception as exc:  # noqa: BLE001 - captured as safe provenance
+                    actions.append(
+                        self._failed_action(bucket[0], operation, exc)
+                    )
+                    log.warning(
+                        "cleaning_action_failed",
+                        operation=operation.value,
+                        defect_type="column_naming",
+                        error_type=type(exc).__name__,
+                    )
+                    continue
                 actions.append(action)
                 continue
 
@@ -358,7 +384,12 @@ class CleaningEngine:
         working: pd.DataFrame,
         log: structlog.stdlib.BoundLogger,
     ) -> tuple[pd.DataFrame, CleaningAction]:
-        """Normalize ALL flagged headers in one pass (collision-safe across frame)."""
+        """Normalize ONLY the flagged headers in one pass, collision-safe across the
+        whole frame. Columns with no ``column_naming`` finding — including any
+        that happen to already be well-formed — are left byte-identical; they
+        still participate in collision detection so a rename can never clash
+        with an untouched name.
+        """
         # Independent guard applies here too — every finding in the batch must be
         # autonomous (clean() only ever passes autonomous ones, but assert it).
         for defect in defects:
@@ -369,7 +400,10 @@ class CleaningEngine:
                     f"remediation_class={defect.remediation_class.value!r}"
                 )
 
-        new_columns, mapping = prim.normalize_column_names(list(working.columns))
+        targets = {d.affected_columns[0] for d in defects if d.affected_columns}
+        new_columns, mapping = prim.normalize_column_names(
+            list(working.columns), targets=targets
+        )
         updated = working.copy()
         updated.columns = new_columns
         log.info(
@@ -419,15 +453,19 @@ class CleaningEngine:
         operation: CleaningOperation,
         exc: Exception,
     ) -> CleaningAction:
-        """Build a FAILED action with safe error info (type + message only)."""
+        """Build a FAILED action with safe error info (type + truncated message)."""
+        # Cap the message: pandas coercion/parse exceptions can embed the
+        # offending cell's repr, and this record is the Healing Manifest's
+        # source of truth — it must not become a backdoor for raw data.
+        safe_message = str(exc)[:200]
         return CleaningAction(
             operation=operation,
             defect_type=defect.defect_type,
             remediation_class=defect.remediation_class,
             status=CleaningStatus.FAILED,
-            scope=CleaningScope.COLUMN,
+            scope=self._SCOPE_BY_OPERATION.get(operation, CleaningScope.COLUMN),
             target_columns=list(defect.affected_columns),
             rule="operation raised; working copy left at last-good state",
             detail=f"Cleaning action for '{defect.defect_type}' did not complete.",
-            error=f"{type(exc).__name__}: {exc}",
+            error=f"{type(exc).__name__}: {safe_message}",
         )
