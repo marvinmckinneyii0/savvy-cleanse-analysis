@@ -93,8 +93,8 @@ def run_command(
     return result
 
 
-def git(*args: str, check: bool = True) -> str:
-    return (run_command(["git", *args], check=check).stdout or "").strip()
+def git(*args: str, check: bool = True, cwd: Path = ROOT) -> str:
+    return (run_command(["git", *args], cwd=cwd, check=check).stdout or "").strip()
 
 
 def sha256(path: Path) -> str:
@@ -301,9 +301,33 @@ def verify_packet_fresh(packet: ExecutionPacket) -> None:
         raise LoopError("Story file changed after handoff preparation")
 
 
-def changed_paths(base_sha: str) -> list[str]:
-    output = git("diff", "--name-only", f"{base_sha}...HEAD")
+def changed_paths(base_sha: str, *, root: Path = ROOT) -> list[str]:
+    output = git("diff", "--name-only", f"{base_sha}...HEAD", cwd=root)
     return [line.strip() for line in output.splitlines() if line.strip()]
+
+
+def uncommitted_paths(*, root: Path = ROOT) -> list[str]:
+    """Every path with a staged, unstaged, or untracked change in the working tree.
+
+    Uses `run_command` directly rather than `git()`: porcelain status lines carry a
+    leading space as part of the two-character status code, and `git()`'s blanket
+    `.strip()` would eat it, shifting every subsequent field left by one.
+    """
+
+    result = run_command(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        cwd=root,
+    )
+    output = result.stdout or ""
+    paths: list[str] = []
+    for line in output.splitlines():
+        if not line:
+            continue
+        entry = line[3:]
+        if " -> " in entry:
+            entry = entry.split(" -> ", 1)[1]
+        paths.append(entry.strip())
+    return paths
 
 
 def validate_changed_paths(paths: list[str]) -> None:
@@ -313,6 +337,20 @@ def validate_changed_paths(paths: list[str]) -> None:
             violations.append(path)
     if violations:
         raise LoopError("Codex modified protected orchestration paths: " + ", ".join(violations))
+
+
+def verify_story_untouched(packet: ExecutionPacket, *, root: Path = ROOT) -> None:
+    """Fail closed if the authoritative story changed during Codex execution.
+
+    Reads the file directly (not `git diff`), so this catches the change whether
+    Codex committed it or left it uncommitted in the working tree.
+    """
+
+    story_path = root / packet.story_path
+    if not story_path.exists():
+        raise LoopError(f"Authoritative story file is missing after execution: {packet.story_path}")
+    if sha256(story_path) != packet.story_file_sha256:
+        raise LoopError(f"Authoritative story file changed during Codex execution: {packet.story_path}")
 
 
 def run_validation() -> dict[str, Any]:
@@ -368,10 +406,19 @@ def execute(candidate: StoryCandidate) -> int:
         if result.returncode != 0:
             raise LoopError(f"Codex exited with status {result.returncode}")
 
+        verify_story_untouched(packet)
+
         paths = changed_paths(packet.base_commit_sha)
         if not paths:
             raise LoopError("Codex completed without producing a committed diff")
-        validate_changed_paths(paths)
+
+        pending_paths = uncommitted_paths()
+        validate_changed_paths(sorted(set(paths) | set(pending_paths)))
+        if pending_paths:
+            raise LoopError(
+                "Codex left uncommitted changes in the working tree: "
+                + ", ".join(sorted(pending_paths))
+            )
 
         report = run_validation()
         if not report["success"]:
