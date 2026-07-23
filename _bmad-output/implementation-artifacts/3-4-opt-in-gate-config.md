@@ -1,6 +1,6 @@
 # Story 3.4: Opt-in Gate & Configuration (default OFF)
 
-Status: ready-for-dev
+Status: review
 
 Sizing: M · Model: Opus · loop_eligible: false
 <!-- Opus + loop_eligible:false: this story crosses the Tier-2 policy boundary AND owns
@@ -67,27 +67,27 @@ These artifacts describe infrastructure that does not exist. Treat the code on `
 
 ## Tasks / Subtasks
 
-- [ ] **Task 0 — Confirm prerequisites (AC: 4, 8)**
-  - [ ] Verify PR #39 and PR #42 are on `main`; `CleaningEngine`, `cleaning_primitives.impute_nulls`, `IMPUTATION_METHODS`, `CleaningAction`/`CleaningResult`, `RemediationClass.HUMAN_POLICY_AGENT_EXECUTION`, and the classifier's `null_values → HUMAN_POLICY_AGENT_EXECUTION` mapping are all importable. HALT if not.
-  - [ ] Re-confirm the three reality corrections still hold (no `backend/rules/`, no `project` entity, `leave_as_is` not in `IMPUTATION_METHODS`).
-- [ ] **Task 1 — Config model (AC: 1, 2)**
-  - [ ] Add `CleaningConfig` (and nested `ImputationPolicyConfig`) to `backend/models/pipeline_config.py`, following the existing sub-model style (`ThresholdConfig`/`AlertConfig`). Fields: `enabled: bool = False`; `imputation` with `defaults: dict[type→method]` (keys `numeric|categorical|datetime`) and `columns: dict[str, method]`. Validate methods against `{mean, median, mode, forward_fill, leave_as_is}`; raise `ValueError` (surfaced as `ConfigurationError` by `load`) on unknown method.
-  - [ ] Add `cleaning: CleaningConfig = Field(default_factory=CleaningConfig)` to `PipelineConfig`. Confirm existing `config.yaml` (no `cleaning:` key) still validates → `enabled=False`. Add a commented `cleaning:` example block to the committed `config.yaml`.
-  - [ ] Docstring seam note: policy lives here interim; migrates to `project.cleaning_policy` in Epic 4 Story 4.1a.
-- [ ] **Task 2 — Policy layer `backend/rules/` (AC: 3, 4, 5)**
-  - [ ] Create `backend/rules/__init__.py` and `backend/rules/cleaning_policy.py`.
-  - [ ] `resolve_method(column, column_profile, policy) -> str`: precedence per-column → per-type default override → built-in default (numeric→median, categorical→mode, datetime→forward_fill). Column type from `ColumnProfile.dtype` / pandas dtype checks; "time-indexed" = datetime dtype or `DatetimeIndex`.
-  - [ ] `apply_imputation_policy(df, quality_report, policy, pipeline_run_id) -> tuple[df, list[CleaningAction]]`: filter to `HUMAN_POLICY_AGENT_EXECUTION` **and** `null_values`; per finding resolve method, call `impute_nulls` (or skip for `leave_as_is`), compute `values_changed` (null count before − after), build the `CleaningAction`. Non-`null_values` Tier-2 → SKIPPED. Never mutate input `df`.
-- [ ] **Task 3 — Coordinator (AC: 6, 7, 8, 9)**
-  - [ ] A function/class that runs `CleaningEngine().clean()` (Tier-1) then `apply_imputation_policy()` (Tier-2) on the same working copy, merging actions into one `CleaningResult` (Tier-1 result's frame is the Tier-2 input; counts reflect the union). Decide home: `backend/rules/cleaning_policy.py` or a thin `backend/pipeline/` seam — keep the orchestrator lean. Do NOT modify `CleaningEngine`.
-- [ ] **Task 4 — Orchestrator + CLI wiring (AC: 1, 8)**
-  - [ ] `run_full_pipeline`: add `enable_cleaning: bool = False`; when true and not halted, load/accept the cleaning policy, call the coordinator after Stage 1, attach `PipelineResult.cleaning_result`. Report continues on the original frame (see Q1).
-  - [ ] Add `cleaning_result: "CleaningResult | None" = None` to `PipelineResult` (TYPE_CHECKING import).
-  - [ ] CLI `cli(...)`: add `--clean/--no-clean` (default off) wired to `enable_cleaning`; policy sourced from `PipelineConfig.load()` when `--clean` is set. Structlog stage events (counts/columns only).
-- [ ] **Task 5 — Tests (AC: 10)**
-  - [ ] `test_cleaning_policy.py`, `test_config.py` additions, orchestrator gate test — per the AC10 matrix. Reuse `cleaning_dirty_df` for the Tier-2/Tier-3-shared-column and working-copy assertions.
-- [ ] **Task 6 — Verify + security (AC: 10, 11)**
-  - [ ] `uv run pytest` green, record count + regressions=0. `npm test` / `npm run build` unaffected. Run `/security-review`; resolve Critical/High.
+- [x] **Task 0 — Confirm prerequisites (AC: 4, 8)**
+  - [x] Verify PR #39 and PR #42 are on `main`; `CleaningEngine`, `cleaning_primitives.impute_nulls`, `IMPUTATION_METHODS`, `CleaningAction`/`CleaningResult`, `RemediationClass.HUMAN_POLICY_AGENT_EXECUTION`, and the classifier's `null_values → HUMAN_POLICY_AGENT_EXECUTION` mapping are all importable. HALT if not.
+  - [x] Re-confirm the three reality corrections still hold (no `backend/rules/`, no `project` entity, `leave_as_is` not in `IMPUTATION_METHODS`).
+- [x] **Task 1 — Config model (AC: 1, 2)**
+  - [x] Add `CleaningConfig` (and nested `ImputationPolicyConfig`) to `backend/models/pipeline_config.py`, following the existing sub-model style (`ThresholdConfig`/`AlertConfig`). Fields: `enabled: bool = False`; `imputation` with `defaults: dict[type→method]` (keys `numeric|categorical|datetime`) and `columns: dict[str, method]`. Validate methods against `{mean, median, mode, forward_fill, leave_as_is}`; raise `ValueError` (surfaced as `ConfigurationError` by `load`) on unknown method.
+  - [x] Add `cleaning: CleaningConfig = Field(default_factory=CleaningConfig)` to `PipelineConfig`. Confirm existing `config.yaml` (no `cleaning:` key) still validates → `enabled=False`. Add a commented `cleaning:` example block to the committed `config.yaml`.
+  - [x] Docstring seam note: policy lives here interim; migrates to `project.cleaning_policy` in Epic 4 Story 4.1a.
+- [x] **Task 2 — Policy layer `backend/rules/` (AC: 3, 4, 5)**
+  - [x] Create `backend/rules/__init__.py` and `backend/rules/cleaning_policy.py`.
+  - [x] `resolve_method(column, series, policy) -> tuple[str, str]`: precedence per-column → per-type default override → built-in default (numeric→median, categorical→mode, datetime→forward_fill). Column kind from pandas dtype checks (`is_datetime64_any_dtype` first, then `is_numeric_dtype`, else categorical). Returns `(method, source)` where source is `override`/`default`.
+  - [x] `apply_imputation_policy(df, quality_report, policy, pipeline_run_id) -> tuple[df, list[CleaningAction]]`: filter to `HUMAN_POLICY_AGENT_EXECUTION` **and** `null_values`; per finding resolve method, call `impute_nulls` (or skip for `leave_as_is`), compute `values_changed` (null count before − after), build the `CleaningAction`. Non-`null_values` Tier-2 → SKIPPED. Never mutate input `df` (always returns a fresh frame).
+- [x] **Task 3 — Coordinator (AC: 6, 7, 8, 9)**
+  - [x] `backend/rules/cleaning_coordinator.py::clean_dataset` runs `CleaningEngine().clean()` (Tier-1) then `apply_imputation_policy()` (Tier-2) on the same working copy, merging actions into one `CleaningResult` (Tier-1 output frame is the Tier-2 input; shape counters span both passes). `CleaningEngine` imported and used unchanged.
+- [x] **Task 4 — Orchestrator + CLI wiring (AC: 1, 8)**
+  - [x] `run_full_pipeline`: added `enable_cleaning: bool = False` + `cleaning_config: CleaningConfig | None = None`; when true and not halted, resolves the policy (built-in defaults if `None`), calls the coordinator after Stage 1, attaches `PipelineResult.cleaning_result`. Report continues on the original frame (Q1). Halt path logs `cleaning_stage_skipped`.
+  - [x] Added `cleaning_result: "CleaningResult | None" = None` to `PipelineResult` (TYPE_CHECKING import).
+  - [x] CLI `cli(...)`: added `--clean/--no-clean` (default off) wired to `enable_cleaning`; policy sourced from `PipelineConfig.load().cleaning` when `--clean` is set. Structlog stage events (`cleaning_stage_started`/`skipped`/`completed`) carry `pipeline_run_id`, counts/columns only.
+- [x] **Task 5 — Tests (AC: 10)**
+  - [x] `backend/tests/test_cleaning_policy.py` (20 tests), `backend/tests/test_config.py` additions (6 tests), `backend/tests/e2e/test_cleaning_gate.py` orchestrator+CLI gate test (7 tests). Reuse `cleaning_dirty_df` for the Tier-2/Tier-3-shared-column and working-copy assertions.
+- [x] **Task 6 — Verify + security (AC: 10, 11)**
+  - [x] `uv run pytest` green: **312 passed / 1 skipped** (baseline 279/1 → +33, regressions=0). Frontend unaffected: vitest **36/36**, `npm run build` OK. `/security-review` run — **no HIGH/MEDIUM findings** (enablement boundary, Tier-2 filter, method validation, and log/provenance exposure all cleared).
 
 ## Dev Notes
 
@@ -177,14 +177,38 @@ The policy executor is the Tier-2 analogue of the engine's Tier-1 registry: an e
 
 ### Agent Model Used
 
-_(dev agent fills in)_
+claude-opus-4-8 (dev-story, high effort)
 
 ### Debug Log References
 
+- Baseline before story: `uv run pytest` → 279 passed / 1 skipped.
+- After story: `uv run pytest` → 312 passed / 1 skipped (rc=0); new Story-3.4 tests: 33 (21 policy + 6 config + 6 gate).
+- Frontend: `npx vitest run` → 36/36; `npm run build` → OK.
+- `/security-review` → no HIGH/MEDIUM findings.
+
 ### Completion Notes List
 
+- **Opt-in gate (AC1)** implemented at all three surfaces, default OFF: `CleaningConfig.enabled=False`, `run_full_pipeline(enable_cleaning=False)`, CLI `--clean/--no-clean` default no-clean. Disabled → no cleaning component constructed, `cleaning_result is None`, downstream byte-identical (full pre-existing suite passes unchanged + explicit gate test).
+- **Config (AC2)** — `CleaningConfig`/`ImputationPolicyConfig` added to `pipeline_config.py`; the whole `cleaning:` section is optional (backward-compat verified). Method allowlist `{mean,median,mode,forward_fill,leave_as_is}` validated at load (unknown → `ConfigurationError`); the allowlist is derived from `IMPUTATION_METHODS` via a lazy import so the models layer never imports the pipeline layer at module-load time. `mean`/`median` on non-numeric surfaces as a FAILED action (primitive guard), never a crash.
+- **Policy layer (AC3-5)** — `backend/rules/cleaning_policy.py`: `resolve_method` (per-column → per-type → built-in, records `source`), `apply_imputation_policy` filters fail-closed to `HUMAN_POLICY_AGENT_EXECUTION` **and** `null_values`; `leave_as_is` is a policy-layer skip (SKIPPED action, primitive never called); non-`null_values` Tier-2 (e.g. `non_unique_id`) → SKIPPED zero-change.
+- **Coordinator (AC6-9)** — `backend/rules/cleaning_coordinator.py::clean_dataset` composes Tier-1 engine + Tier-2 policy on one working copy, merges both tiers into one `CleaningResult` (distinguishable by `remediation_class`). `CleaningEngine` used unchanged (no Tier-2 code added to it). Tier-3 `human_only` on a shared column is provably untouched (the `-5` in `quantity` survives while its nulls are imputed). Working-copy invariant holds across the combined pass. Deterministic double-run + idempotent-after-reassess verified.
+- **Q1 (report on original data)** left as scoped: report stages run on the original frame; the cleaned frame + `CleaningResult` are produced and carried for 3.3/3.6/3.7. **Confirm with Marvin** whether to keep this split or pull "report-on-cleaned" forward.
+- `PipelineResult.cleaning_result` added additively (TYPE_CHECKING import); the pre-existing harmless `data_quality_report` TYPE_CHECKING import was deliberately left as-is (out of scope per Dev Notes).
+
 ### File List
+
+- `backend/models/pipeline_config.py` (M) — `ImputationPolicyConfig`, `CleaningConfig`, `cleaning` field, method-allowlist validators.
+- `backend/models/pipeline_result.py` (M) — additive `cleaning_result` field + TYPE_CHECKING import.
+- `backend/rules/__init__.py` (A) — new business-logic rules package.
+- `backend/rules/cleaning_policy.py` (A) — Tier-2 imputation policy layer.
+- `backend/rules/cleaning_coordinator.py` (A) — Tier-1 + Tier-2 coordinator.
+- `backend/pipeline/orchestrator.py` (M) — `enable_cleaning`/`cleaning_config` params, gated cleaning stage, `--clean/--no-clean` CLI flag, stage events.
+- `config.yaml` (M) — commented `cleaning:` example block.
+- `backend/tests/test_cleaning_policy.py` (A) — policy + coordinator tests.
+- `backend/tests/test_config.py` (M) — `TestCleaningConfig` additions.
+- `backend/tests/e2e/test_cleaning_gate.py` (A) — orchestrator + CLI gate tests.
 
 ## Change Log
 
 - 2026-07-22: Story drafted (create-story, Opus high effort). Opt-in gate (config/orchestrator/CLI, default OFF) + Tier-2 imputation policy layer (`backend/rules/`) driving the policy-less `impute_nulls` primitive with per-column-type defaults. Flagged three reality corrections (no `rules/rule_engine.py`, no `project` entity yet, `leave_as_is` not in the primitive). Status → ready-for-dev.
+- 2026-07-23: Implemented (dev-story, Opus/high). Opt-in gate + Tier-2 policy layer + coordinator + orchestrator/CLI wiring, engine autonomy untouched. 312 passed / 1 skipped (0 regressions), frontend 36/36 + build OK, `/security-review` clean. Status → review.

@@ -187,6 +187,89 @@ class SmtpSettings(BaseModel):
     from_address: str | None = None
 
 
+# The methods a Tier-2 imputation policy may name. The four *primitive* methods
+# come from ``cleaning_primitives.IMPUTATION_METHODS`` (the single source of
+# truth); ``leave_as_is`` is a policy-layer-only choice (resolve → skip, the
+# primitive is never called) and is deliberately NOT in that frozenset. Defined
+# via a lazy import inside the validator so this models module never imports the
+# pipeline layer at load time.
+_VALID_COLUMN_KINDS = frozenset({"numeric", "categorical", "datetime"})
+
+
+def _policy_methods() -> frozenset[str]:
+    """Allowlist of imputation methods a policy may name (primitive + leave_as_is)."""
+    from backend.pipeline.cleaning_primitives import IMPUTATION_METHODS
+
+    return IMPUTATION_METHODS | {"leave_as_is"}
+
+
+class ImputationPolicyConfig(BaseModel):
+    """Tier-2 null-imputation policy (Story 3.4) — all fields optional.
+
+    ``defaults`` overrides the built-in per-column-*type* default (keys must be
+    one of ``numeric | categorical | datetime``); ``columns`` overrides the
+    method for a specific column by name (highest precedence). Absent → the
+    policy layer's built-in defaults (numeric→median, categorical→mode,
+    datetime→forward_fill) apply, so a non-expert is never blocked.
+
+    Every method value is validated against the allowlist
+    ``{mean, median, mode, forward_fill, leave_as_is}`` at load time; an unknown
+    method raises (surfaced as :class:`ConfigurationError` by
+    :meth:`PipelineConfig.load`). Type-appropriateness (e.g. ``mean`` on a
+    non-numeric column) is NOT checked here — it surfaces at execution as a
+    FAILED action, per AC2.
+    """
+
+    defaults: dict[str, str] = Field(default_factory=dict)
+    columns: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("defaults")
+    @classmethod
+    def _valid_default_keys_and_methods(cls, value: dict[str, str]) -> dict[str, str]:
+        methods = _policy_methods()
+        for kind, method in value.items():
+            if kind not in _VALID_COLUMN_KINDS:
+                raise ValueError(
+                    f"cleaning.imputation.defaults key {kind!r} is not a column kind; "
+                    f"expected one of {sorted(_VALID_COLUMN_KINDS)}"
+                )
+            if method not in methods:
+                raise ValueError(
+                    f"cleaning.imputation.defaults.{kind} = {method!r} is not a valid "
+                    f"imputation method; expected one of {sorted(methods)}"
+                )
+        return value
+
+    @field_validator("columns")
+    @classmethod
+    def _valid_column_methods(cls, value: dict[str, str]) -> dict[str, str]:
+        methods = _policy_methods()
+        for column, method in value.items():
+            if method not in methods:
+                raise ValueError(
+                    f"cleaning.imputation.columns.{column} = {method!r} is not a valid "
+                    f"imputation method; expected one of {sorted(methods)}"
+                )
+        return value
+
+
+class CleaningConfig(BaseModel):
+    """Opt-in cleaning gate + Tier-2 imputation policy (Story 3.4).
+
+    ``enabled`` is THE opt-in gate — default ``False`` (load-bearing, AC1);
+    nothing other than an explicit config/param/flag enable turns cleaning on.
+    The whole ``cleaning:`` section is optional: a ``config.yaml`` with no
+    ``cleaning:`` key validates unchanged and yields ``enabled=False``.
+
+    Interim home note: this policy lives in ``config.yaml`` only until Epic 4
+    Story 4.1a introduces the ``project`` entity, at which point it migrates to
+    ``project.cleaning_policy``. Keep this the single interim source.
+    """
+
+    enabled: bool = False
+    imputation: ImputationPolicyConfig = Field(default_factory=ImputationPolicyConfig)
+
+
 class PipelineConfig(BaseModel):
     """Root pipeline configuration — the typed contract for ``config.yaml``."""
 
@@ -196,6 +279,9 @@ class PipelineConfig(BaseModel):
     alert_recipients: AlertConfig = Field(default_factory=AlertConfig)
     output: OutputConfig = Field(default_factory=OutputConfig)
     smtp: SmtpSettings = Field(default_factory=SmtpSettings)
+    # Story 3.4 opt-in cleaning gate + Tier-2 imputation policy. Optional and
+    # default-off: a config.yaml with no ``cleaning:`` key yields enabled=False.
+    cleaning: CleaningConfig = Field(default_factory=CleaningConfig)
 
     @classmethod
     def load(cls, path: str | Path | None = None) -> PipelineConfig:

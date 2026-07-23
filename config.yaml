@@ -17,3 +17,19 @@ alert_recipients:
 output:
   format: docx                # docx | pdf
   output_dir: output/
+
+# Story 3.4 — opt-in cleaning gate + Tier-2 null-imputation policy.
+# The WHOLE section is optional; omitting it means cleaning is OFF. Uncomment to
+# opt in. Interim home for this policy: it moves to project.cleaning_policy in
+# Epic 4 (Story 4.1a).
+# cleaning:
+#   enabled: false            # THE opt-in gate — default OFF, load-bearing (AC1)
+#   imputation:
+#     defaults:               # optional: override the built-in per-type defaults
+#       numeric: median       # built-in: median  (robust to SMB revenue/qty outliers)
+#       categorical: mode     # built-in: mode
+#       datetime: forward_fill # built-in: forward_fill
+#     columns:                # optional: per-column overrides (highest precedence)
+#       revenue: median
+#       region: leave_as_is   # policy-layer skip; the primitive is never called
+#     # method allowlist: mean | median | mode | forward_fill | leave_as_is
