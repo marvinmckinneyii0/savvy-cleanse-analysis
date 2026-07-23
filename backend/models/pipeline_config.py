@@ -254,11 +254,16 @@ class ImputationPolicyConfig(BaseModel):
 
 
 class CleaningConfig(BaseModel):
-    """Opt-in cleaning gate + Tier-2 imputation policy (Story 3.4).
+    """Opt-in cleaning default + Tier-2 imputation policy (Story 3.4).
 
-    ``enabled`` is THE opt-in gate — default ``False`` (load-bearing, AC1);
-    nothing other than an explicit config/param/flag enable turns cleaning on.
-    The whole ``cleaning:`` section is optional: a ``config.yaml`` with no
+    ``enabled`` is the config-file DEFAULT for whether cleaning runs — default
+    ``False`` (load-bearing, AC1). It is one of three enablement surfaces
+    (config, ``run_full_pipeline(enable_cleaning=...)``, CLI ``--clean/--no-
+    clean``); an explicit ``True``/``False`` at either of the other two always
+    overrides this default. See
+    :func:`backend.pipeline.orchestrator.run_full_pipeline`'s ``enable_cleaning``
+    parameter for the exact precedence. With nothing set anywhere, cleaning is
+    OFF. The whole ``cleaning:`` section is optional: a ``config.yaml`` with no
     ``cleaning:`` key validates unchanged and yields ``enabled=False``.
 
     Interim home note: this policy lives in ``config.yaml`` only until Epic 4

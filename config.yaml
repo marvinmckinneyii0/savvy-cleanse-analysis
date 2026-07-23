@@ -18,12 +18,15 @@ output:
   format: docx                # docx | pdf
   output_dir: output/
 
-# Story 3.4 — opt-in cleaning gate + Tier-2 null-imputation policy.
-# The WHOLE section is optional; omitting it means cleaning is OFF. Uncomment to
-# opt in. Interim home for this policy: it moves to project.cleaning_policy in
-# Epic 4 (Story 4.1a).
+# Story 3.4 — opt-in cleaning default + Tier-2 null-imputation policy.
+# The WHOLE section is optional; omitting it means cleaning defaults OFF. This
+# `enabled` is the config-file DEFAULT (one of three enablement surfaces, with
+# run_full_pipeline(enable_cleaning=...) and CLI --clean/--no-clean); an
+# explicit True/False at either of the other two always overrides it. With
+# nothing set anywhere, cleaning is OFF (load-bearing, AC1). Interim home for
+# this policy: it moves to project.cleaning_policy in Epic 4 (Story 4.1a).
 # cleaning:
-#   enabled: false            # THE opt-in gate — default OFF, load-bearing (AC1)
+#   enabled: false            # config-file default — overridden by an explicit --clean/--no-clean
 #   imputation:
 #     defaults:               # optional: override the built-in per-type defaults
 #       numeric: median       # built-in: median  (robust to SMB revenue/qty outliers)

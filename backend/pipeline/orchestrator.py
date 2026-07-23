@@ -55,7 +55,7 @@ def run_full_pipeline(
     dataset_key: str | None = None,
     enable_drift: bool = True,
     baseline_dir: str | Path = "backend/baselines",
-    enable_cleaning: bool = False,
+    enable_cleaning: bool | None = None,
     cleaning_config: "CleaningConfig | None" = None,
 ) -> PipelineResult:
     """Run the complete DQA → Drift → Insights → Narrative → Render pipeline.
@@ -80,18 +80,26 @@ def run_full_pipeline(
     baseline_dir:
         Directory holding baseline JSON files (default ``backend/baselines``).
     enable_cleaning:
-        Opt-in cleaning gate (Story 3.4) — **default OFF, load-bearing**. When
-        ``False`` no cleaning component is constructed, ``cleaning_result`` stays
-        ``None``, and output is byte-identical to the pre-3.4 pipeline. When
-        ``True`` and the run did not halt, the Tier-1 engine + Tier-2 imputation
-        policy run on a working copy after DQA; the report still describes the
-        ORIGINAL frame (see Story 3.4 Q1).
+        Opt-in cleaning gate (Story 3.4) — **tri-state, default OFF, load-
+        bearing**. ``True``/``False`` are an explicit override that always wins.
+        ``None`` (the default) defers to ``cleaning_config.enabled`` when
+        ``cleaning_config`` is supplied, and is ``False`` (off) when it is not —
+        so with nothing set anywhere, cleaning is OFF. This is how all three
+        enablement surfaces (config, this parameter, the CLI) resolve to one
+        answer: `resolved = enable_cleaning if enable_cleaning is not None else
+        (cleaning_config.enabled if cleaning_config else False)`. When the
+        resolved value is falsy, no cleaning component is constructed,
+        ``cleaning_result`` stays ``None``, and output is byte-identical to the
+        pre-3.4 pipeline. When truthy and the run did not halt, the Tier-1
+        engine + Tier-2 imputation policy run on a working copy after DQA; the
+        report still describes the ORIGINAL frame (see Story 3.4 Q1).
     cleaning_config:
-        Cleaning configuration supplying the Tier-2 imputation policy. Used only
-        when ``enable_cleaning`` is ``True``; when ``None`` the built-in per-type
-        defaults apply (a non-expert is never blocked). Its ``enabled`` flag is
-        NOT consulted here — enablement is the ``enable_cleaning`` parameter's
-        job, so callers must not double-gate.
+        Cleaning configuration — supplies both the enablement default (see
+        ``enable_cleaning`` above) and the Tier-2 imputation policy. When
+        ``None``, enablement defaults to off (absent an explicit
+        ``enable_cleaning``) and the built-in per-type imputation defaults
+        apply (a non-expert is never blocked) if cleaning ends up enabled
+        anyway via an explicit ``True``.
 
     Returns
     -------
@@ -123,6 +131,14 @@ def run_full_pipeline(
 
     log.info("pipeline_started", input=str(input_path), format=fmt.value)
 
+    # Resolve the tri-state cleaning gate: an explicit True/False always wins;
+    # None defers to cleaning_config.enabled (or off, if no config supplied).
+    resolved_enable_cleaning = (
+        enable_cleaning
+        if enable_cleaning is not None
+        else bool(cleaning_config is not None and cleaning_config.enabled)
+    )
+
     # --- Pre-flight: load CSV ---
     if not input_path.exists():
         raise ConfigurationError(f"Input file not found: {input_path}")
@@ -137,7 +153,7 @@ def run_full_pipeline(
     result: PipelineResult = DataQualityAssessor().assess_quality(df, pipeline_run_id)
 
     if result.halted:
-        if enable_cleaning:
+        if resolved_enable_cleaning:
             # Cleaning was opted into but the run stopped at DQA — never run it
             # on data a halt flagged as untrustworthy.
             log.info("cleaning_stage_skipped", reason="pipeline_halted")
@@ -152,7 +168,7 @@ def run_full_pipeline(
     # --- Stage 1b: Cleaning (Story 3.4, opt-in / default-off; gated) ---
     # Runs on a working copy and is carried on the result; the report stages
     # below deliberately continue on the ORIGINAL frame (Story 3.4 Q1).
-    if enable_cleaning:
+    if resolved_enable_cleaning:
         from backend.models.pipeline_config import ImputationPolicyConfig
         from backend.rules.cleaning_coordinator import clean_dataset
 
@@ -228,30 +244,35 @@ def cli(
         typer.Option("--format", help="Output format: docx or pdf."),
     ] = OutputFormat.docx,
     clean: Annotated[
-        bool,
+        bool | None,
         typer.Option(
             "--clean/--no-clean",
             help=(
                 "Opt into automated cleaning (Tier-1 fixes + Tier-2 null "
-                "imputation). Default: no cleaning. Policy is read from "
-                "config.yaml's 'cleaning' section."
+                "imputation). Explicit --clean/--no-clean always wins; if "
+                "omitted, falls back to config.yaml's 'cleaning.enabled' "
+                "(off if that is also absent). Policy is always read from "
+                "config.yaml's 'cleaning' section when cleaning runs."
             ),
         ),
-    ] = False,
+    ] = None,
 ) -> None:
     """Run the SAINT full analysis pipeline on a CSV file."""
     configure_logging()
     pipeline_run_id = str(uuid.uuid4())
 
-    # Cleaning is off unless --clean is passed. Only when opted in do we read
-    # config.yaml for the imputation policy (built-in defaults apply if absent).
-    cleaning_config = None
-    if clean:
-        from backend.models.pipeline_config import PipelineConfig
-
-        cleaning_config = PipelineConfig.load().cleaning
-
     try:
+        # Load config.yaml's cleaning section whenever it could matter: either
+        # to resolve the enablement default (clean is None) or to supply the
+        # imputation policy for an explicitly-enabled run (clean is True). An
+        # explicit --no-clean needs neither, so a plain report run never grows
+        # a hard dependency on a valid config.yaml.
+        cleaning_config = None
+        if clean is not False:
+            from backend.models.pipeline_config import PipelineConfig
+
+            cleaning_config = PipelineConfig.load().cleaning
+
         result = run_full_pipeline(
             input_path=input,
             output_path=output,

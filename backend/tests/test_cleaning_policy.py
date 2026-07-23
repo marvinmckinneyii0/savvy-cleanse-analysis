@@ -179,6 +179,60 @@ class TestImputationExecution:
 
 
 # --------------------------------------------------------------------------
+# Code-review finding #4 — the primitive can run without error yet change
+# nothing (all-null column; leading nulls before forward_fill's first anchor).
+# Must record SKIPPED, never APPLIED (APPLIED's contract is "changed the
+# working copy").
+# --------------------------------------------------------------------------
+class TestNoEffectImputation:
+    def test_all_null_column_median_records_skipped_not_applied(self) -> None:
+        # dtype=float forces a numeric column (a bare [None]*3 list infers
+        # object dtype, which is categorical -> mode, not what this test means
+        # to exercise).
+        df = pd.DataFrame({"q": pd.Series([None, None, None], dtype=float)})
+        cleaned, actions = apply_imputation_policy(
+            df, _report(df, [_null_defect(["q"])]), ImputationPolicyConfig(), RUN_ID
+        )
+        assert cleaned["q"].isna().sum() == 3  # still all-null; nothing changed
+        assert len(actions) == 1
+        assert actions[0].status == CleaningStatus.SKIPPED
+        assert actions[0].operation == CleaningOperation.NULL_IMPUTATION
+        assert actions[0].values_changed == 0
+        assert actions[0].parameters["method"] == "median"
+
+    def test_all_null_categorical_mode_records_skipped(self) -> None:
+        df = pd.DataFrame({"c": [None, None]})
+        _cleaned, actions = apply_imputation_policy(
+            df, _report(df, [_null_defect(["c"])]), ImputationPolicyConfig(), RUN_ID
+        )
+        assert actions[0].status == CleaningStatus.SKIPPED
+        assert actions[0].values_changed == 0
+
+    def test_leading_nulls_forward_fill_records_skipped(self) -> None:
+        # forward_fill cannot backfill nulls before the first valid value.
+        df = pd.DataFrame({"d": pd.to_datetime([None, None, "2020-01-01"])})
+        cleaned, actions = apply_imputation_policy(
+            df, _report(df, [_null_defect(["d"])]), ImputationPolicyConfig(), RUN_ID
+        )
+        assert cleaned["d"].isna().sum() == 2  # leading nulls remain
+        assert actions[0].status == CleaningStatus.SKIPPED
+        assert actions[0].parameters["method"] == "forward_fill"
+
+    def test_partial_forward_fill_still_applied_when_something_changes(self) -> None:
+        # One leading null (unfillable) + one later null (fillable) — the
+        # column DOES change, so this must stay APPLIED, not SKIPPED.
+        df = pd.DataFrame(
+            {"d": pd.to_datetime([None, "2020-01-01", None, "2020-03-01"])}
+        )
+        cleaned, actions = apply_imputation_policy(
+            df, _report(df, [_null_defect(["d"])]), ImputationPolicyConfig(), RUN_ID
+        )
+        assert cleaned["d"].isna().sum() == 1  # only the leading null remains
+        assert actions[0].status == CleaningStatus.APPLIED
+        assert actions[0].values_changed == 1
+
+
+# --------------------------------------------------------------------------
 # AC 2 (Dev Notes) — mis-typed method surfaces as FAILED, never a crash
 # --------------------------------------------------------------------------
 class TestFailClosedOnBadMethod:
@@ -313,6 +367,39 @@ class TestSharedColumnAndCoordinator:
         assert [a.model_dump() for a in t1_result.actions] == [
             a.model_dump() for a in tier1_from_merged
         ]
+
+    def test_column_with_both_naming_and_null_defects_is_imputed_after_rename(
+        self,
+    ) -> None:
+        # Code-review finding #3: a column with BOTH a Tier-1 column_naming
+        # defect (renamed by the engine) and a Tier-2 null_values defect (on
+        # the ORIGINAL pre-rename name, since the report is built before any
+        # cleaning runs) must still be found and imputed under its NEW name —
+        # not misfire a false FAILED on the stale pre-rename lookup.
+        df = pd.DataFrame({"amount#": [1.0, None, 3.0]})
+        naming_defect = _defect(
+            "column_naming",
+            RemediationClass.AGENT_AUTONOMOUS,
+            ["amount#"],
+            category=DefectCategory.STRUCTURAL_INTEGRITY,
+        )
+        null_defect = _null_defect(["amount#"])
+        report = _report(df, [naming_defect, null_defect])
+
+        cleaned, result = clean_dataset(df, report, ImputationPolicyConfig(), RUN_ID)
+
+        assert "amount#" not in cleaned.columns
+        assert "amount" in cleaned.columns
+        assert cleaned["amount"].isna().sum() == 0  # imputed under the new name
+
+        imputations = [
+            a for a in result.actions if a.operation == CleaningOperation.NULL_IMPUTATION
+        ]
+        assert len(imputations) == 1
+        assert imputations[0].status == CleaningStatus.APPLIED
+        assert imputations[0].target_columns == ["amount"]
+        # No false FAILED from a stale-name lookup.
+        assert all(a.status != CleaningStatus.FAILED for a in result.actions)
 
 
 # --------------------------------------------------------------------------

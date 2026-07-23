@@ -1,6 +1,6 @@
 # Story 3.4: Opt-in Gate & Configuration (default OFF)
 
-Status: review
+Status: done
 
 Sizing: M · Model: Opus · loop_eligible: false
 <!-- Opus + loop_eligible:false: this story crosses the Tier-2 policy boundary AND owns
@@ -88,6 +88,18 @@ These artifacts describe infrastructure that does not exist. Treat the code on `
   - [x] `backend/tests/test_cleaning_policy.py` (20 tests), `backend/tests/test_config.py` additions (6 tests), `backend/tests/e2e/test_cleaning_gate.py` orchestrator+CLI gate test (7 tests). Reuse `cleaning_dirty_df` for the Tier-2/Tier-3-shared-column and working-copy assertions.
 - [x] **Task 6 — Verify + security (AC: 10, 11)**
   - [x] `uv run pytest` green: **312 passed / 1 skipped** (baseline 279/1 → +33, regressions=0). Frontend unaffected: vitest **36/36**, `npm run build` OK. `/security-review` run — **no HIGH/MEDIUM findings** (enablement boundary, Tier-2 filter, method validation, and log/provenance exposure all cleared).
+
+### Review Findings
+
+- [x] [Review][Decision] `CleaningConfig.enabled` is dead configuration — RESOLVED (Marvin, 2026-07-23): made `enable_cleaning` tri-state (`bool | None = None`). Explicit `True`/`False` (param or CLI `--clean/--no-clean`) always wins; `None` (the default, both at the param and the CLI) defers to `cleaning_config.enabled`; with nothing set anywhere, resolves to `False` (AC1 preserved). CLI loads `config.yaml`'s cleaning section whenever `clean is not False` (i.e. when the default could matter, or to source the imputation policy for an explicit `--clean`) so an explicit `--no-clean` never grows a hard dependency on a valid config file. Both contradictory docstrings (`CleaningConfig`, `run_full_pipeline`) rewritten to describe the real precedence. Added `TestCleaningEnablementPrecedence` (6 tests) covering the full resolution matrix + a CLI test confirming `--no-clean` skips the config load. Full suite: 319 passed / 1 skipped (+7, 0 regressions). [`backend/pipeline/orchestrator.py`, `backend/models/pipeline_config.py`, `config.yaml`, `backend/tests/e2e/test_cleaning_gate.py`]
+- [x] [Review][Patch] CLI's `PipelineConfig.load()` call for `--clean` runs outside the `try/except SavvyCleanseError` block — RESOLVED as a side effect of the tri-state rewrite above: the config load now sits inside the `try:` block (verified by re-reading the code post-fix). [`backend/pipeline/orchestrator.py`]
+- [x] [Review][Patch] Coordinator passes the pre-Tier-1 `quality_report` (original column names) into `apply_imputation_policy`, causing a false FAILED action for a column with both a `column_naming` and a `null_values` defect — RESOLVED: `clean_dataset` now extracts the Tier-1 `HEADER_NORMALIZATION` action's `value_mapping` and translates the report's `affected_columns` through it (`_header_rename_mapping` / `_remap_report_columns`) before calling Tier-2. New regression test `test_column_with_both_naming_and_null_defects_is_imputed_after_rename`. [`backend/rules/cleaning_coordinator.py`, `backend/tests/test_cleaning_policy.py`]
+- [x] [Review][Patch] `apply_imputation_policy` recorded `CleaningStatus.APPLIED` even when `values_changed == 0` — RESOLVED: when the primitive runs without error but `filled == 0` (all-null column; leading nulls before forward_fill's first anchor), the action is now recorded `SKIPPED` via a new `_no_effect_action` builder, never `APPLIED`. 4 new tests in `TestNoEffectImputation` (all-null numeric/categorical, leading-null forward_fill, and a partial-fill case confirming a column that DOES change still records `APPLIED`). [`backend/rules/cleaning_policy.py`, `backend/tests/test_cleaning_policy.py`]
+- [x] [Review][Patch] Dev Agent Record's Debug Log References stated the new-test breakdown as 21+6+6 — RESOLVED: corrected to the actual 20+6+7 breakdown, with the review-round test counts appended. [`_bmad-output/implementation-artifacts/3-4-opt-in-gate-config.md`]
+- [x] [Review][Patch] `test_cli_clean_flag_enables_gate` only asserted `cleaning_config is not None` — RESOLVED: now asserts `captured["cleaning_config"] == PipelineConfig.load().cleaning`, so a wiring bug substituting a wrong/default config would fail the test. [`backend/tests/e2e/test_cleaning_gate.py`]
+- [x] [Review][Defer] No exception handling wraps the `clean_dataset()` call itself in the orchestrator — deferred, pre-existing: matches the existing Tier-1 `CleaningEngineError`-must-surface design precedent (contract violations are meant to propagate, not be swallowed); not a new gap uniquely introduced by this diff. [`backend/pipeline/orchestrator.py`]
+- [x] [Review][Defer] The 200-char error-message truncation in FAILED actions doesn't guarantee no raw cell value can appear — deferred, pre-existing: exactly mirrors the Tier-1 `CleaningEngine._failed_action` pattern the spec explicitly instructs this layer to replicate. [`backend/rules/cleaning_policy.py`]
+- [x] [Review][Defer] Nullable pandas "boolean" dtype columns classify as numeric via `is_numeric_dtype` and default to `median` (verified: `median()` of such a column returns `0.5`, a nonsensical fill) — deferred, pre-existing/unreachable: the pipeline's actual CSV-read path never produces this dtype for a column with nulls (verified: `pd.read_csv` upcasts bool+null to `object`, which classifies as categorical); only reachable via a caller bypassing the CLI/CSV entry point. [`backend/rules/cleaning_policy.py`]
 
 ## Dev Notes
 
@@ -182,9 +194,11 @@ claude-opus-4-8 (dev-story, high effort)
 ### Debug Log References
 
 - Baseline before story: `uv run pytest` → 279 passed / 1 skipped.
-- After story: `uv run pytest` → 312 passed / 1 skipped (rc=0); new Story-3.4 tests: 33 (21 policy + 6 config + 6 gate).
-- Frontend: `npx vitest run` → 36/36; `npm run build` → OK.
+- After initial implementation: `uv run pytest` → 312 passed / 1 skipped (rc=0); new Story-3.4 tests: 33 (20 `test_cleaning_policy.py` + 6 `test_config.py` + 7 `test_cleaning_gate.py`) — corrected from an earlier inaccurate 21+6+6 breakdown flagged in code review.
+- After code review fixes (tri-state enablement, coordinator column-remap, no-effect-imputation SKIPPED status): `uv run pytest` → **324 passed / 1 skipped** (rc=0); +12 more tests over the initial 312 (7 precedence/CLI-load tests + 5 no-effect/column-remap regression tests), 0 regressions.
+- Frontend (unaffected by review fixes — no frontend files touched): `npx vitest run` → 36/36; `npm run build` → OK.
 - `/security-review` → no HIGH/MEDIUM findings.
+- Code review (Sonnet, three-layer adversarial + edge-case + acceptance-audit): 1 decision-needed + 5 patch findings, all resolved; 3 deferred (pre-existing precedent, tracked in `deferred-work.md`); 5 dismissed as noise/refuted/unreachable.
 
 ### Completion Notes List
 
@@ -197,18 +211,19 @@ claude-opus-4-8 (dev-story, high effort)
 
 ### File List
 
-- `backend/models/pipeline_config.py` (M) — `ImputationPolicyConfig`, `CleaningConfig`, `cleaning` field, method-allowlist validators.
+- `backend/models/pipeline_config.py` (M) — `ImputationPolicyConfig`, `CleaningConfig`, `cleaning` field, method-allowlist validators; docstring corrected (review) to describe the real tri-state precedence.
 - `backend/models/pipeline_result.py` (M) — additive `cleaning_result` field + TYPE_CHECKING import.
 - `backend/rules/__init__.py` (A) — new business-logic rules package.
-- `backend/rules/cleaning_policy.py` (A) — Tier-2 imputation policy layer.
-- `backend/rules/cleaning_coordinator.py` (A) — Tier-1 + Tier-2 coordinator.
-- `backend/pipeline/orchestrator.py` (M) — `enable_cleaning`/`cleaning_config` params, gated cleaning stage, `--clean/--no-clean` CLI flag, stage events.
-- `config.yaml` (M) — commented `cleaning:` example block.
-- `backend/tests/test_cleaning_policy.py` (A) — policy + coordinator tests.
+- `backend/rules/cleaning_policy.py` (A/M) — Tier-2 imputation policy layer; review fix added `_no_effect_action` (SKIPPED when `filled == 0`, never a false `APPLIED`).
+- `backend/rules/cleaning_coordinator.py` (A/M) — Tier-1 + Tier-2 coordinator; review fix added `_header_rename_mapping`/`_remap_report_columns` to translate stale pre-rename column references before Tier-2 runs.
+- `backend/pipeline/orchestrator.py` (M) — `enable_cleaning`/`cleaning_config` params, gated cleaning stage, `--clean/--no-clean` CLI flag, stage events; review fix made `enable_cleaning`/`clean` tri-state (`bool | None`) with config-default precedence, moved the CLI's config load inside the `try:` block.
+- `config.yaml` (M) — commented `cleaning:` example block; comment corrected (review) to describe the real precedence.
+- `backend/tests/test_cleaning_policy.py` (A/M) — policy + coordinator tests; review fixes added `TestNoEffectImputation` (4 tests) and a coordinator column-remap regression test.
 - `backend/tests/test_config.py` (M) — `TestCleaningConfig` additions.
-- `backend/tests/e2e/test_cleaning_gate.py` (A) — orchestrator + CLI gate tests.
+- `backend/tests/e2e/test_cleaning_gate.py` (A/M) — orchestrator + CLI gate tests; review fixes added `TestCleaningEnablementPrecedence` (6 tests), a `--no-clean`-skips-config-load test, and strengthened the `--clean` CLI test's config assertion.
 
 ## Change Log
 
 - 2026-07-22: Story drafted (create-story, Opus high effort). Opt-in gate (config/orchestrator/CLI, default OFF) + Tier-2 imputation policy layer (`backend/rules/`) driving the policy-less `impute_nulls` primitive with per-column-type defaults. Flagged three reality corrections (no `rules/rule_engine.py`, no `project` entity yet, `leave_as_is` not in the primitive). Status → ready-for-dev.
 - 2026-07-23: Implemented (dev-story, Opus/high). Opt-in gate + Tier-2 policy layer + coordinator + orchestrator/CLI wiring, engine autonomy untouched. 312 passed / 1 skipped (0 regressions), frontend 36/36 + build OK, `/security-review` clean. Status → review.
+- 2026-07-23: Code review (Sonnet, three-layer: Blind Hunter + Edge Case Hunter + Acceptance Auditor). 1 decision-needed (config `enabled` field was dead — resolved with Marvin as a tri-state precedence: explicit param/CLI always wins, `None` defers to `cleaning_config.enabled`, nothing set anywhere → OFF) + 5 patch findings, all resolved: CLI config-load moved inside error handling, coordinator now translates stale pre-rename column references between Tier-1 and Tier-2, no-effect imputations now record SKIPPED instead of a false APPLIED, story doc test-count typo fixed, CLI test assertion strengthened. 3 findings deferred to `deferred-work.md` (pre-existing precedent, not introduced by this diff); 5 dismissed as noise/refuted/unreachable. 324 passed / 1 skipped (+12 over initial, 0 regressions). Status → done.

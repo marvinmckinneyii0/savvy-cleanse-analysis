@@ -181,6 +181,22 @@ def apply_imputation_policy(
                 continue
 
             filled = before_nulls - after_nulls
+            if filled == 0:
+                # The primitive ran without error but had nothing to fill from
+                # — e.g. an all-null column (mean/median/mode resolve to
+                # NaN/None, fillna no-ops) or leading nulls before the first
+                # valid value (forward_fill cannot backfill them). Recording
+                # APPLIED here would violate its "changed the working copy"
+                # contract, so this is SKIPPED instead.
+                actions.append(_no_effect_action(column, method, source, before_nulls))
+                log.info(
+                    "cleaning_policy_no_effect",
+                    column=column,
+                    method=method,
+                    source=source,
+                )
+                continue
+
             actions.append(
                 _applied_action(column, method, source, filled, before_nulls, after_nulls)
             )
@@ -222,6 +238,29 @@ def _applied_action(
         detail=(
             f"Imputed {filled} null value(s) in '{column}' using {method} "
             f"({source} policy)."
+        ),
+    )
+
+
+def _no_effect_action(column: str, method: str, source: str, null_count: int) -> CleaningAction:
+    """SKIPPED record when the primitive ran but had nothing to fill from."""
+    return CleaningAction(
+        operation=CleaningOperation.NULL_IMPUTATION,
+        defect_type=_IMPUTATION_DEFECT_TYPE,
+        remediation_class=RemediationClass.HUMAN_POLICY_AGENT_EXECUTION,
+        status=CleaningStatus.SKIPPED,
+        scope=CleaningScope.COLUMN,
+        target_columns=[column],
+        before_state=f"{null_count} null(s)",
+        after_state=f"{null_count} null(s)",
+        parameters={"method": method, "source": source},
+        rule=(
+            f"attempted {method} imputation in '{column}' ({source} policy); "
+            "no non-null value was available to fill from"
+        ),
+        detail=(
+            f"No null value(s) filled in '{column}' via {method} — no "
+            "non-null value was available to impute from."
         ),
     )
 

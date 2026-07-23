@@ -1,10 +1,14 @@
 """End-to-end tests for the Story 3.4 opt-in cleaning gate.
 
 Exercises the gate through the real orchestrator (narrative patched offline):
-default-off is a no-op that carries no ``cleaning_result``; explicit enable runs
-the Tier-1 + Tier-2 pass and attaches the merged result while the report stages
-still run on the ORIGINAL frame; a halted run never cleans; and the CLI
-``--clean/--no-clean`` flag drives the same gate (default no-clean).
+nothing-set-anywhere is a no-op that carries no ``cleaning_result``; explicit
+enable runs the Tier-1 + Tier-2 pass and attaches the merged result while the
+report stages still run on the ORIGINAL frame; a halted run never cleans; and
+the CLI ``--clean/--no-clean`` flag (tri-state: an omitted flag is ``None``,
+not ``False``) drives the same gate. ``TestCleaningEnablementPrecedence``
+covers the full resolution matrix: an explicit ``True``/``False`` (param or
+CLI flag) always wins; ``None`` defers to ``cleaning_config.enabled``; with
+nothing set anywhere, cleaning is OFF.
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ from typer.testing import CliRunner
 
 from backend.models.cleaning_result import CleaningOperation, CleaningResult, CleaningStatus
 from backend.models.insight_report import InsightReport, NarrativeSection
+from backend.models.pipeline_config import CleaningConfig, PipelineConfig
 from backend.pipeline.orchestrator import OutputFormat, app, run_full_pipeline
 
 _SAMPLE_DATA = Path(__file__).parent / "sample_data"
@@ -163,7 +168,36 @@ def test_cli_no_clean_is_default(
                 app, ["--input", str(dirty_csv), "--output", str(out), "--format", "docx"]
             )
     assert res.exit_code == 0, res.output
-    assert captured["enable_cleaning"] is False  # default is no-clean
+    # No --clean/--no-clean passed: the tri-state default is None, deferring to
+    # config.yaml's cleaning.enabled (committed config has no cleaning: section
+    # → enabled=False), NOT a hardcoded False at the CLI layer.
+    assert captured["enable_cleaning"] is None
+    assert captured["cleaning_config"] is not None  # loaded to resolve the default
+    assert captured["cleaning_config"].enabled is False
+
+
+@pytest.mark.integration
+def test_cli_no_clean_flag_skips_config_load(
+    dirty_csv: Path, tmp_path: Path, canned_insight_report: InsightReport
+) -> None:
+    """Explicit --no-clean needs no config at all — resolution is settled either way."""
+    out = tmp_path / "r.docx"
+    runner = CliRunner()
+    with patch(_NARRATIVE_TARGET, return_value=canned_insight_report):
+        captured: dict[str, object] = {}
+        real = run_full_pipeline
+
+        def _spy(*args: object, **kwargs: object):
+            captured.update(kwargs)
+            return real(*args, **kwargs)
+
+        with patch("backend.pipeline.orchestrator.run_full_pipeline", side_effect=_spy):
+            res = runner.invoke(
+                app, ["--input", str(dirty_csv), "--output", str(out), "--no-clean"]
+            )
+    assert res.exit_code == 0, res.output
+    assert captured["enable_cleaning"] is False
+    assert captured["cleaning_config"] is None  # not loaded — explicit disable needs no config
 
 
 @pytest.mark.integration
@@ -186,4 +220,108 @@ def test_cli_clean_flag_enables_gate(
             )
     assert res.exit_code == 0, res.output
     assert captured["enable_cleaning"] is True
-    assert captured["cleaning_config"] is not None  # policy loaded from config.yaml
+    # Assert the ACTUAL loaded config, not just non-None — catches a wiring bug
+    # that substitutes a default/wrong CleaningConfig for the real one.
+    assert captured["cleaning_config"] == PipelineConfig.load().cleaning
+
+
+# --------------------------------------------------------------------------
+# AC 1 — tri-state precedence: explicit True/False always wins; None defers
+# to cleaning_config.enabled; nothing set anywhere resolves to OFF.
+# --------------------------------------------------------------------------
+class TestCleaningEnablementPrecedence:
+    def _run(
+        self,
+        dirty_csv: Path,
+        tmp_path: Path,
+        canned_insight_report: InsightReport,
+        *,
+        enable_cleaning: bool | None,
+        cleaning_config: CleaningConfig | None,
+    ):
+        out = tmp_path / "r.docx"
+        with patch(_NARRATIVE_TARGET, return_value=canned_insight_report):
+            return run_full_pipeline(
+                input_path=dirty_csv,
+                output_path=out,
+                enable_cleaning=enable_cleaning,
+                cleaning_config=cleaning_config,
+            )
+
+    @pytest.mark.integration
+    def test_omitted_param_defers_to_config_enabled_true(
+        self, dirty_csv: Path, tmp_path: Path, canned_insight_report: InsightReport
+    ) -> None:
+        result = self._run(
+            dirty_csv,
+            tmp_path,
+            canned_insight_report,
+            enable_cleaning=None,
+            cleaning_config=CleaningConfig(enabled=True),
+        )
+        assert result.cleaning_result is not None
+
+    @pytest.mark.integration
+    def test_omitted_param_defers_to_config_enabled_false(
+        self, dirty_csv: Path, tmp_path: Path, canned_insight_report: InsightReport
+    ) -> None:
+        result = self._run(
+            dirty_csv,
+            tmp_path,
+            canned_insight_report,
+            enable_cleaning=None,
+            cleaning_config=CleaningConfig(enabled=False),
+        )
+        assert result.cleaning_result is None
+
+    @pytest.mark.integration
+    def test_explicit_false_overrides_config_enabled_true(
+        self, dirty_csv: Path, tmp_path: Path, canned_insight_report: InsightReport
+    ) -> None:
+        result = self._run(
+            dirty_csv,
+            tmp_path,
+            canned_insight_report,
+            enable_cleaning=False,
+            cleaning_config=CleaningConfig(enabled=True),
+        )
+        assert result.cleaning_result is None
+
+    @pytest.mark.integration
+    def test_explicit_true_overrides_config_enabled_false(
+        self, dirty_csv: Path, tmp_path: Path, canned_insight_report: InsightReport
+    ) -> None:
+        result = self._run(
+            dirty_csv,
+            tmp_path,
+            canned_insight_report,
+            enable_cleaning=True,
+            cleaning_config=CleaningConfig(enabled=False),
+        )
+        assert result.cleaning_result is not None
+
+    @pytest.mark.integration
+    def test_nothing_set_anywhere_is_off(
+        self, dirty_csv: Path, tmp_path: Path, canned_insight_report: InsightReport
+    ) -> None:
+        result = self._run(
+            dirty_csv,
+            tmp_path,
+            canned_insight_report,
+            enable_cleaning=None,
+            cleaning_config=None,
+        )
+        assert result.cleaning_result is None
+
+    @pytest.mark.integration
+    def test_explicit_true_with_no_config_uses_builtin_defaults(
+        self, dirty_csv: Path, tmp_path: Path, canned_insight_report: InsightReport
+    ) -> None:
+        result = self._run(
+            dirty_csv,
+            tmp_path,
+            canned_insight_report,
+            enable_cleaning=True,
+            cleaning_config=None,
+        )
+        assert result.cleaning_result is not None
