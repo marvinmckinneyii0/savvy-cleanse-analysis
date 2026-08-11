@@ -37,7 +37,7 @@
 #     (applies to all stories from 1.4 onward)
 
 generated: 2026-04-14
-last_updated: 2026-07-22  # 3-4-opt-in-gate-config story filed (ready-for-dev, Opus/high). 3-1 and 3-2 done+merged (PR #39/#42); 279 passed/1 skipped baseline; engine not yet wired to orchestrator — that is 3.4. Next: dev 3.4 (Opus/high), then code-review on a different model (Sonnet).
+last_updated: 2026-07-23  # 3-4-opt-in-gate-config DONE (dev-story Opus/high + code-review Sonnet). Opt-in gate (now tri-state: param/CLI explicit override, config.yaml enabled as default, nothing set -> OFF) + Tier-2 policy layer (backend/rules/) + coordinator + orchestrator/CLI wiring; engine autonomy untouched. Code review: 1 decision-needed + 5 patch resolved (coordinator stale-rename fix, no-effect-imputation SKIPPED fix, CLI error-handling fix); 3 deferred (deferred-work.md), 5 dismissed. 324 passed/1 skipped (+45 vs pre-3.4 baseline, 0 regressions); frontend 36/36 + build OK; /security-review clean. Q1 (report-on-cleaned) still open — confirm with Marvin. Next: merge, then create+approve 3.6 (next loop_eligible story) before any automated loop run.
 project: SAINT
 project_key: NOKEY
 tracking_system: file-system
@@ -88,7 +88,7 @@ development_status:
   3-1-classification-layer:                    { status: done, loop_eligible: false }  # M/Opus — remediation_class taxonomy; architecture-defining; story-filed 2026-07-12; implemented 2026-07-20, merged PR #39; post-merge review (Sonnet) 2026-07-21 — no findings, drift-guarded mapping verified
   3-2-cleaning-engine-core:                    { status: done, loop_eligible: false }  # L/Opus — deterministic only; implemented 2026-07-20, code-reviewed (Sonnet) 2026-07-21 — 1 high-sev scoping bug + 4 smaller fixes resolved, 4 items deferred (see deferred-work.md); 279 passed/0 regressions; security-reviewed; merged PR #42. NOT wired to orchestrator (deferred to 3.4).
   3-3-healing-manifest:                        { status: backlog, loop_eligible: false }  # M/Opus — provenance-critical
-  3-4-opt-in-gate-config:                      { status: ready-for-dev, loop_eligible: false }  # M/Opus — Tier 2 policy boundary; default OFF. Story filed 2026-07-22 (Opus). Flags 3 reality corrections: no rules/rule_engine.py (model backend/rules/ on the PipelineConfig YAML pattern), no `project` entity yet (interim policy home = config.yaml), leave_as_is not in impute_nulls (policy-layer skip).
+  3-4-opt-in-gate-config:                      { status: done, loop_eligible: false }  # M/Opus — Tier 2 policy boundary; default OFF (tri-state: explicit param/CLI override, config.yaml enabled as default). Implemented + reviewed (Sonnet) 2026-07-23: opt-in gate + Tier-2 imputation policy (backend/rules/) + coordinator; CleaningEngine unchanged. Review found+fixed a coordinator stale-rename bug and a false-APPLIED provenance bug (both real, now regression-tested). 324 passed/1 skipped, /security-review clean. Q1 (report-on-cleaned) still open — confirm with Marvin. NOT wired: needs a merge.
   3-5-judgment-required-findings-handling:     { status: backlog, loop_eligible: false }  # M/Opus — Tier 3 boundary; LOAD-BEARING
   3-6-cleaned-data-export:                     { status: backlog, loop_eligible: true  }  # S/Sonnet — mechanical
   3-7-report-visualizations:                   { status: backlog, loop_eligible: false }  # L/Sonnet — extends visualization schema (analysis_class)

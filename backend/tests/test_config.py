@@ -299,3 +299,75 @@ class TestObservability:
         payload_str = str(event)
         assert "should-never-be-logged" not in payload_str
         assert "ops@example.com" not in payload_str
+
+
+class TestCleaningConfig:
+    """Story 3.4 — CleaningConfig parse, validation, and backward-compat."""
+
+    def test_absent_cleaning_section_defaults_off(self, tmp_path: Path) -> None:
+        # VALID_CONFIG has no `cleaning:` key — must validate unchanged.
+        config = PipelineConfig.load(_write_config(tmp_path, VALID_CONFIG))
+        assert config.cleaning.enabled is False
+        assert config.cleaning.imputation.defaults == {}
+        assert config.cleaning.imputation.columns == {}
+
+    def test_enabled_flag_and_policy_parsed(self, tmp_path: Path) -> None:
+        content = VALID_CONFIG + """
+cleaning:
+  enabled: true
+  imputation:
+    defaults:
+      numeric: mean
+      categorical: mode
+    columns:
+      revenue: median
+      region: leave_as_is
+"""
+        config = PipelineConfig.load(_write_config(tmp_path, content))
+        assert config.cleaning.enabled is True
+        assert config.cleaning.imputation.defaults == {"numeric": "mean", "categorical": "mode"}
+        assert config.cleaning.imputation.columns == {
+            "revenue": "median",
+            "region": "leave_as_is",
+        }
+
+    def test_unknown_method_in_columns_raises(self, tmp_path: Path) -> None:
+        content = VALID_CONFIG + """
+cleaning:
+  enabled: true
+  imputation:
+    columns:
+      revenue: interpolate
+"""
+        with pytest.raises(ConfigurationError, match="not a valid imputation method"):
+            PipelineConfig.load(_write_config(tmp_path, content))
+
+    def test_unknown_method_in_defaults_raises(self, tmp_path: Path) -> None:
+        content = VALID_CONFIG + """
+cleaning:
+  imputation:
+    defaults:
+      numeric: bogus
+"""
+        with pytest.raises(ConfigurationError, match="not a valid imputation method"):
+            PipelineConfig.load(_write_config(tmp_path, content))
+
+    def test_invalid_default_key_raises(self, tmp_path: Path) -> None:
+        content = VALID_CONFIG + """
+cleaning:
+  imputation:
+    defaults:
+      floaty: median
+"""
+        with pytest.raises(ConfigurationError, match="is not a column kind"):
+            PipelineConfig.load(_write_config(tmp_path, content))
+
+    def test_leave_as_is_is_an_accepted_method(self, tmp_path: Path) -> None:
+        content = VALID_CONFIG + """
+cleaning:
+  imputation:
+    columns:
+      region: leave_as_is
+"""
+        config = PipelineConfig.load(_write_config(tmp_path, content))
+        assert config.cleaning.imputation.columns["region"] == "leave_as_is"

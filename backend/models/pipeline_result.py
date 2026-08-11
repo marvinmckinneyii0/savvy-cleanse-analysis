@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     # Drift Engine). Imported under TYPE_CHECKING so type-checkers resolve
     # the forward references below without a runtime import cycle and
     # without requiring the modules to exist yet at import time.
+    from backend.models.cleaning_result import CleaningResult
     from backend.models.data_quality_report import DataQualityReport
     from backend.models.drift_report import DriftReport
     from backend.models.insight_report import InsightReport
@@ -58,6 +59,12 @@ class PipelineResult:
     drift_report:
         Output of the drift-detection stage (Story 2.2). ``None`` on
         first-ever runs (no baseline) and when drift is skipped.
+    cleaning_result:
+        Output of the opt-in cleaning stage (Story 3.4). ``None`` unless
+        cleaning was explicitly enabled AND the run did not halt; carries the
+        merged Tier-1 + Tier-2 :class:`CleaningResult`. Additive and default-
+        off — a run with cleaning disabled leaves this ``None`` and every other
+        field byte-identical to the pre-3.4 pipeline.
     """
 
     success: bool
@@ -66,3 +73,4 @@ class PipelineResult:
     quality_report: "DataQualityReport | None" = None
     insight_report: "InsightReport | None" = None
     drift_report: "DriftReport | None" = None
+    cleaning_result: "CleaningResult | None" = None
