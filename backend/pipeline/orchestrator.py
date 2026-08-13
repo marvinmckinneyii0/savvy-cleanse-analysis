@@ -42,6 +42,43 @@ if TYPE_CHECKING:
     from backend.models.pipeline_config import CleaningConfig
 
 
+def _validate_cleaned_output_path(output_path: Path, *, overwrite: bool) -> None:
+    """Pre-flight checks for --cleaned-output, run before any pipeline work.
+
+    Kept separate from the write step so a doomed export (existing file
+    without --overwrite-cleaned-output, missing parent dir) fails fast
+    instead of after DQA/insights/narrative/render have already run and
+    left the primary report on disk despite the overall command failing.
+    """
+    if output_path.exists() and not overwrite:
+        raise ConfigurationError(
+            f"Cleaned output already exists: {output_path} (pass --overwrite-cleaned-output to replace)"
+        )
+
+    if output_path.exists() and output_path.is_dir():
+        raise ConfigurationError(f"Cleaned output path is a directory: {output_path}")
+
+    if not output_path.parent.exists():
+        raise ConfigurationError(
+            f"Parent directory does not exist for cleaned output: {output_path.parent}"
+        )
+
+
+def _write_cleaned_csv(
+    df: pd.DataFrame,
+    output_path: Path,
+    *,
+    log: structlog.stdlib.BoundLogger,
+) -> None:
+    df.to_csv(output_path, index=False)
+    log.info(
+        "cleaned_data_exported",
+        output=str(output_path),
+        rows=len(df),
+        columns=len(df.columns),
+    )
+
+
 class OutputFormat(str, Enum):
     docx = "docx"
     pdf = "pdf"
@@ -57,6 +94,8 @@ def run_full_pipeline(
     baseline_dir: str | Path = "backend/baselines",
     enable_cleaning: bool | None = None,
     cleaning_config: "CleaningConfig | None" = None,
+    cleaned_output_path: str | Path | None = None,
+    overwrite_cleaned_output: bool = False,
 ) -> PipelineResult:
     """Run the complete DQA → Drift → Insights → Narrative → Render pipeline.
 
@@ -139,6 +178,19 @@ def run_full_pipeline(
         else bool(cleaning_config is not None and cleaning_config.enabled)
     )
 
+    cleaned_output_path = (
+        Path(cleaned_output_path) if cleaned_output_path is not None else None
+    )
+    if cleaned_output_path is not None and not resolved_enable_cleaning:
+        raise ConfigurationError(
+            "Cleaned export requested but cleaning is disabled. Enable cleaning with --clean "
+            "or set config.yaml cleaning.enabled: true."
+        )
+    if cleaned_output_path is not None:
+        _validate_cleaned_output_path(
+            cleaned_output_path, overwrite=overwrite_cleaned_output
+        )
+
     # --- Pre-flight: load CSV ---
     if not input_path.exists():
         raise ConfigurationError(f"Input file not found: {input_path}")
@@ -165,6 +217,8 @@ def run_full_pipeline(
         )
         return result
 
+    cleaned_df: pd.DataFrame | None = None
+
     # --- Stage 1b: Cleaning (Story 3.4, opt-in / default-off; gated) ---
     # Runs on a working copy and is carried on the result; the report stages
     # below deliberately continue on the ORIGINAL frame (Story 3.4 Q1).
@@ -178,7 +232,7 @@ def run_full_pipeline(
             else ImputationPolicyConfig()
         )
         log.info("cleaning_stage_started")
-        _cleaned_df, cleaning_result = clean_dataset(
+        cleaned_df, cleaning_result = clean_dataset(
             df, result.quality_report, policy, pipeline_run_id
         )
         result.cleaning_result = cleaning_result
@@ -209,6 +263,11 @@ def run_full_pipeline(
         DocxRenderer().render(insight_report, output_path)
     else:
         PdfRenderer().render(insight_report, output_path)
+
+    if cleaned_output_path is not None:
+        assert cleaned_df is not None
+        assert result.cleaning_result is not None
+        _write_cleaned_csv(cleaned_df, cleaned_output_path, log=log)
 
     result.success = True
     duration = time.perf_counter() - t0
@@ -256,6 +315,23 @@ def cli(
             ),
         ),
     ] = None,
+    cleaned_output: Annotated[
+        Path | None,
+        typer.Option(
+            "--cleaned-output",
+            help=(
+                "Optional: write the cleaned working copy to this CSV path. "
+                "Requires cleaning to be enabled."
+            ),
+        ),
+    ] = None,
+    overwrite_cleaned_output: Annotated[
+        bool,
+        typer.Option(
+            "--overwrite-cleaned-output",
+            help="Overwrite --cleaned-output if it already exists.",
+        ),
+    ] = False,
 ) -> None:
     """Run the SAINT full analysis pipeline on a CSV file."""
     configure_logging()
@@ -280,6 +356,8 @@ def cli(
             pipeline_run_id=pipeline_run_id,
             enable_cleaning=clean,
             cleaning_config=cleaning_config,
+            cleaned_output_path=cleaned_output,
+            overwrite_cleaned_output=overwrite_cleaned_output,
         )
     except SavvyCleanseError as exc:
         structlog.get_logger().error(
