@@ -45,7 +45,9 @@ Out of scope:
 
 ## Dev Agent Record
 ### Debug Log References
-- `uv run pytest` → 330 passed / 1 skipped (warnings only).
+- `uv run pytest` → full suite green, 1 pre-existing skip (optional `anthropic` dependency not installed).
+- Code review (medium effort): 1 real finding — cleaned-output path validation ran after the full pipeline (DQA/insights/narrative/render) instead of before it, so a doomed export (existing file, no `--overwrite-cleaned-output`; missing parent dir) still left the primary `--output` report written on disk despite the CLI exiting non-zero. Fixed by splitting `_export_cleaned_csv` into `_validate_cleaned_output_path` (called immediately after the enablement gate check, before any CSV load or pipeline work) and `_write_cleaned_csv` (called after render, unchanged position). Added `report_out` non-existence assertions to the two affected tests. Full suite re-verified green after the fix.
+- `/security-review` → no HIGH/MEDIUM findings (CLI flags are trusted local input; no new subprocess/eval/deserialization/auth/crypto surface; logging is path/counts only).
 
 ### File List
 - `backend/pipeline/orchestrator.py`
@@ -54,4 +56,5 @@ Out of scope:
 - `_bmad-output/implementation-artifacts/3-6-cleaned-data-export.md`
 
 ## Change Log
-- 2026-08-11: Implemented cleaned CSV export via orchestrator seam + CLI flags; E2E coverage added; status → done.
+- 2026-08-11: Implemented cleaned CSV export via orchestrator seam + CLI flags; E2E coverage added.
+- 2026-08-13: Code review (fail-fast ordering bug fixed) + security review (clean); status → done. PR #46.

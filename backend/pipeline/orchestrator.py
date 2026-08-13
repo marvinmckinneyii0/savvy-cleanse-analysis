@@ -42,13 +42,14 @@ if TYPE_CHECKING:
     from backend.models.pipeline_config import CleaningConfig
 
 
-def _export_cleaned_csv(
-    df: pd.DataFrame,
-    output_path: Path,
-    *,
-    overwrite: bool,
-    log: structlog.stdlib.BoundLogger,
-) -> None:
+def _validate_cleaned_output_path(output_path: Path, *, overwrite: bool) -> None:
+    """Pre-flight checks for --cleaned-output, run before any pipeline work.
+
+    Kept separate from the write step so a doomed export (existing file
+    without --overwrite-cleaned-output, missing parent dir) fails fast
+    instead of after DQA/insights/narrative/render have already run and
+    left the primary report on disk despite the overall command failing.
+    """
     if output_path.exists() and not overwrite:
         raise ConfigurationError(
             f"Cleaned output already exists: {output_path} (pass --overwrite-cleaned-output to replace)"
@@ -62,6 +63,13 @@ def _export_cleaned_csv(
             f"Parent directory does not exist for cleaned output: {output_path.parent}"
         )
 
+
+def _write_cleaned_csv(
+    df: pd.DataFrame,
+    output_path: Path,
+    *,
+    log: structlog.stdlib.BoundLogger,
+) -> None:
     df.to_csv(output_path, index=False)
     log.info(
         "cleaned_data_exported",
@@ -178,6 +186,10 @@ def run_full_pipeline(
             "Cleaned export requested but cleaning is disabled. Enable cleaning with --clean "
             "or set config.yaml cleaning.enabled: true."
         )
+    if cleaned_output_path is not None:
+        _validate_cleaned_output_path(
+            cleaned_output_path, overwrite=overwrite_cleaned_output
+        )
 
     # --- Pre-flight: load CSV ---
     if not input_path.exists():
@@ -255,12 +267,7 @@ def run_full_pipeline(
     if cleaned_output_path is not None:
         assert cleaned_df is not None
         assert result.cleaning_result is not None
-        _export_cleaned_csv(
-            cleaned_df,
-            cleaned_output_path,
-            overwrite=overwrite_cleaned_output,
-            log=log,
-        )
+        _write_cleaned_csv(cleaned_df, cleaned_output_path, log=log)
 
     result.success = True
     duration = time.perf_counter() - t0

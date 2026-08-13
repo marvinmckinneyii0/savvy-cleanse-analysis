@@ -160,6 +160,7 @@ def test_cli_cleaned_output_existing_path_requires_overwrite_flag(
 
     assert res.exit_code != 0
     assert cleaned_out.read_text(encoding="utf-8") == "sentinel"
+    assert not report_out.exists()
 
 
 @pytest.mark.integration
@@ -215,3 +216,4 @@ def test_cli_cleaned_output_missing_parent_dir_fails(
 
     assert res.exit_code != 0
     assert not cleaned_out.exists()
+    assert not report_out.exists()
