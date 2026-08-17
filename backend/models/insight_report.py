@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field
 
 from backend.models.drift_report import DriftReport
 from backend.models.healing_manifest import HealingManifest
+from backend.models.judgment_required_finding import JudgmentRequiredFinding
 
 
 class NarrativeSection(BaseModel):
@@ -72,3 +73,10 @@ class InsightReport(BaseModel):
     # LLM-facing JSON) there is no code path by which this could reach the LLM
     # prompt at all. None when cleaning did not run.
     healing_manifest: HealingManifest | None = None
+    # Story 3.5: populated server-side from quality_report, ALWAYS (not gated
+    # on cleaning being enabled) — unlike healing_manifest, this describes a
+    # property of the data (which findings the agent will never auto-touch),
+    # computed unconditionally during DQA classification (Story 3.1), not an
+    # action that may or may not have run. Empty list, not None, when there
+    # are no human_only findings. Never routed through InsightPayload.
+    judgment_required_findings: list[JudgmentRequiredFinding] = Field(default_factory=list)

@@ -32,6 +32,7 @@ import typer
 from backend.core.logging import bind_pipeline_run_id, configure_logging
 from backend.errors.exceptions import ConfigurationError, SavvyCleanseError
 from backend.models.healing_manifest import build_healing_manifest
+from backend.models.judgment_required_finding import build_judgment_required_findings
 from backend.models.pipeline_result import PipelineResult
 from backend.pipeline.data_quality import DataQualityAssessor
 from backend.pipeline.drift_engine import DriftEngine
@@ -266,6 +267,14 @@ def run_full_pipeline(
     # run, so a disabled/off run's report is unaffected.
     if result.cleaning_result is not None:
         insight_report.healing_manifest = build_healing_manifest(result.cleaning_result)
+
+    # --- Stage 4c: Judgment-Required Findings (Story 3.5) ---
+    # Always populated (never gated on cleaning) -- describes a property of
+    # the data (which findings are human_only), computed unconditionally
+    # during DQA classification. Never routed through InsightPayload.
+    insight_report.judgment_required_findings = build_judgment_required_findings(
+        result.quality_report
+    )
 
     # --- Stage 5: Render ---
     if fmt == OutputFormat.docx:
