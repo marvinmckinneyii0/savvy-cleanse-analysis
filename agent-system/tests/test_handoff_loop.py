@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -254,3 +255,96 @@ class TestDependencyDirection:
         text = "PREREQUISITE: Story 3.4 must be merged first.\n"
         deps = hl.extract_dependencies(text, self.KNOWN, self_id="3-4-opt-in-gate-config")
         assert deps == ()
+
+    def test_self_referential_depends_on_is_recorded(self) -> None:
+        # Real wording from 2-4-reporting-agent.md:6: "This story depends on
+        # the Drift Engine" -- the subject ("this story") is explicitly
+        # self-referential, so unlike "Story X depends on" this direction is
+        # unambiguous and should be recorded.
+        known = self.KNOWN | {"2-3-drift-engine"}
+        text = "This story depends on the Drift Engine (filed 2.3, done).\n"
+        deps = hl.extract_dependencies(text, known, self_id="2-4-reporting-agent")
+        assert deps == ("2-3-drift-engine",)
+
+    def test_must_be_merged_first_ignores_unrelated_earlier_reference(self) -> None:
+        # An incidental mention earlier in the same sentence must not be
+        # swept in -- only the reference nearest the trigger phrase counts.
+        text = "See Story 3.1 for context; Story 3.4 must be merged first.\n"
+        deps = hl.extract_dependencies(text, self.KNOWN, self_id="9-9-other")
+        assert deps == ("3-4-opt-in-gate-config",)
+
+    def test_table_header_with_markdown_emphasis_is_recognized(self) -> None:
+        # A bolded "**Depends on**" header is a plausible formatting variant
+        # of this repo's own convention (1-5-document-rendering.md bolds
+        # cells in this column) and must not be silently skipped.
+        text = "| **Depends on** | What's needed |\n|---|---|\n| Story 3.1 | x |\n"
+        deps = hl.extract_dependencies(text, self.KNOWN, self_id="9-9-other")
+        assert deps == ("3-1-classification-layer",)
+
+    def test_bare_dash_form_reference_is_matched_whole(self) -> None:
+        # Regex alternation order bug: the digit-only alternative used to
+        # match before the dash-form one was ever tried, splitting "1-6"
+        # into two meaningless single-digit tokens.
+        assert hl.STORY_REF.findall("Depends on 1-6 for the interface") == ["1-6"]
+
+
+class TestStorySortKey:
+    """story_sort_key() must stay comparable across sibling ids that mix a
+    bare numeric token with a letter-suffixed one at the same position."""
+
+    @staticmethod
+    def _candidate(story_id: str) -> hl.StoryCandidate:
+        return hl.StoryCandidate(
+            story_id=story_id,
+            status="ready-for-dev",
+            loop_eligible=True,
+            story_path="x",
+            dependencies=(),
+            blocked_dependencies=(),
+        )
+
+    def test_numeric_and_letter_suffixed_siblings_sort_without_crashing(self) -> None:
+        # Real ids from sprint-status.yaml: "4-1-..." and "4-1a-..." previously
+        # crashed with TypeError comparing int 1 to str "1a" at the same
+        # tuple position.
+        candidates = [
+            self._candidate("4-1a-config-to-project-migration"),
+            self._candidate("4-1-database-schema-auth-foundation"),
+        ]
+        ordered = sorted(candidates, key=hl.story_sort_key)
+        assert [c.story_id for c in ordered] == [
+            "4-1-database-schema-auth-foundation",
+            "4-1a-config-to-project-migration",
+        ]
+
+    def test_alpha_and_numeric_first_tokens_sort_without_crashing(self) -> None:
+        # A first token that never converts to int (e.g. "R-1-...") must still
+        # be comparable against a purely-numeric first token.
+        candidates = [self._candidate("R-1-code-rename"), self._candidate("3-1-classification-layer")]
+        sorted(candidates, key=hl.story_sort_key)  # must not raise
+
+
+class TestEnsureRepoReadyToolChecks:
+    def test_missing_uv_raises_loop_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        real_which = shutil.which
+
+        def fake_which(name: str) -> str | None:
+            if name == "uv":
+                return None
+            return real_which(name)
+
+        monkeypatch.setattr(hl.shutil, "which", fake_which)
+        with pytest.raises(hl.LoopError, match="uv is not available"):
+            hl.ensure_repo_ready()
+
+    def test_missing_npm_raises_loop_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        real_which = shutil.which
+
+        def fake_which(name: str) -> str | None:
+            if name == "npm":
+                return None
+            return real_which(name)
+
+        monkeypatch.setattr(hl.shutil, "which", fake_which)
+        with pytest.raises(hl.LoopError, match="npm is not available"):
+            hl.ensure_repo_ready()

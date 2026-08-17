@@ -149,7 +149,12 @@ def find_story_file(story_id: str) -> Path:
 
 PREREQ_LABEL = re.compile(r"(?i)prerequisites?\s*(?:\([^)]*\))?\s*:")
 MUST_MERGE_FIRST = re.compile(r"(?i)must be merged first")
-STORY_REF = re.compile(r"\b(?:Story\s+)?([Rr]?\.?\d+(?:\.\d+)?|\d+-\d+[a-z]?)\b")
+SELF_DEPENDS_ON = re.compile(r"(?i)\bthis story\s+depends?\s+on\b")
+# The dash-form alternative must come first: regex alternation takes the first
+# alternative that matches at a position, not the longest, so a bare "1-6" would
+# otherwise match only the leading "1" via the digit-only alternative before the
+# engine ever tries the dash-form one.
+STORY_REF = re.compile(r"\b(?:Story\s+)?([Rr]?\.?\d+-\d+[a-z]?|[Rr]?\.?\d+(?:\.\d+)?)\b")
 REVERSE_DIRECTION = re.compile(r"(?i)unblocks?|blocks\b")
 
 
@@ -179,17 +184,23 @@ def extract_dependencies(
     Freeform proximity matching on words like "depends on" or "upstream" is
     direction-blind: prose such as "the contract Story 1.6 depends on" means
     *1.6* depends on the story being read, not the reverse, but a naive scanner
-    would record a backwards edge. Instead this only trusts three conventions
-    actually used in this repo's BMAD stories, all of which are unambiguous:
+    would record a backwards edge. Instead this only trusts conventions actually
+    used in this repo's BMAD stories, all of which are unambiguous:
 
       1. A "Prerequisite(s):" label (inline or at line start) — story refs
          after the colon on that line are required before this story.
-      2. A line containing "must be merged first" together with a story ref —
-         the ref is what must merge first, i.e. a dependency of this story.
-      3. A "Cross-Story Dependencies" markdown table with a "Depends on"
-         column — the story named in that column is a dependency, *unless*
-         the cell itself says "Unblocks"/"Blocks" (this repo's convention for
-         reusing the same column to note the reverse relationship).
+      2. A line containing "must be merged first" — only the story ref closest
+         to (and preceding) the phrase is recorded, so an unrelated reference
+         earlier in the same sentence isn't swept in.
+      3. "This story depends on <ref>" — the subject ("this story") is
+         explicitly self-referential, so the direction is unambiguous even
+         though it's the same "depends on" phrasing that's ambiguous when the
+         subject is another named story.
+      4. A "Cross-Story Dependencies" markdown table with a "Depends on"
+         column (allowing markdown emphasis like "**Depends on**") — the
+         story named in that column is a dependency, *unless* the cell itself
+         says "Unblocks"/"Blocks" (this repo's convention for reusing the
+         same column to note the reverse relationship).
     """
 
     found: set[str] = set()
@@ -198,8 +209,16 @@ def extract_dependencies(
         label_match = PREREQ_LABEL.search(line)
         if label_match:
             found |= _story_refs(line[label_match.end() :], known_story_ids)
-        if MUST_MERGE_FIRST.search(line):
-            found |= _story_refs(line, known_story_ids)
+
+        must_merge_match = MUST_MERGE_FIRST.search(line)
+        if must_merge_match:
+            preceding_refs = list(STORY_REF.finditer(line[: must_merge_match.start()]))
+            if preceding_refs:
+                found |= _story_refs(preceding_refs[-1].group(0), known_story_ids)
+
+        self_depends_match = SELF_DEPENDS_ON.search(line)
+        if self_depends_match:
+            found |= _story_refs(line[self_depends_match.end() :], known_story_ids)
 
     depends_col: int | None = None
     for line in story_text.splitlines():
@@ -209,7 +228,7 @@ def extract_dependencies(
             continue
         cells = [c.strip() for c in stripped.strip("|").split("|")]
         if depends_col is None:
-            lowered = [c.lower() for c in cells]
+            lowered = [c.strip("*_").strip().lower() for c in cells]
             if "depends on" in lowered:
                 depends_col = lowered.index("depends on")
             continue
@@ -258,18 +277,38 @@ def collect_candidates() -> tuple[list[StoryCandidate], list[StoryCandidate]]:
     return eligible, blocked
 
 
+_NUMERIC_TOKEN = re.compile(r"^(\d+)([a-zA-Z]*)$")
+
+
 def story_sort_key(candidate: StoryCandidate) -> tuple[Any, ...]:
-    parts: list[Any] = []
+    """Every token becomes a uniformly-typed (kind, number, suffix) triple so
+    tokens from different candidates are always comparable at the same
+    position — e.g. a bare "4-1" and a lettered sibling "4-1a" both produce
+    (0, 4, "") / (0, 1, "a") rather than mixing int and str, which previously
+    raised TypeError the moment two such story ids were sorted together."""
+
+    parts: list[tuple[int, int, str]] = []
     for token in re.split(r"[-.]", candidate.story_id):
-        parts.append(int(token) if token.isdigit() else token)
+        match = _NUMERIC_TOKEN.match(token)
+        if match:
+            parts.append((0, int(match.group(1)), match.group(2)))
+        else:
+            parts.append((1, 0, token))
     return tuple(parts)
 
 
 def ensure_repo_ready() -> None:
+    # Checked up front (not just git/codex) so a missing tool halts cleanly before
+    # Codex runs, instead of run_validation() raising an uncaught FileNotFoundError
+    # partway through validation — main() only catches LoopError.
     if shutil.which("git") is None:
         raise LoopError("git is not available")
     if shutil.which("codex") is None:
         raise LoopError("Codex CLI is not available. Run /codex:setup in Claude Code.")
+    if shutil.which("uv") is None:
+        raise LoopError("uv is not available on PATH (required for backend validation)")
+    if shutil.which("npm") is None:
+        raise LoopError("npm is not available on PATH (required for frontend validation)")
 
     repo_root = Path(git("rev-parse", "--show-toplevel")).resolve()
     if repo_root != ROOT:
@@ -470,10 +509,10 @@ def execute(candidate: StoryCandidate) -> int:
 
         verify_story_untouched(packet)
 
+        # Tampering (protected-path edits, leftover uncommitted changes) is checked
+        # before the empty-diff check below, so it's never masked by the generic
+        # "no committed diff" message if Codex halts before committing.
         paths = changed_paths(packet.base_commit_sha)
-        if not paths:
-            raise LoopError("Codex completed without producing a committed diff")
-
         pending_paths = uncommitted_paths()
         validate_changed_paths(sorted(set(paths) | set(pending_paths)))
         if pending_paths:
@@ -481,6 +520,9 @@ def execute(candidate: StoryCandidate) -> int:
                 "Codex left uncommitted changes in the working tree: "
                 + ", ".join(sorted(pending_paths))
             )
+
+        if not paths:
+            raise LoopError("Codex completed without producing a committed diff")
 
         report = run_validation()
         if not report["success"]:
