@@ -19,6 +19,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pandas as pd
 import pytest
 
 from backend.errors.exceptions import ReportRenderError
@@ -31,7 +32,11 @@ from backend.models.cleaning_result import (
 )
 from backend.models.healing_manifest import REPORT_SEMANTICS_DISCLOSURE, build_healing_manifest
 from backend.models.insight_report import InsightReport, NarrativeSection
-from backend.models.quality_report import RemediationClass
+from backend.models.judgment_required_finding import (
+    JudgmentRequiredFinding,
+    build_judgment_required_findings,
+)
+from backend.models.quality_report import RemediationClass, Severity
 from backend.renderers.docx_renderer import DocxRenderer
 from backend.renderers.pdf_renderer import PdfRenderer
 
@@ -113,6 +118,26 @@ def report_with_healing_manifest(full_report: InsightReport) -> InsightReport:
         cleaned_at="2026-01-01T00:00:00+00:00",
     )
     report.healing_manifest = build_healing_manifest(result)
+    return report
+
+
+@pytest.fixture()
+def report_with_judgment_required_findings(full_report: InsightReport) -> InsightReport:
+    """A COPY of `full_report` (see `report_with_healing_manifest` docstring
+    for why a copy, not a mutation) with a populated Story 3.5
+    judgment_required_findings list attached."""
+    report = full_report.model_copy(deep=True)
+    report.judgment_required_findings = [
+        JudgmentRequiredFinding(
+            sequence=0,
+            severity=Severity.HIGH,
+            affected_columns=["quantity"],
+            count=1,
+            percentage=8.33,
+            detail="1 negative value(s) in 'quantity' which implies non-negativity",
+            recommended_action="Verify negative values are intentional or correct data entry errors",
+        )
+    ]
     return report
 
 
@@ -210,6 +235,104 @@ class TestDocxRenderer:
         assert "Overall data quality is high" in xml_with
         assert "Revenue Completeness" in xml_without
         assert "Revenue Completeness" in xml_with
+
+    def test_judgment_required_findings_absent_by_default(
+        self, full_report: InsightReport, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(full_report, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8")
+
+        assert "Requires Your Review" not in doc_xml
+
+    def test_judgment_required_findings_section_renders_when_present(
+        self, report_with_judgment_required_findings: InsightReport, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(report_with_judgment_required_findings, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8")
+
+        assert "Requires Your Review" in doc_xml
+        assert "quantity" in doc_xml
+        assert "negative value" in doc_xml
+        assert "Verify negative values" in doc_xml
+
+    def test_judgment_required_findings_never_use_internal_terminology(
+        self, report_with_judgment_required_findings: InsightReport, tmp_path: Path
+    ) -> None:
+        """Story 3.5 AC7: schema-extensions-spec.md §1 — 'do not create a
+        Tier 3 row in any client-facing surface.'"""
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(report_with_judgment_required_findings, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8").lower()
+
+        for forbidden in ("tier 3", "tier_3", "human_only", "remediation_class"):
+            assert forbidden not in doc_xml
+
+    def test_judgment_required_findings_with_empty_affected_columns_renders(
+        self, full_report: InsightReport, tmp_path: Path
+    ) -> None:
+        """A table-level finding (empty affected_columns) must not render an
+        empty bold tag -- mirrors the healing_manifest section's existing
+        'table-level' fallback pattern."""
+        report = full_report.model_copy(deep=True)
+        report.judgment_required_findings = [
+            JudgmentRequiredFinding(
+                sequence=0,
+                severity=Severity.MEDIUM,
+                affected_columns=[],
+                count=1,
+                percentage=100.0,
+                detail="Table-level structural issue.",
+                recommended_action="Review the file structure.",
+            )
+        ]
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(report, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8")
+
+        assert "table-level" in doc_xml
+        assert "Table-level structural issue." in doc_xml
+
+    def test_real_detector_text_never_uses_internal_terminology(
+        self, full_report: InsightReport, tmp_path: Path
+    ) -> None:
+        """Sources terminology-check text from the REAL DQA detectors (not a
+        hand-picked fixture) -- proves the actual `details`/`recommended_action`
+        prose the assessor produces stays terminology-free, not just this test
+        file's own hardcoded strings."""
+        from backend.pipeline.data_quality import DataQualityAssessor
+
+        df = pd.DataFrame(
+            {
+                "quantity": [10.0, 20.0, -5.0],
+                "constant_col": [5.0, 5.0, 5.0],
+            }
+        )
+        quality_report = DataQualityAssessor().assess_quality(
+            df, "run-real-detector-text"
+        ).quality_report
+        findings = build_judgment_required_findings(quality_report)
+        assert len(findings) >= 1  # sanity: the fixture actually triggers something
+
+        report = full_report.model_copy(deep=True)
+        report.judgment_required_findings = findings
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(report, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8").lower()
+
+        for forbidden in ("tier 3", "tier_3", "human_only", "remediation_class"):
+            assert forbidden not in doc_xml
 
     def test_fallback_docx_renders_without_raising(
         self, fallback_report: InsightReport, tmp_path: Path
@@ -368,6 +491,49 @@ class TestPdfRenderer:
         assert "Overall data quality is high" in html_with
         assert "Revenue Completeness" in html_without
         assert "Revenue Completeness" in html_with
+
+    def test_judgment_required_findings_absent_by_default(
+        self, full_report: InsightReport, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "report.pdf"
+        captured: list[str] = []
+        mock_wp = _make_weasyprint_mock(captured)
+
+        with patch.dict("sys.modules", {"weasyprint": mock_wp}):
+            PdfRenderer().render(full_report, out)
+
+        html_string = mock_wp.HTML.call_args.kwargs["string"]
+        assert "Requires Your Review" not in html_string
+
+    def test_judgment_required_findings_section_renders_when_present(
+        self, report_with_judgment_required_findings: InsightReport, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "report.pdf"
+        captured: list[str] = []
+        mock_wp = _make_weasyprint_mock(captured)
+
+        with patch.dict("sys.modules", {"weasyprint": mock_wp}):
+            PdfRenderer().render(report_with_judgment_required_findings, out)
+
+        html_string = mock_wp.HTML.call_args.kwargs["string"]
+        assert "Requires Your Review" in html_string
+        assert "quantity" in html_string
+        assert "negative value" in html_string
+        assert "Verify negative values" in html_string
+
+    def test_judgment_required_findings_never_use_internal_terminology(
+        self, report_with_judgment_required_findings: InsightReport, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "report.pdf"
+        captured: list[str] = []
+        mock_wp = _make_weasyprint_mock(captured)
+
+        with patch.dict("sys.modules", {"weasyprint": mock_wp}):
+            PdfRenderer().render(report_with_judgment_required_findings, out)
+
+        html_string = mock_wp.HTML.call_args.kwargs["string"].lower()
+        for forbidden in ("tier 3", "tier_3", "human_only", "remediation_class"):
+            assert forbidden not in html_string
 
     def test_fallback_pdf_renders_without_raising(
         self, fallback_report: InsightReport, tmp_path: Path

@@ -24,9 +24,10 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
+from backend.errors.exceptions import CleaningEngineError
 from backend.models.cleaning_result import CleaningOperation, CleaningResult
 from backend.models.pipeline_config import ImputationPolicyConfig
-from backend.models.quality_report import DataQualityReport
+from backend.models.quality_report import DataQualityReport, RemediationClass
 from backend.pipeline.cleaning_engine import CleaningEngine
 from backend.rules.cleaning_policy import apply_imputation_policy
 
@@ -105,4 +106,26 @@ def clean_dataset(
         columns_after=columns_after,
         cleaned_at=datetime.now(timezone.utc).isoformat(),
     )
+    _verify_tier3_never_touched(merged)
     return cleaned_df, merged
+
+
+def _verify_tier3_never_touched(result: CleaningResult) -> None:
+    """Story 3.5's runtime boundary guard — load-bearing, defense in depth.
+
+    Both Tier-1 (CleaningEngine) and Tier-2 (cleaning_policy) already filter
+    to their own remediation class before ever building a CleaningAction, so
+    this should never fire. It exists so that IF a future change to either
+    filter is ever wrong, the failure is a loud, immediate CleaningEngineError
+    at the one place both tiers' output is merged — not a silent Tier-3 data
+    mutation that a passing test suite would never catch. Mirrors
+    CleaningEngine._apply_operation's own "independent second guard" pattern.
+    """
+    for action in result.actions:
+        if action.remediation_class == RemediationClass.HUMAN_ONLY:
+            raise CleaningEngineError(
+                "Tier-3 boundary violation: a human_only finding produced a "
+                f"CleaningAction (defect_type={action.defect_type!r}, "
+                f"target_columns={action.target_columns!r}). This must never "
+                "happen — Tier-3 findings are detected and scored, never acted on."
+            )

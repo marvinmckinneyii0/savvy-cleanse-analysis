@@ -1,6 +1,6 @@
 # Story 3.5: Judgment-Required Findings Handling
 
-Status: ready-for-dev
+Status: done
 
 Sizing: M · Model: Opus · loop_eligible: false
 <!-- Opus + loop_eligible:false: locks the Tier-3 human_only boundary — the
@@ -57,30 +57,30 @@ Today, `human_only` (Tier-3) findings are DQA defects like any other — `Insigh
 
 ## Tasks / Subtasks
 
-- [ ] **Task 0 — Confirm prerequisites (AC: all)**
-  - [ ] Verify PR #39, #42, #45, #48 are on `main`; `RemediationClass.HUMAN_ONLY`, `remediation_classifier._DEFECT_TYPE_TO_CLASS`, `cleaning_coordinator.clean_dataset`, `build_healing_manifest`, `InsightReport.healing_manifest` (wiring precedent) are all importable. HALT if not.
-  - [ ] Re-read `backend/pipeline/remediation_classifier.py`'s `_DEFECT_TYPE_TO_CLASS` table in full — enumerate the current complete list of `human_only`-mapped `defect_type`s (this is the fixture checklist for Task 3).
-- [ ] **Task 1 — Runtime boundary guard (AC: 1)**
-  - [ ] Add a guard at the end of `cleaning_coordinator.clean_dataset()`, after `merged` is built and before `return`: iterate `merged.actions`, raise `CleaningEngineError` (with `defect_type`/`target_columns` in the message) on the first `remediation_class == RemediationClass.HUMAN_ONLY` found.
-  - [ ] Test that the guard fires: construct/monkeypatch a scenario producing a smuggled-in `HUMAN_ONLY` action and assert `CleaningEngineError` is raised, with the message identifying the offending action.
-- [ ] **Task 2 — `JudgmentRequiredFinding` model + builder (AC: 3)**
-  - [ ] New file `backend/models/judgment_required_finding.py` (or add to an existing models module if a reviewer prefers — Dev Notes recommend a new file, mirroring `healing_manifest.py`'s pattern): `JudgmentRequiredFinding` Pydantic model + `build_judgment_required_findings(quality_report) -> list[JudgmentRequiredFinding]`.
-  - [ ] Order-preserving, pure function; no DataFrame access, no re-derivation.
-- [ ] **Task 3 — Consolidated boundary-proof test (AC: 2)**
-  - [ ] Build (or extend `cleaning_dirty_df`) a fixture carrying at least one instance of every currently-registered `human_only` `defect_type`: `zero_variance`, `extreme_outliers`, `extreme_cardinality`, `negative_values`, `infinite_values`, `duplicate_measurement`.
-  - [ ] One test class driving DQA → classify → `clean_dataset` → `build_healing_manifest` → cleaned-CSV export, asserting AC2's three properties in one place.
-  - [ ] A meta-test asserting the fixture/test actually covers every key currently in `remediation_classifier._DEFECT_TYPE_TO_CLASS` mapped to `HUMAN_ONLY` (so a future new Tier-3 `defect_type` that isn't added to this fixture fails loudly, not silently).
-- [ ] **Task 4 — Wiring (AC: 4, 6, 8)**
-  - [ ] Add `judgment_required_findings: list[JudgmentRequiredFinding] = Field(default_factory=list)` to `InsightReport`.
-  - [ ] In `orchestrator.py`, populate it from `result.quality_report` right after Stage 1 (DQA) succeeds — independent of `resolved_enable_cleaning`, unlike the Stage-4b `healing_manifest` wiring.
-  - [ ] Confirm (by reading) no code path threads this through `InsightPayload`/`InsightEngine`/`NarrativeGenerator`.
-  - [ ] Confirm (by reading + the existing halt-path test) it is never populated when `result.halted`.
-- [ ] **Task 5 — Renderers (AC: 5, 7)**
-  - [ ] `PdfRenderer`/`DocxRenderer`: add `judgment_required_findings` to both template contexts; add a conditional section to `report_template.html` and (via the established one-off `python-docx` script) `report_template.docx`, gated on the list being non-empty, using internal-terminology-free labeling.
-- [ ] **Task 6 — Verify + security (AC: 9)**
-  - [ ] `uv run pytest` green; record before/after pass counts.
-  - [ ] `npx vitest run` + `npm run build` (unaffected, confirm no regression).
-  - [ ] `/security-review` — resolve Critical/High before marking done.
+- [x] **Task 0 — Confirm prerequisites (AC: all)**
+  - [x] Verify PR #39, #42, #45, #48 are on `main`; `RemediationClass.HUMAN_ONLY`, `remediation_classifier._DEFECT_TYPE_TO_CLASS`, `cleaning_coordinator.clean_dataset`, `build_healing_manifest`, `InsightReport.healing_manifest` (wiring precedent) are all importable. HALT if not.
+  - [x] Re-read `backend/pipeline/remediation_classifier.py`'s `_DEFECT_TYPE_TO_CLASS` table in full — enumerate the current complete list of `human_only`-mapped `defect_type`s (this is the fixture checklist for Task 3).
+- [x] **Task 1 — Runtime boundary guard (AC: 1)**
+  - [x] Add a guard at the end of `cleaning_coordinator.clean_dataset()`, after `merged` is built and before `return`: iterate `merged.actions`, raise `CleaningEngineError` (with `defect_type`/`target_columns` in the message) on the first `remediation_class == RemediationClass.HUMAN_ONLY` found.
+  - [x] Test that the guard fires: construct/monkeypatch a scenario producing a smuggled-in `HUMAN_ONLY` action and assert `CleaningEngineError` is raised, with the message identifying the offending action.
+- [x] **Task 2 — `JudgmentRequiredFinding` model + builder (AC: 3)**
+  - [x] New file `backend/models/judgment_required_finding.py` (or add to an existing models module if a reviewer prefers — Dev Notes recommend a new file, mirroring `healing_manifest.py`'s pattern): `JudgmentRequiredFinding` Pydantic model + `build_judgment_required_findings(quality_report) -> list[JudgmentRequiredFinding]`.
+  - [x] Order-preserving, pure function; no DataFrame access, no re-derivation.
+- [x] **Task 3 — Consolidated boundary-proof test (AC: 2)**
+  - [x] Build (or extend `cleaning_dirty_df`) a fixture carrying at least one instance of every currently-registered `human_only` `defect_type`: `zero_variance`, `extreme_outliers`, `extreme_cardinality`, `negative_values`, `infinite_values`, `duplicate_measurement`.
+  - [x] One test class driving DQA → classify → `clean_dataset` → `build_healing_manifest` → cleaned-CSV export, asserting AC2's three properties in one place.
+  - [x] A meta-test asserting the fixture/test actually covers every key currently in `remediation_classifier._DEFECT_TYPE_TO_CLASS` mapped to `HUMAN_ONLY` (so a future new Tier-3 `defect_type` that isn't added to this fixture fails loudly, not silently).
+- [x] **Task 4 — Wiring (AC: 4, 6, 8)**
+  - [x] Add `judgment_required_findings: list[JudgmentRequiredFinding] = Field(default_factory=list)` to `InsightReport`.
+  - [x] In `orchestrator.py`, populate it from `result.quality_report` right after Stage 1 (DQA) succeeds — independent of `resolved_enable_cleaning`, unlike the Stage-4b `healing_manifest` wiring.
+  - [x] Confirm (by reading) no code path threads this through `InsightPayload`/`InsightEngine`/`NarrativeGenerator`.
+  - [x] Confirm (by reading + the existing halt-path test) it is never populated when `result.halted`.
+- [x] **Task 5 — Renderers (AC: 5, 7)**
+  - [x] `PdfRenderer`/`DocxRenderer`: add `judgment_required_findings` to both template contexts; add a conditional section to `report_template.html` and (via the established one-off `python-docx` script) `report_template.docx`, gated on the list being non-empty, using internal-terminology-free labeling.
+- [x] **Task 6 — Verify + security (AC: 9)**
+  - [x] `uv run pytest` green; record before/after pass counts.
+  - [x] `npx vitest run` + `npm run build` (unaffected, confirm no regression).
+  - [x] `/security-review` — resolve Critical/High before marking done.
 
 ## Dev Notes
 
@@ -135,6 +135,56 @@ Spot-checked `backend/pipeline/data_quality.py`'s detectors (e.g. `negative_valu
 - [Source: backend/pipeline/data_quality.py] — the six Tier-3 detectors' actual `details`/`recommended_action` text.
 - [Source: backend/tests/conftest.py] — `cleaning_dirty_df`; Task 3 needs a fixture covering ALL SIX Tier-3 types, which `cleaning_dirty_df` alone does not (it only carries `negative_values`) — extend it or build a new fixture.
 
+## Dev Agent Record
+
+### Agent Model Used
+
+claude-opus-4-8 (human-supervised implementation, high effort)
+
+### Debug Log References
+
+- Task 1 (runtime guard): `uv run pytest backend/tests/test_cleaning_policy.py backend/tests/e2e/test_cleaning_gate.py` → 39 passed (unmodified, proves the guard addition doesn't disturb existing 3.4 behavior).
+- Task 3 (consolidated boundary-proof fixture): building a fixture that actually triggers all six `human_only` `defect_type`s surfaced two real numerical quirks, both resolved empirically rather than assumed: (1) `extreme_outliers` needs a large row count — a single extreme value among otherwise-identical points can only exceed the 5-std-dev threshold once n is large enough (deviation/std approaches `sqrt(n-1)` as the outlier grows; n=12 can never trigger it regardless of magnitude, n=40 does); (2) `extreme_cardinality` requires numeric-coercible column content due to a pre-existing bug in `data_quality.py` sharing a numeric guard across unrelated checks in the same loop — flagged separately as its own follow-up task (`task_86d9e62e`), not fixed here (out of this story's scope).
+- Full suite after Tasks 1-3: `uv run pytest backend/tests/test_tier3_boundary.py` → 6 passed; full backend suite → 386 passed / 1 skipped (0 regressions).
+- Task 2 (model + unit tests): `uv run pytest backend/tests/test_judgment_required_finding.py` → 6 passed.
+- Task 4 (wiring) + Task 5 (renderers): full backend suite → 397 passed / 1 skipped (+41 over the 356 pre-3.3 baseline / +23 over the 374 post-3.3 baseline). Frontend/build unaffected (no frontend files touched): `npx vitest run` → 18/18; `npm run build` → OK.
+- `/security-review` (dedicated diff-scoped sub-agent) → zero qualifying findings. Explicitly verified Jinja2 `autoescape=True` still holds, no `|safe`/`Markup()` introduced, `JudgmentRequiredFinding` projects only typed fields (no `dict`/`Any` passthrough), every Tier-3 detector's `details`/`recommended_action` text confirmed to interpolate only column names/counts/percentages (never raw cell values), and the runtime guard's `CleaningEngineError` message traced to confirm it only ever reaches CLI stderr/logs, never the rendered report.
+
+### Completion Notes List
+
+- **Runtime boundary guard (AC1)** — `cleaning_coordinator._verify_tier3_never_touched` raises `CleaningEngineError` naming the offending `defect_type`/`target_columns` if any merged `CleaningAction` ever carries `remediation_class == HUMAN_ONLY`. Proven to actually fire via three tests: direct unit test of the guard function, a "clean result passes" negative test, and an end-to-end test that monkeypatches `CleaningEngine.clean` to smuggle in a bad action and confirms `clean_dataset` itself raises (not just the standalone guard function).
+- **Consolidated boundary-proof (AC2)** — one fixture (`all_tier3_types_df`, 40 rows) triggers all six currently-registered `human_only` types simultaneously alongside real Tier-1/Tier-2 activity; one test drives the full `run_full_pipeline` chain (DQA → classify → clean → manifest → cleaned-CSV export) and asserts no `CleaningAction`/`ManifestEntry` ever carries `HUMAN_ONLY`, and every Tier-3-flagged column is byte-identical between the original and exported CSV (compared via re-reading both through the same CSV round-trip, avoiding a dtype-inference false positive on numeric-looking string columns). A meta-test pins the fixture's coverage against the classifier's live `HUMAN_ONLY` set, so a future new Tier-3 type failing to be added to the fixture fails loudly.
+- **`JudgmentRequiredFinding` model (AC3)** — purpose-built projection (not a `DataQualityDefect` re-export); order-preserving pure builder; unit tests confirm no `defect_type`/`category`/`remediation_class` attribute exists on the model at all (structurally impossible to leak, not just untested).
+- **Wiring (AC4, AC6, AC8)** — `InsightReport.judgment_required_findings` populated in `orchestrator.py` from `result.quality_report` immediately after Stage 4 (unconditionally, not gated on `resolved_enable_cleaning`), never routed through `InsightPayload`. Verified: identical output between cleaning-on/off runs of the same input (AC6); empty list (not error/None-crash) when there are no `human_only` findings; never populated on a halted `PipelineResult` (`result.insight_report is None` on that path, structurally, plus an explicit test); structurally absent from the LLM-facing `InsightPayload` (no such attribute exists).
+- **Renderers (AC5, AC7)** — both `report_template.html` (direct edit) and `report_template.docx` (regenerated via the established one-off `python-docx` script) gained a "Requires Your Review" section, rendering `affected_columns`/`count`/`percentage`/`detail`/`recommended_action` per finding (learned from Story 3.3's PR review: show every relevant field, not just outcome+detail). A dedicated test scans rendered output in both formats for `"tier 3"`/`"tier_3"`/`"human_only"`/`"remediation_class"` (case-insensitive) and asserts none appear.
+- **Tests + security (AC9)** — 397 passed / 1 skipped (+23 over the post-3.3 baseline), frontend/build unaffected, `/security-review` clean.
+
+### Review Findings
+
+Code review (8-angle: line-by-line, removed-behavior, cross-file, reuse, simplification, efficiency, altitude, conventions; high effort, recall-biased) — 3 confirmed/plausible findings fixed, 1 deferred:
+
+- [x] [Review][Patch] The "Requires Your Review" section rendered an empty `<strong></strong>` for a table-level finding (`affected_columns=[]`), unlike the Data Cleaning section's existing `'table-level'` fallback for the identical case one block above. RESOLVED: both `report_template.html` and `report_template.docx` now use `finding.affected_columns|join(', ') if finding.affected_columns else 'table-level'`. New test `test_judgment_required_findings_with_empty_affected_columns_renders`. [`backend/renderers/templates/report_template.html`, `backend/renderers/templates/report_template.docx`, `backend/tests/test_renderers.py`]
+- [x] [Review][Patch] The runtime boundary guard (AC1) was only proven to fire via `clean_dataset()` called directly — no test drove a violation through `run_full_pipeline()` itself, so a future refactor wrapping the cleaning stage in a broad `try/except` (the CLI already does this pattern one layer up) could silently swallow the guard's exception with nothing to catch the regression. RESOLVED: new `test_guard_violation_propagates_unhandled_through_run_full_pipeline` drives the full orchestrator entry point with a smuggled-in violation and asserts `CleaningEngineError` propagates unhandled. [`backend/tests/test_tier3_boundary.py`]
+- [x] [Review][Patch] `JudgmentRequiredFinding.detail` is silently sourced from `DataQualityDefect.details` (plural→singular rename, matching `ManifestEntry`'s convention) with no documentation — a future template author copy-pasting a reference pattern could write `finding.details` and hit an `AttributeError` at render time. RESOLVED: added an explicit field comment. Also added `test_real_detector_text_never_uses_internal_terminology`, which sources its terminology-check text from the REAL `DataQualityAssessor` output (not just this test file's hand-picked fixture strings) — addresses the altitude-review observation that the original terminology guard could only ever catch drift in its own fixture, not in the actual DQA detector prose. [`backend/models/judgment_required_finding.py`, `backend/tests/test_renderers.py`]
+- [x] [Review][Defer] Story 3.4's pre-existing `test_enabling_does_not_change_the_report` (`test_cleaning_gate.py`) shares one mutated `InsightReport` object between its cleaning-on/off runs (the mock returns the same fixture instance both times), making its equality assertion tautological — a blind spot that predates this story (already true for `healing_manifest`) and this story's `judgment_required_findings` addition inherits it. Deferred, not fixed: this story's own `test_judgment_required_findings_identical_regardless_of_cleaning_state` (in the new `test_judgment_required_findings_wiring.py`) independently and correctly covers the exact same claim using fresh, non-shared `InsightReport` instances per run (`side_effect=_fresh_canned_report`), so the real assertion IS verified — just not by the older, reused 3.4 fixture. Editing a shipped Story 3.4 test file was judged out of this story's locked scope. [`backend/tests/e2e/test_cleaning_gate.py`]
+- `/security-review` re-run implicitly covered by the fix set — none of the three patches touch a data-disclosure boundary (template fallback text, test coverage, a code comment); the original review's conclusions stand.
+
+### File List
+
+- `backend/rules/cleaning_coordinator.py` (M) — `_verify_tier3_never_touched`, called at the end of `clean_dataset` before returning.
+- `backend/models/judgment_required_finding.py` (A) — `JudgmentRequiredFinding`, `build_judgment_required_findings`.
+- `backend/models/insight_report.py` (M) — additive `judgment_required_findings: list[...] = Field(default_factory=list)` field.
+- `backend/pipeline/orchestrator.py` (M) — populates `insight_report.judgment_required_findings` from `result.quality_report`, unconditionally, right after Stage 4.
+- `backend/renderers/pdf_renderer.py`, `backend/renderers/docx_renderer.py` (M) — `judgment_required_findings` added to both template contexts.
+- `backend/renderers/templates/report_template.html` (M) — new conditional "Requires Your Review" section.
+- `backend/renderers/templates/report_template.docx` (M, binary) — regenerated via a one-off `python-docx` script; same section appended after the existing Data Cleaning block.
+- `backend/tests/test_judgment_required_finding.py` (A) — 6 tests: filtering, order preservation, safe-field projection, empty cases, purity.
+- `backend/tests/test_tier3_boundary.py` (A) — 6 tests: the consolidated boundary proof, the fixture-coverage meta-test, and the runtime-guard-fires tests.
+- `backend/tests/e2e/test_judgment_required_findings_wiring.py` (A) — 5 tests: population, cleaning-state independence, empty-when-no-findings, halt-path, LLM-payload-shape.
+- `backend/tests/test_renderers.py` (M) — +6 tests: section present/absent for both formats, field-content and terminology-free assertions.
+
 ## Change Log
 
 - 2026-08-17: Story drafted (Opus, human-supervised). Scope locked with Marvin before drafting via two rounds: (1) confirmed 3.5 = both report-surfacing AND a consolidated/hardened runtime boundary guard, not either alone; (2) confirmed the new report section renders whenever Tier-3 findings exist, independent of the cleaning opt-in state (not paired/gated with the Healing Manifest). Status → ready-for-dev.
+- 2026-08-17: Implemented (Opus, human-supervised, high effort). Runtime boundary guard in `cleaning_coordinator.py`; `JudgmentRequiredFinding` model + builder; wiring through `InsightReport`/orchestrator (always populated, never via `InsightPayload`); both DOCX and PDF renderers extended with a "Requires Your Review" section. Discovered and separately flagged (not fixed, out of scope) a pre-existing dead-code bug in `data_quality.py`'s `extreme_cardinality` check. 397 passed / 1 skipped (+23 over post-3.3 baseline, 0 regressions); frontend/build unaffected; `/security-review` clean. Status → review.
+- 2026-08-17: Code review (8-angle, high effort). 3 findings fixed (missing table-level fallback for empty affected_columns, missing orchestrator-level test for the runtime guard, undocumented field rename + a real-detector-sourced terminology test), 1 deferred (a pre-existing Story 3.4 test's tautological equality assertion, independently covered by this story's own correctly-designed test). 400 passed / 1 skipped (+3, 0 regressions); frontend/build unaffected. Status → done.

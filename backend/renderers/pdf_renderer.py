@@ -91,6 +91,7 @@ class PdfRenderer:
             "fallback_reason": insight_report.fallback_reason or "",
             "drift_report": insight_report.drift_report,
             "healing_manifest": insight_report.healing_manifest,
+            "judgment_required_findings": insight_report.judgment_required_findings,
         }
 
         try:
