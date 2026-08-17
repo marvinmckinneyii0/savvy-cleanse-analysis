@@ -177,7 +177,12 @@
     {% if healing_manifest.entries %}
     <ul>
       {% for entry in healing_manifest.entries %}
-      <li><strong>{{ entry.outcome.value }}:</strong> {{ entry.detail }}</li>
+      <li>
+        <strong>{{ entry.outcome.value }}</strong>
+        &mdash; {{ entry.operation.value }}
+        ({{ entry.target_columns|join(', ') if entry.target_columns else 'table-level' }}):
+        {{ entry.detail }}
+      </li>
       {% endfor %}
     </ul>
     {% endif %}

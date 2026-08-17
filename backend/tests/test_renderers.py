@@ -83,7 +83,14 @@ def fallback_report() -> InsightReport:
 
 @pytest.fixture()
 def report_with_healing_manifest(full_report: InsightReport) -> InsightReport:
-    """`full_report` with a populated Story 3.3 healing_manifest attached."""
+    """A COPY of `full_report` with a populated Story 3.3 healing_manifest
+    attached. Deep-copies rather than mutating `full_report` in place —
+    pytest resolves fixture dependencies before the test body runs, so
+    mutating the shared `full_report` instance here would make ANY test that
+    also requests the plain `full_report` fixture see the manifest attached
+    too (fixtures are cached per test call, and both parameters would be the
+    same object)."""
+    report = full_report.model_copy(deep=True)
     action = CleaningAction(
         operation=CleaningOperation.CASE_NORMALIZATION,
         defect_type="case_inconsistency",
@@ -105,8 +112,8 @@ def report_with_healing_manifest(full_report: InsightReport) -> InsightReport:
         columns_after=4,
         cleaned_at="2026-01-01T00:00:00+00:00",
     )
-    full_report.healing_manifest = build_healing_manifest(result)
-    return full_report
+    report.healing_manifest = build_healing_manifest(result)
+    return report
 
 
 # ---------------------------------------------------------------------------
@@ -166,6 +173,20 @@ class TestDocxRenderer:
         assert "Data Cleaning" in doc_xml
         assert "Normalized casing in" in doc_xml
         assert "working copy" in doc_xml  # part of REPORT_SEMANTICS_DISCLOSURE
+
+    def test_healing_manifest_entry_shows_operation_and_target_columns(
+        self, report_with_healing_manifest: InsightReport, tmp_path: Path
+    ) -> None:
+        """Story 3.3 AC6: every rendered entry must show operation and target
+        columns, not just outcome and detail."""
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(report_with_healing_manifest, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8")
+
+        assert "case_normalization" in doc_xml
+        assert "region" in doc_xml
 
     def test_narrative_content_unchanged_by_healing_manifest_presence(
         self,
@@ -307,6 +328,22 @@ class TestPdfRenderer:
         assert "Data Cleaning" in html_string
         assert "Normalized casing in" in html_string
         assert REPORT_SEMANTICS_DISCLOSURE in html_string
+
+    def test_healing_manifest_entry_shows_operation_and_target_columns(
+        self, report_with_healing_manifest: InsightReport, tmp_path: Path
+    ) -> None:
+        """Story 3.3 AC6: every rendered entry must show operation and target
+        columns, not just outcome and detail."""
+        out = tmp_path / "report.pdf"
+        captured: list[str] = []
+        mock_wp = _make_weasyprint_mock(captured)
+
+        with patch.dict("sys.modules", {"weasyprint": mock_wp}):
+            PdfRenderer().render(report_with_healing_manifest, out)
+
+        html_string = mock_wp.HTML.call_args.kwargs["string"]
+        assert "case_normalization" in html_string
+        assert "region" in html_string
 
     def test_narrative_content_unchanged_by_healing_manifest_presence(
         self,
