@@ -13,10 +13,19 @@ applied to `CleaningAction`.
 Reuses the DQA detectors' existing `details`/`recommended_action` prose
 as-is — already client-safe (column names and counts only, no raw cell
 values, no internal jargon; verified against every Tier-3 detector in
-`backend/pipeline/data_quality.py`). This module adds no new evidence,
-scoring, or reasoning — that class of capability belongs to Epic 11 (Tier 4
-autonomous judgment), a deliberately "distinct artifact" per
+`backend/pipeline/data_quality.py` AS OF STORY 3.5). This module adds no new
+evidence, scoring, or reasoning — that class of capability belongs to Epic 11
+(Tier 4 autonomous judgment), a deliberately "distinct artifact" per
 epic-11-autonomous-judgment-eval-governance.md §11.5.
+
+STANDING REVIEW ITEM: this module TRUSTS detector-generated prose; it does
+not sanitize it. Whenever a new Tier-3 detector is added to
+`data_quality.py` (e.g. the `near_duplicate` example in
+`remediation_classifier.py`'s docstring), its `details=`/`recommended_action=`
+construction must be explicitly reviewed against this same boundary — column
+names/counts/percentages only, never a raw cell value or unbounded free
+text — as part of that detector's own story review, before this module's
+"already client-safe" claim can be extended to cover it.
 
 Unlike `HealingManifest` (populated only when cleaning ran), this list is
 populated whenever `human_only` findings exist, independent of the cleaning
