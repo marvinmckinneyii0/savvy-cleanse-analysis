@@ -22,7 +22,16 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from backend.errors.exceptions import ReportRenderError
+from backend.models.cleaning_result import (
+    CleaningAction,
+    CleaningOperation,
+    CleaningResult,
+    CleaningScope,
+    CleaningStatus,
+)
+from backend.models.healing_manifest import REPORT_SEMANTICS_DISCLOSURE, build_healing_manifest
 from backend.models.insight_report import InsightReport, NarrativeSection
+from backend.models.quality_report import RemediationClass
 from backend.renderers.docx_renderer import DocxRenderer
 from backend.renderers.pdf_renderer import PdfRenderer
 
@@ -72,6 +81,41 @@ def fallback_report() -> InsightReport:
     )
 
 
+@pytest.fixture()
+def report_with_healing_manifest(full_report: InsightReport) -> InsightReport:
+    """A COPY of `full_report` with a populated Story 3.3 healing_manifest
+    attached. Deep-copies rather than mutating `full_report` in place —
+    pytest resolves fixture dependencies before the test body runs, so
+    mutating the shared `full_report` instance here would make ANY test that
+    also requests the plain `full_report` fixture see the manifest attached
+    too (fixtures are cached per test call, and both parameters would be the
+    same object)."""
+    report = full_report.model_copy(deep=True)
+    action = CleaningAction(
+        operation=CleaningOperation.CASE_NORMALIZATION,
+        defect_type="case_inconsistency",
+        remediation_class=RemediationClass.AGENT_AUTONOMOUS,
+        status=CleaningStatus.APPLIED,
+        scope=CleaningScope.COLUMN,
+        target_columns=["region"],
+        values_changed=3,
+        detail="Normalized casing in 'region': 3 value(s) rewritten across 3 variant(s).",
+    )
+    result = CleaningResult(
+        pipeline_run_id="run-renderer-test",
+        total_findings=1,
+        autonomous_findings=1,
+        actions=[action],
+        rows_before=12,
+        rows_after=12,
+        columns_before=4,
+        columns_after=4,
+        cleaned_at="2026-01-01T00:00:00+00:00",
+    )
+    report.healing_manifest = build_healing_manifest(result)
+    return report
+
+
 # ---------------------------------------------------------------------------
 # DocxRenderer tests
 # ---------------------------------------------------------------------------
@@ -104,6 +148,68 @@ class TestDocxRenderer:
             doc_xml = zf.read("word/document.xml").decode("utf-8")
 
         assert "Revenue Completeness" in doc_xml
+
+    def test_healing_manifest_absent_by_default(
+        self, full_report: InsightReport, tmp_path: Path
+    ) -> None:
+        """Story 3.3 AC5: cleaning off/absent -> no manifest section rendered."""
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(full_report, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8")
+
+        assert "Data Cleaning" not in doc_xml
+
+    def test_healing_manifest_section_renders_when_present(
+        self, report_with_healing_manifest: InsightReport, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(report_with_healing_manifest, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8")
+
+        assert "Data Cleaning" in doc_xml
+        assert "Normalized casing in" in doc_xml
+        assert "working copy" in doc_xml  # part of REPORT_SEMANTICS_DISCLOSURE
+
+    def test_healing_manifest_entry_shows_operation_and_target_columns(
+        self, report_with_healing_manifest: InsightReport, tmp_path: Path
+    ) -> None:
+        """Story 3.3 AC6: every rendered entry must show operation and target
+        columns, not just outcome and detail."""
+        out = tmp_path / "report.docx"
+        DocxRenderer().render(report_with_healing_manifest, out)
+
+        with zipfile.ZipFile(out) as zf:
+            doc_xml = zf.read("word/document.xml").decode("utf-8")
+
+        assert "case_normalization" in doc_xml
+        assert "region" in doc_xml
+
+    def test_narrative_content_unchanged_by_healing_manifest_presence(
+        self,
+        full_report: InsightReport,
+        report_with_healing_manifest: InsightReport,
+        tmp_path: Path,
+    ) -> None:
+        """Story 3.3 AC9: narrative sections must not differ based on whether
+        cleaning ran — only the manifest section's presence should differ."""
+        out_without = tmp_path / "without.docx"
+        out_with = tmp_path / "with.docx"
+        DocxRenderer().render(full_report, out_without)
+        DocxRenderer().render(report_with_healing_manifest, out_with)
+
+        with zipfile.ZipFile(out_without) as zf:
+            xml_without = zf.read("word/document.xml").decode("utf-8")
+        with zipfile.ZipFile(out_with) as zf:
+            xml_with = zf.read("word/document.xml").decode("utf-8")
+
+        assert "Overall data quality is high" in xml_without
+        assert "Overall data quality is high" in xml_with
+        assert "Revenue Completeness" in xml_without
+        assert "Revenue Completeness" in xml_with
 
     def test_fallback_docx_renders_without_raising(
         self, fallback_report: InsightReport, tmp_path: Path
@@ -193,6 +299,75 @@ class TestPdfRenderer:
             PdfRenderer().render(full_report, out)
 
         assert out.read_bytes().startswith(b"%PDF")
+
+    def test_healing_manifest_absent_by_default(
+        self, full_report: InsightReport, tmp_path: Path
+    ) -> None:
+        """Story 3.3 AC5: cleaning off/absent -> no manifest section rendered."""
+        out = tmp_path / "report.pdf"
+        captured: list[str] = []
+        mock_wp = _make_weasyprint_mock(captured)
+
+        with patch.dict("sys.modules", {"weasyprint": mock_wp}):
+            PdfRenderer().render(full_report, out)
+
+        html_string = mock_wp.HTML.call_args.kwargs["string"]
+        assert "Data Cleaning" not in html_string
+
+    def test_healing_manifest_section_renders_when_present(
+        self, report_with_healing_manifest: InsightReport, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "report.pdf"
+        captured: list[str] = []
+        mock_wp = _make_weasyprint_mock(captured)
+
+        with patch.dict("sys.modules", {"weasyprint": mock_wp}):
+            PdfRenderer().render(report_with_healing_manifest, out)
+
+        html_string = mock_wp.HTML.call_args.kwargs["string"]
+        assert "Data Cleaning" in html_string
+        assert "Normalized casing in" in html_string
+        assert REPORT_SEMANTICS_DISCLOSURE in html_string
+
+    def test_healing_manifest_entry_shows_operation_and_target_columns(
+        self, report_with_healing_manifest: InsightReport, tmp_path: Path
+    ) -> None:
+        """Story 3.3 AC6: every rendered entry must show operation and target
+        columns, not just outcome and detail."""
+        out = tmp_path / "report.pdf"
+        captured: list[str] = []
+        mock_wp = _make_weasyprint_mock(captured)
+
+        with patch.dict("sys.modules", {"weasyprint": mock_wp}):
+            PdfRenderer().render(report_with_healing_manifest, out)
+
+        html_string = mock_wp.HTML.call_args.kwargs["string"]
+        assert "case_normalization" in html_string
+        assert "region" in html_string
+
+    def test_narrative_content_unchanged_by_healing_manifest_presence(
+        self,
+        full_report: InsightReport,
+        report_with_healing_manifest: InsightReport,
+        tmp_path: Path,
+    ) -> None:
+        """Story 3.3 AC9: narrative sections must not differ based on whether
+        cleaning ran — only the manifest section's presence should differ."""
+        captured: list[str] = []
+        mock_wp_without = _make_weasyprint_mock(captured)
+        mock_wp_with = _make_weasyprint_mock(captured)
+
+        with patch.dict("sys.modules", {"weasyprint": mock_wp_without}):
+            PdfRenderer().render(full_report, tmp_path / "without.pdf")
+        with patch.dict("sys.modules", {"weasyprint": mock_wp_with}):
+            PdfRenderer().render(report_with_healing_manifest, tmp_path / "with.pdf")
+
+        html_without = mock_wp_without.HTML.call_args.kwargs["string"]
+        html_with = mock_wp_with.HTML.call_args.kwargs["string"]
+        assert "Overall data quality is high" in html_without
+        assert "Overall data quality is high" in html_with
+        assert "Revenue Completeness" in html_without
+        assert "Revenue Completeness" in html_with
 
     def test_fallback_pdf_renders_without_raising(
         self, fallback_report: InsightReport, tmp_path: Path

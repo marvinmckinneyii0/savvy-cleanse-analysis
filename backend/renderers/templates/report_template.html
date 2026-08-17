@@ -91,6 +91,12 @@
       border-top: 1px solid #eee;
       padding-top: 6pt;
     }
+
+    .disclosure-note {
+      font-style: italic;
+      color: #555;
+      font-size: 9pt;
+    }
   </style>
 </head>
 <body>
@@ -151,6 +157,32 @@
     <ul>
       {% for rec in drift_report.recommendations %}
       <li>{{ rec }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if healing_manifest %}
+  <div class="section">
+    <h2>Data Cleaning</h2>
+    <p class="disclosure-note">{{ healing_manifest.report_semantics_disclosure }}</p>
+    <p>
+      <strong>Summary:</strong>
+      {{ healing_manifest.outcome_counts.get('applied', 0) }} applied,
+      {{ healing_manifest.outcome_counts.get('no_effect', 0) }} no-effect,
+      {{ healing_manifest.outcome_counts.get('skipped', 0) }} skipped,
+      {{ healing_manifest.outcome_counts.get('failed', 0) }} failed.
+    </p>
+    {% if healing_manifest.entries %}
+    <ul>
+      {% for entry in healing_manifest.entries %}
+      <li>
+        <strong>{{ entry.outcome.value }}</strong>
+        &mdash; {{ entry.operation.value }}
+        ({{ entry.target_columns|join(', ') if entry.target_columns else 'table-level' }}):
+        {{ entry.detail }}
+      </li>
       {% endfor %}
     </ul>
     {% endif %}

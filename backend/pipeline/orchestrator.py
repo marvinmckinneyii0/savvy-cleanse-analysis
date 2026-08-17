@@ -31,6 +31,7 @@ import typer
 
 from backend.core.logging import bind_pipeline_run_id, configure_logging
 from backend.errors.exceptions import ConfigurationError, SavvyCleanseError
+from backend.models.healing_manifest import build_healing_manifest
 from backend.models.pipeline_result import PipelineResult
 from backend.pipeline.data_quality import DataQualityAssessor
 from backend.pipeline.drift_engine import DriftEngine
@@ -257,6 +258,14 @@ def run_full_pipeline(
     # --- Stage 4: Narrative Generator ---
     insight_report = NarrativeGenerator().generate(payload, pipeline_run_id)
     result.insight_report = insight_report
+
+    # --- Stage 4b: Healing Manifest (Story 3.3) ---
+    # Strictly AFTER NarrativeGenerator has already returned, and never routed
+    # through InsightPayload — healing_manifest content has no code path by
+    # which it could reach the LLM prompt. None (absent) when cleaning did not
+    # run, so a disabled/off run's report is unaffected.
+    if result.cleaning_result is not None:
+        insight_report.healing_manifest = build_healing_manifest(result.cleaning_result)
 
     # --- Stage 5: Render ---
     if fmt == OutputFormat.docx:
