@@ -37,6 +37,7 @@ from backend.models.cleaning_result import (
     CleaningScope,
     CleaningStatus,
 )
+from backend.models.healing_manifest import NO_EFFECT_HINT_KEY, NO_EFFECT_HINT_VALUE
 from backend.models.pipeline_config import ImputationPolicyConfig
 from backend.models.quality_report import (
     DataQualityDefect,
@@ -243,7 +244,16 @@ def _applied_action(
 
 
 def _no_effect_action(column: str, method: str, source: str, null_count: int) -> CleaningAction:
-    """SKIPPED record when the primitive ran but had nothing to fill from."""
+    """SKIPPED record when the primitive ran but had nothing to fill from.
+
+    ``parameters[NO_EFFECT_HINT_KEY]`` is a marker for Story 3.3's Healing
+    Manifest: it is the ONLY reliable way to distinguish "attempted, no effect"
+    from a future "declined before execution" SKIPPED shape that could carry
+    the same operation/defect_type/remediation_class tuple. Set here because
+    this is the one place that actually knows which case it is. Imported (not
+    hardcoded) from `healing_manifest.py` so the two sides of this contract
+    can never silently drift apart via an independent typo in either file.
+    """
     return CleaningAction(
         operation=CleaningOperation.NULL_IMPUTATION,
         defect_type=_IMPUTATION_DEFECT_TYPE,
@@ -253,7 +263,11 @@ def _no_effect_action(column: str, method: str, source: str, null_count: int) ->
         target_columns=[column],
         before_state=f"{null_count} null(s)",
         after_state=f"{null_count} null(s)",
-        parameters={"method": method, "source": source},
+        parameters={
+            "method": method,
+            "source": source,
+            NO_EFFECT_HINT_KEY: NO_EFFECT_HINT_VALUE,
+        },
         rule=(
             f"attempted {method} imputation in '{column}' ({source} policy); "
             "no non-null value was available to fill from"

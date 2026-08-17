@@ -92,6 +92,11 @@ class CleaningAction(BaseModel):
     detail: str = ""
     # Safe error information on the FAILED path — exception type + message only,
     # never raw row data or PII. ``None`` on applied/skipped.
+    # NOTE (Story 3.3): this field's message half is only length-capped, not
+    # content-guaranteed-safe (a pandas exception can embed a cell's repr) —
+    # never surface it directly to a client. Any client-facing consumer MUST
+    # go through ``backend.models.healing_manifest.build_healing_manifest``,
+    # which strips the message and keeps only the exception type name.
     error: str | None = None
 
 

@@ -24,6 +24,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from backend.models.drift_report import DriftReport
+from backend.models.healing_manifest import HealingManifest
 
 
 class NarrativeSection(BaseModel):
@@ -65,3 +66,9 @@ class InsightReport(BaseModel):
     # renderer can emit a deterministic Drift Analysis section. None when no
     # baseline existed for the dataset.
     drift_report: DriftReport | None = None
+    # Story 3.3: populated server-side, strictly AFTER NarrativeGenerator has
+    # already returned — never routed through InsightPayload, so unlike
+    # drift_report (which IS threaded through and explicitly excluded from the
+    # LLM-facing JSON) there is no code path by which this could reach the LLM
+    # prompt at all. None when cleaning did not run.
+    healing_manifest: HealingManifest | None = None
