@@ -37,7 +37,7 @@
 #     (applies to all stories from 1.4 onward)
 
 generated: 2026-04-14
-last_updated: 2026-08-17  # 3-5-judgment-required-findings-handling DONE, merged to main via PR #49 (human-supervised; locks the Tier-3 boundary — runtime guard + report surfacing). Epic 3 completion sequence: 3.3 (done) -> 3.5 (done) -> 3.9-cleaning-mode-definitions-disclosure (next) -> 3.7-report-visualizations -> 3.8-notebook-export-code-generation -> epic integration/closure. Each story gets its own spec/branch/review/security-check/PR.
+last_updated: 2026-09-27  # 3-5-judgment-required-findings-handling DONE, merged to main via PR #49 (human-supervised; locks the Tier-3 boundary — runtime guard + report surfacing). Epic 3 completion sequence: 3.3 (done) -> 3.5 (done) -> 3.9-cleaning-mode-definitions-disclosure (next) -> 3.7-report-visualizations -> 3.8-notebook-export-code-generation -> epic integration/closure. Each story gets its own spec/branch/review/security-check/PR.
 project: SAINT
 project_key: NOKEY
 tracking_system: file-system
@@ -93,7 +93,7 @@ development_status:
   3-6-cleaned-data-export:                     { status: done, loop_eligible: true  }  # S/Sonnet — mechanical; implemented 2026-08-11: --cleaned-output CLI flag + run_full_pipeline(cleaned_output_path=...) seam, fail-loud on cleaning-disabled/halted runs, no-overwrite-by-default. Code review (medium) 2026-08-13 found+fixed 1 real bug: export path validation ran AFTER the full pipeline (DQA/insights/narrative/render), so a doomed export still left the primary report written despite non-zero exit — fixed by validating before any pipeline work; regression tests added. Full suite green, /security-review clean. Merged to main 2026-08-13 via PR #46.
   3-7-report-visualizations:                   { status: backlog, loop_eligible: false }  # L/Sonnet — extends visualization schema (analysis_class)
   3-8-notebook-export-code-generation:         { status: backlog, loop_eligible: false }  # M/Sonnet — HOLD for first impl (provenance-vs-suggestion split)
-  3-9-cleaning-mode-definitions-disclosure:    { status: backlog, loop_eligible: true  }  # M/Sonnet — client-facing copy, no schema risk
+  3-9-cleaning-mode-definitions-disclosure:    { status: ready-for-dev, loop_eligible: true  }  # M/Sonnet — spec drafted and reviewed; dependencies 3.4/3.5 done; approved for dev
   epic-3-retrospective: optional
 
   # =========================================================================
