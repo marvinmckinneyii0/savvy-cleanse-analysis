@@ -103,6 +103,30 @@ def run_command(
     return result
 
 
+def codex_exec_command(*, windows: bool | None = None) -> list[str]:
+    """Build a Codex invocation that works with native Windows CLI shims.
+
+    npm installs Codex on Windows as a ``.cmd`` shim. Python's
+    ``subprocess.run(..., shell=False)`` cannot launch that shim by its bare
+    command name, even though ``shutil.which`` can find it. Route through
+    ``cmd.exe`` on Windows; keep direct process execution on POSIX.
+    """
+    if windows is None:
+        windows = os.name == "nt"
+
+    if windows:
+        command_processor = os.environ.get("COMSPEC", "cmd.exe")
+        return [
+            command_processor,
+            "/d",
+            "/s",
+            "/c",
+            "codex exec --ephemeral -",
+        ]
+
+    return ["codex", "exec", "--ephemeral", "-"]
+
+
 def git(*args: str, check: bool = True, cwd: Path = ROOT) -> str:
     return (run_command(["git", *args], cwd=cwd, check=check).stdout or "").strip()
 
@@ -499,7 +523,7 @@ def execute(candidate: StoryCandidate) -> int:
     try:
         prompt = CURRENT_PROMPT.read_text(encoding="utf-8")
         result = run_command(
-            ["codex", "exec", "--ephemeral", "-"],
+            codex_exec_command(),
             check=False,
             capture=False,
             input_text=prompt,

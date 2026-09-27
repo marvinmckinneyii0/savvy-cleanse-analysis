@@ -84,6 +84,29 @@ class TestValidateChangedPaths:
             hl.validate_changed_paths(["AGENTS.md"])
 
 
+class TestCodexExecCommand:
+    def test_uses_cmd_processor_for_windows_npm_shim(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("COMSPEC", r"C:\Windows\System32\cmd.exe")
+
+        assert hl.codex_exec_command(windows=True) == [
+            r"C:\Windows\System32\cmd.exe",
+            "/d",
+            "/s",
+            "/c",
+            "codex exec --ephemeral -",
+        ]
+
+    def test_invokes_codex_directly_on_posix(self) -> None:
+        assert hl.codex_exec_command(windows=False) == [
+            "codex",
+            "exec",
+            "--ephemeral",
+            "-",
+        ]
+
+
 class TestFindingOneUncommittedBypass:
     """Reproduces the reviewed bypass: Codex commits a clean diff but leaves a
     protected-file edit (or any leftover change) sitting uncommitted."""
@@ -331,6 +354,8 @@ class TestEnsureRepoReadyToolChecks:
         def fake_which(name: str) -> str | None:
             if name == "uv":
                 return None
+            if name in {"git", "codex"}:
+                return f"/fake/bin/{name}"
             return real_which(name)
 
         monkeypatch.setattr(hl.shutil, "which", fake_which)
@@ -343,6 +368,8 @@ class TestEnsureRepoReadyToolChecks:
         def fake_which(name: str) -> str | None:
             if name == "npm":
                 return None
+            if name in {"git", "codex", "uv"}:
+                return f"/fake/bin/{name}"
             return real_which(name)
 
         monkeypatch.setattr(hl.shutil, "which", fake_which)
