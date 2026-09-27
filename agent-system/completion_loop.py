@@ -68,6 +68,7 @@ class CompletionState:
     phase: str
     branch: str | None = None
     repair_attempts: int = 0
+    reviewed_commit_sha: str | None = None
     updated_at: str = ""
 
     def touch(self) -> None:
@@ -379,11 +380,15 @@ def prepare_review_packet() -> Path:
         if hl.VALIDATION_REPORT.exists()
         else "{}"
     )
-    diff = hl.git("diff", f"{packet.base_commit_sha}...HEAD")
+    if hl.uncommitted_paths():
+        raise CompletionError("Working tree must be clean before independent review")
+    reviewed_commit_sha = hl.git("rev-parse", "HEAD")
+    diff = hl.git("diff", f"{packet.base_commit_sha}...{reviewed_commit_sha}")
     rendered = (
         REVIEWER_PROMPT.read_text(encoding="utf-8")
         + "\n\n# Review packet\n\n"
-        + f"Story: `{state.story_id}`\n\n"
+        + f"Story: `{state.story_id}`\n"
+        + f"Reviewed commit: `{reviewed_commit_sha}`\n\n"
         + "## Authoritative story\n\n"
         + story_text
         + "\n\n## Validation report\n\n```json\n"
@@ -404,11 +409,19 @@ def max_repair_attempts() -> int:
     return value
 
 
-def record_review(result: str, findings_file: str | None) -> CompletionState:
+def record_review(
+    result: str, findings_file: str | None, reviewed_commit_sha: str | None = None
+) -> CompletionState:
     state = load_state()
     if state is None or state.phase != "review_required":
         raise CompletionError("No implementation is currently awaiting review")
     if result == "pass":
+        if not reviewed_commit_sha or not re.fullmatch(r"[0-9a-f]{40}", reviewed_commit_sha):
+            raise CompletionError("--reviewed-commit must be the full 40-character SHA from the review packet")
+        current_sha = hl.git("rev-parse", "HEAD")
+        if current_sha != reviewed_commit_sha:
+            raise CompletionError("Reviewed commit does not match current HEAD")
+        state.reviewed_commit_sha = reviewed_commit_sha
         state.phase = "publish_ready"
         save_state(state)
         return state
@@ -517,12 +530,16 @@ def publish() -> None:
     state = load_state()
     if state is None or state.phase != "publish_ready":
         raise CompletionError("publish requires a passed independent review")
+    if not state.reviewed_commit_sha:
+        raise CompletionError("publish requires a commit-bound independent review")
     if shutil.which("gh") is None:
         raise CompletionError("GitHub CLI (gh) is required to publish the reviewed draft PR")
     _ensure_story_branch_ready(state)
     packet = _read_execution_packet()
     if packet.story_id != state.story_id:
         raise CompletionError("Completion state and handoff packet refer to different stories")
+    if hl.git("rev-parse", "HEAD") != state.reviewed_commit_sha:
+        raise CompletionError("HEAD changed after independent review; review the current commit again")
     report = hl.run_validation()
     if not report["success"]:
         raise CompletionError("Validation failed immediately before publish")
@@ -587,6 +604,7 @@ def parse_args() -> argparse.Namespace:
     review = sub.add_parser("record-review", help="record the independent review gate result")
     review.add_argument("--result", choices=("pass", "changes"), required=True)
     review.add_argument("--findings-file")
+    review.add_argument("--reviewed-commit", help="full commit SHA shown in the review packet")
     sub.add_parser("repair", help="run one bounded repair pass from recorded review findings")
     sub.add_parser("publish", help="revalidate, push, and open a draft PR after review passes")
     return parser.parse_args()
@@ -597,7 +615,7 @@ def main() -> int:
     try:
         target = args.target or default_target()
         if args.command == "record-review":
-            state = record_review(args.result, args.findings_file)
+            state = record_review(args.result, args.findings_file, args.reviewed_commit)
             print(json.dumps(asdict(state), indent=2))
             return 0
         if args.command == "repair":
