@@ -93,6 +93,9 @@ def run_command(
         cwd=cwd,
         check=False,
         text=True,
+        # Codex expects UTF-8 on stdin, regardless of the Windows locale.
+        # Keep the existing locale behavior for commands without a prompt.
+        encoding="utf-8" if input_text is not None else None,
         input=input_text,
         stdout=subprocess.PIPE if capture else None,
         stderr=subprocess.STDOUT if capture else None,
