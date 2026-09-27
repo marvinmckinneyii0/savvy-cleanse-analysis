@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -21,6 +21,8 @@ function manualChunks(id: string): string | undefined {
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   test: {
+    // Nested agent worktrees are separate checkouts, not this app’s tests.
+    exclude: [...configDefaults.exclude, "**/.claude/**"],
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
