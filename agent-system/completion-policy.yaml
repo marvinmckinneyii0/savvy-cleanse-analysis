@@ -1,0 +1,13 @@
+# Project-level sequencing only. sprint-status.yaml remains the sole story-status source of truth.
+# This file may order a release/closeout target, but it may never override status,
+# dependencies, or loop_eligible.
+default_target: epic-3-closeout
+max_repair_attempts: 2
+
+targets:
+  epic-3-closeout:
+    description: "Close Epic 3 in the sequence already recorded in sprint-status.yaml."
+    stories:
+      - 3-9-cleaning-mode-definitions-disclosure
+      - 3-7-report-visualizations
+      - 3-8-notebook-export-code-generation
