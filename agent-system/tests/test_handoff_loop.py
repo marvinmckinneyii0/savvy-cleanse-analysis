@@ -84,6 +84,24 @@ class TestValidateChangedPaths:
             hl.validate_changed_paths(["AGENTS.md"])
 
 
+class TestPromptEncoding:
+    @pytest.mark.parametrize("capture", [True, False])
+    def test_prompt_is_utf8_under_legacy_locale(self, monkeypatch, tmp_path, capture):
+        monkeypatch.setattr(subprocess, "_text_encoding", lambda: "cp1252")
+        output = tmp_path / "stdin.bin"
+        prompt = "Cleaning mode: café — preserve 日本語"
+        result = hl.run_command(
+            [sys.executable, "-c",
+             "import pathlib,sys; pathlib.Path(sys.argv[1]).write_bytes(sys.stdin.buffer.read())",
+             str(output)],
+            cwd=tmp_path,
+            capture=capture,
+            input_text=prompt,
+        )
+        assert result.returncode == 0
+        assert output.read_bytes() == prompt.encode("utf-8")
+
+
 class TestCodexExecCommand:
     def test_uses_cmd_processor_for_windows_npm_shim(
         self, monkeypatch: pytest.MonkeyPatch
