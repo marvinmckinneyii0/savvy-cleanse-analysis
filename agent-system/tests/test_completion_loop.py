@@ -154,10 +154,12 @@ class TestReviewRepairGate:
         cl.save_state(state)
         return state
 
-    def test_review_pass_is_required_before_publish(self, runtime: Path) -> None:
+    def test_review_pass_is_required_before_publish(self, runtime: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         self._state(runtime)
-        state = cl.record_review("pass", None)
+        monkeypatch.setattr(cl.hl, "git", lambda *args, **kwargs: "a" * 40)
+        state = cl.record_review("pass", None, "a" * 40)
         assert state.phase == "publish_ready"
+        assert state.reviewed_commit_sha == "a" * 40
         saved = json.loads((runtime / "completion-state.json").read_text(encoding="utf-8"))
         assert saved["phase"] == "publish_ready"
 
@@ -170,6 +172,29 @@ class TestReviewRepairGate:
         assert (runtime / "review-findings.md").read_text(encoding="utf-8") == findings.read_text(
             encoding="utf-8"
         )
+
+    def test_pass_requires_sha_matching_head(self, runtime: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        self._state(runtime)
+        monkeypatch.setattr(cl.hl, "git", lambda *args, **kwargs: "b" * 40)
+        with pytest.raises(cl.CompletionError, match="does not match current HEAD"):
+            cl.record_review("pass", None, "a" * 40)
+
+    def test_pass_requires_full_sha(self, runtime: Path) -> None:
+        self._state(runtime)
+        with pytest.raises(cl.CompletionError, match="40-character SHA"):
+            cl.record_review("pass", None, "bad")
+
+    def test_publish_rejects_head_changed_after_review(self, runtime: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        state = self._state(runtime)
+        state.phase = "publish_ready"
+        state.reviewed_commit_sha = "a" * 40
+        cl.save_state(state)
+        monkeypatch.setattr(cl.shutil, "which", lambda _: "/usr/bin/mock")
+        monkeypatch.setattr(cl, "_ensure_story_branch_ready", lambda *args, **kwargs: None)
+        monkeypatch.setattr(cl, "_read_execution_packet", lambda: type("Packet", (), {"story_id":"3-9-story"})())
+        monkeypatch.setattr(cl.hl, "git", lambda *args, **kwargs: "b" * 40)
+        with pytest.raises(cl.CompletionError, match="HEAD changed after independent review"):
+            cl.publish()
 
     def test_repair_budget_exhaustion_halts(self, runtime: Path) -> None:
         self._state(runtime, repairs=2)
