@@ -18,21 +18,19 @@ output:
   format: docx                # docx | pdf
   output_dir: output/
 
-# Story 3.4 — opt-in cleaning default + Tier-2 null-imputation policy.
-# The WHOLE section is optional; omitting it means cleaning defaults OFF. This
-# `enabled` is the config-file DEFAULT (one of three enablement surfaces, with
-# run_full_pipeline(enable_cleaning=...) and CLI --clean/--no-clean); an
-# explicit True/False at either of the other two always overrides it. With
-# nothing set anywhere, cleaning is OFF (load-bearing, AC1). Interim home for
-# this policy: it moves to project.cleaning_policy in Epic 4 (Story 4.1a).
+# Cleaning is optional and off by default. Run
+# `python -m backend.pipeline.orchestrator --help` for the working-copy
+# disclosure and plain-language descriptions of every missing-value choice.
+# The whole section is optional; omitting it leaves cleaning off. An explicit
+# CLI --clean or --no-clean selection overrides the `enabled` value below.
 # cleaning:
-#   enabled: false            # config-file default — overridden by an explicit --clean/--no-clean
+#   enabled: false            # change to true to opt in by default
 #   imputation:
-#     defaults:               # optional: override the built-in per-type defaults
-#       numeric: median       # built-in: median  (robust to SMB revenue/qty outliers)
-#       categorical: mode     # built-in: mode
-#       datetime: forward_fill # built-in: forward_fill
+#     defaults:               # optional choices by column type
+#       numeric: median
+#       categorical: mode
+#       datetime: forward_fill
 #     columns:                # optional: per-column overrides (highest precedence)
 #       revenue: median
-#       region: leave_as_is   # policy-layer skip; the primitive is never called
-#     # method allowlist: mean | median | mode | forward_fill | leave_as_is
+#       region: leave_as_is
+#     # accepted values: mean | median | mode | forward_fill | leave_as_is

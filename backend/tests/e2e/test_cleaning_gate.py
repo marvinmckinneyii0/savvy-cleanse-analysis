@@ -13,6 +13,7 @@ nothing set anywhere, cleaning is OFF.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from unittest.mock import patch
 
@@ -21,6 +22,10 @@ import pytest
 from typer.testing import CliRunner
 
 from backend.models.cleaning_result import CleaningOperation, CleaningResult, CleaningStatus
+from backend.models.cleaning_disclosure import (
+    CLEANING_BEHAVIOR_DISCLOSURE,
+    IMPUTATION_METHOD_DESCRIPTIONS,
+)
 from backend.models.insight_report import InsightReport, NarrativeSection
 from backend.models.pipeline_config import CleaningConfig, PipelineConfig
 from backend.pipeline.orchestrator import OutputFormat, app, run_full_pipeline
@@ -223,6 +228,20 @@ def test_cli_clean_flag_enables_gate(
     # Assert the ACTUAL loaded config, not just non-None — catches a wiring bug
     # that substitutes a default/wrong CleaningConfig for the real one.
     assert captured["cleaning_config"] == PipelineConfig.load().cleaning
+
+
+@pytest.mark.integration
+def test_cli_help_discloses_cleaning_behavior_and_available_methods() -> None:
+    result = CliRunner().invoke(app, ["--help"], terminal_width=500)
+
+    assert result.exit_code == 0, result.output
+    rendered_help = " ".join(re.sub(r"[\u2500-\u257f]", " ", result.output).split())
+    assert CLEANING_BEHAVIOR_DISCLOSURE in rendered_help
+    for method, description in IMPUTATION_METHOD_DESCRIPTIONS.items():
+        assert f"{description.label} ({method})" in rendered_help
+        assert description.explanation in rendered_help
+    assert "Tier-1" not in rendered_help
+    assert "Tier-2" not in rendered_help
 
 
 # --------------------------------------------------------------------------

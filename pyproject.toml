@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["backend/tests"]
+testpaths = ["backend/tests", "agent-system/tests"]
 python_files = ["test_*.py"]
 addopts = "-ra -q"
 markers = [

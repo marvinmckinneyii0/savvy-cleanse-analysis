@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import time
 import uuid
+from collections.abc import Iterable
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
@@ -31,6 +32,10 @@ import typer
 
 from backend.core.logging import bind_pipeline_run_id, configure_logging
 from backend.errors.exceptions import ConfigurationError, SavvyCleanseError
+from backend.models.cleaning_disclosure import (
+    CLEANING_BEHAVIOR_DISCLOSURE,
+    iter_imputation_method_descriptions,
+)
 from backend.models.healing_manifest import build_healing_manifest
 from backend.models.judgment_required_finding import build_judgment_required_findings
 from backend.models.pipeline_result import PipelineResult
@@ -306,6 +311,26 @@ def run_full_pipeline(
 app = typer.Typer(add_completion=False)
 
 
+def _cleaning_help_text(methods: Iterable[str] | None = None) -> str:
+    """Build CLI cleaning help from the canonical client-facing copy.
+
+    Unknown identifiers are omitted by ``iter_imputation_method_descriptions``
+    rather than interpolated, keeping this presentation seam fail-closed.
+    """
+
+    method_lines = [
+        f"{description.label} ({method}): {description.explanation}"
+        for method, description in iter_imputation_method_descriptions(methods)
+    ]
+    return "\n".join(
+        [
+            CLEANING_BEHAVIOR_DISCLOSURE,
+            "Available missing-value choices for config.yaml's cleaning.imputation settings:",
+            *method_lines,
+        ]
+    )
+
+
 @app.command()
 def cli(
     input: Annotated[
@@ -324,13 +349,7 @@ def cli(
         bool | None,
         typer.Option(
             "--clean/--no-clean",
-            help=(
-                "Opt into automated cleaning (Tier-1 fixes + Tier-2 null "
-                "imputation). Explicit --clean/--no-clean always wins; if "
-                "omitted, falls back to config.yaml's 'cleaning.enabled' "
-                "(off if that is also absent). Policy is always read from "
-                "config.yaml's 'cleaning' section when cleaning runs."
-            ),
+            help=_cleaning_help_text(),
         ),
     ] = None,
     cleaned_output: Annotated[

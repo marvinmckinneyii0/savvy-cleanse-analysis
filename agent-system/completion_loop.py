@@ -226,6 +226,14 @@ def decide_next(
             )
 
         if status == READY_STATUS:
+            if story_path is None:
+                return CompletionDecision(
+                    target=target, story_id=story_id, status=status,
+                    loop_eligible=loop_eligible, action="SPEC_REQUIRED",
+                    lane="supervised", story_path=None, dependencies=(),
+                    blocked_dependencies=(),
+                    reason="No authoritative BMAD story file exists yet.",
+                )
             if loop_eligible:
                 return CompletionDecision(
                     target=target,
@@ -404,8 +412,8 @@ def prepare_review_packet() -> Path:
 
 def max_repair_attempts() -> int:
     value = load_policy().get("max_repair_attempts", 2)
-    if not isinstance(value, int) or value < 0:
-        raise CompletionError("max_repair_attempts must be a non-negative integer")
+    if type(value) is not int or not 0 <= value <= 2:
+        raise CompletionError("max_repair_attempts must be an integer from 0 through 2")
     return value
 
 
@@ -460,6 +468,25 @@ def _ensure_story_branch_ready(
         raise CompletionError("Working tree is not clean: " + ", ".join(sorted(pending)))
 
 
+
+def _verify_execution_authority(
+    state: CompletionState, packet: hl.ExecutionPacket
+) -> None:
+    """Runtime state cannot override the canonical ledger or execution contract."""
+    decision = decide_next(state.target)
+    if (decision.story_id != state.story_id
+            or decision.action != "DISPATCH_AUTONOMOUS"
+            or packet.story_id != state.story_id
+            or packet.branch != state.branch
+            or packet.story_path != decision.story_path
+            or tuple(packet.dependencies) != decision.dependencies):
+        raise CompletionError("Canonical readiness, eligibility, or dependencies prohibit execution")
+    if hl.sha256(STATUS_PATH) != packet.status_file_sha256:
+        raise CompletionError("Canonical sprint ledger changed after handoff preparation")
+    hl.verify_story_untouched(packet)
+    hl.validate_changed_paths(hl.changed_paths(packet.base_commit_sha))
+
+
 def repair() -> int:
     state = load_state()
     if state is None or state.phase != "repair_required":
@@ -477,19 +504,23 @@ def repair() -> int:
     if packet.story_id != state.story_id:
         raise CompletionError("Completion state and handoff packet refer to different stories")
 
+    _verify_execution_authority(state, packet)
     base_sha = hl.git("rev-parse", "HEAD")
+    state.repair_attempts += 1
+    state.reviewed_commit_sha = None
+    save_state(state)
     prompt = (
         REPAIR_PROMPT.read_text(encoding="utf-8")
         + "\n\n# Execution context\n\n"
         + f"Story: `{state.story_id}`\n"
-        + f"Repair pass: `{state.repair_attempts + 1}` of `{max_repair_attempts()}`\n\n"
+        + f"Repair pass: `{state.repair_attempts}` of `{max_repair_attempts()}`\n\n"
         + "## Authoritative story\n\n"
         + (ROOT / packet.story_path).read_text(encoding="utf-8")
         + "\n\n## Review findings\n\n"
         + REVIEW_FINDINGS.read_text(encoding="utf-8")
     )
     result = hl.run_command(
-        ["codex", "exec", "--ephemeral", "-"],
+        hl.codex_exec_command(),
         check=False,
         capture=False,
         input_text=prompt,
@@ -497,7 +528,7 @@ def repair() -> int:
     if result.returncode != 0:
         raise CompletionError(f"Codex repair exited with status {result.returncode}")
 
-    hl.verify_story_untouched(packet)
+    _verify_execution_authority(state, packet)
     changed = hl.changed_paths(base_sha)
     pending = hl.uncommitted_paths()
     hl.validate_changed_paths(sorted(set(changed) | set(pending)))
@@ -507,7 +538,6 @@ def repair() -> int:
         raise CompletionError("Repair pass produced no committed diff")
 
     report = hl.run_validation()
-    state.repair_attempts += 1
     if not report["success"]:
         state.phase = "repair_required"
         save_state(state)
@@ -540,9 +570,14 @@ def publish() -> None:
         raise CompletionError("Completion state and handoff packet refer to different stories")
     if hl.git("rev-parse", "HEAD") != state.reviewed_commit_sha:
         raise CompletionError("HEAD changed after independent review; review the current commit again")
+    _verify_execution_authority(state, packet)
     report = hl.run_validation()
     if not report["success"]:
         raise CompletionError("Validation failed immediately before publish")
+    _ensure_story_branch_ready(state)
+    _verify_execution_authority(state, packet)
+    if hl.git("rev-parse", "HEAD") != state.reviewed_commit_sha:
+        raise CompletionError("HEAD changed during validation; review the current commit again")
 
     title = _story_title(packet)
     changed = hl.changed_paths(packet.base_commit_sha)
