@@ -19,6 +19,8 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
+from rich.text import Text
+from typer import rich_utils
 from typer.testing import CliRunner
 
 from backend.models.cleaning_result import CleaningOperation, CleaningResult, CleaningStatus
@@ -231,11 +233,19 @@ def test_cli_clean_flag_enables_gate(
 
 
 @pytest.mark.integration
-def test_cli_help_discloses_cleaning_behavior_and_available_methods() -> None:
+@pytest.mark.parametrize("color_enabled", [False, True])
+def test_cli_help_discloses_cleaning_behavior_and_available_methods(
+    monkeypatch: pytest.MonkeyPatch, color_enabled: bool
+) -> None:
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    monkeypatch.setenv("TERM", "xterm-256color")
+    monkeypatch.setattr(rich_utils, "FORCE_TERMINAL", color_enabled)
+    monkeypatch.setattr(rich_utils, "COLOR_SYSTEM", "standard")
     result = CliRunner().invoke(app, ["--help"], terminal_width=500)
 
     assert result.exit_code == 0, result.output
-    rendered_help = " ".join(re.sub(r"[\u2500-\u257f]", " ", result.output).split())
+    visible_help = Text.from_ansi(result.output).plain
+    rendered_help = " ".join(re.sub(r"[\u2500-\u257f]", " ", visible_help).split())
     assert CLEANING_BEHAVIOR_DISCLOSURE in rendered_help
     for method, description in IMPUTATION_METHOD_DESCRIPTIONS.items():
         assert f"{description.label} ({method})" in rendered_help
