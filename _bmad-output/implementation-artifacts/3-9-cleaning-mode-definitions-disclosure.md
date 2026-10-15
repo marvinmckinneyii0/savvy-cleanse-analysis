@@ -1,6 +1,6 @@
 # Story 3.9: Cleaning Mode Definitions & In-Product Disclosure
 
-Status: ready-for-dev
+Status: done
 
 Sizing: M · Model: Sonnet · loop_eligible: true
 PREREQUISITES: Story 3.4 (done), Story 3.5 (done)
