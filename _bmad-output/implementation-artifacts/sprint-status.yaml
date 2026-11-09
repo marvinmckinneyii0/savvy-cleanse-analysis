@@ -37,7 +37,7 @@
 #     (applies to all stories from 1.4 onward)
 
 generated: 2026-04-14
-last_updated: 2026-11-08  # 2-6-config-driven-llm-model-routing story filed (ready-for-dev); Epic 2 reopened for it (out-of-band, 2-2b precedent). Previous (2026-10-15): 3-9-cleaning-mode-definitions-disclosure DONE, merged via PR #55 (commit 5d02e28); Epic 3 next: 3.7-report-visualizations (backlog — needs story file + human promotion). Previous: 3-5-judgment-required-findings-handling DONE, merged to main via PR #49 (human-supervised; locks the Tier-3 boundary — runtime guard + report surfacing). Epic 3 completion sequence: 3.3 (done) -> 3.5 (done) -> 3.9-cleaning-mode-definitions-disclosure (next) -> 3.7-report-visualizations -> 3.8-notebook-export-code-generation -> epic integration/closure. Each story gets its own spec/branch/review/security-check/PR.
+last_updated: 2026-10-15  # 3-9-cleaning-mode-definitions-disclosure DONE, merged via PR #55 (commit 5d02e28); Epic 3 next: 3.7-report-visualizations (backlog — needs story file + human promotion). Previous: 3-5-judgment-required-findings-handling DONE, merged to main via PR #49 (human-supervised; locks the Tier-3 boundary — runtime guard + report surfacing). Epic 3 completion sequence: 3.3 (done) -> 3.5 (done) -> 3.9-cleaning-mode-definitions-disclosure (next) -> 3.7-report-visualizations -> 3.8-notebook-export-code-generation -> epic integration/closure. Each story gets its own spec/branch/review/security-check/PR.
 project: SAINT
 project_key: NOKEY
 tracking_system: file-system
