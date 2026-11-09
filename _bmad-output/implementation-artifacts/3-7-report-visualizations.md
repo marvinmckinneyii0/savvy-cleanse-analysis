@@ -1,6 +1,6 @@
 # Story 3.7: Report Visualizations (Manual Chart Specification)
 
-Status: backlog <!-- Story file drafted 2026-10-16. Promotion to ready-for-dev is a HUMAN decision (AGENTS.md); Q1 (charting dependency) must be answered first. -->
+Status: backlog <!-- Story file drafted 2026-10-16. Decisions Q1–Q3 were supplied by Marvin on 2026-11-09; ledger promotion remains a separate canonical-status update. -->
 
 Sizing: L · Model: Sonnet per epic table (Opus recommended for dev — multi-file, renderer + orchestrator + new dependency; see Dev Notes) · loop_eligible: false (L sizing + schema-extending; must stay false)
 PREREQUISITES: Story 3.3 (done), Story 3.4 (done), Story 3.5 (done), Story 3.9 (done)
@@ -145,11 +145,11 @@ All four are `analysis_class: "descriptive"` (PRD §3.2: free tier = "descriptiv
 - [Source: _bmad-output/implementation-artifacts/3-3-healing-manifest.md#Dev Notes — DOCX template editing]
 - [Source: backend/models/insight_report.py; backend/pipeline/orchestrator.py Stages 4–5; backend/renderers/*]
 
-## Open questions (resolve before promotion to ready-for-dev)
+## Resolved decisions (Marvin, 2026-11-09)
 
-- **Q1 — Charting dependency (BLOCKING).** Approve adding `matplotlib>=3.11,<3.12` as a runtime dependency (architecture "New Dependencies Per Phase" would gain an Epic 3 row)? If no, the zero-dep SVG + Pillow path is the fallback and sizing grows.
-- **Q2 — Default columns for `missing_values_before_after`.** Proposed: all columns with ≥1 missing value in the original, capped at 30 (sorted by missing count desc, then name). Confirm or require explicit columns.
-- **Q3 — Dev model.** Epic table says Sonnet; given new dependency + both renderers + orchestrator stage, Opus/high is recommended for dev with Sonnet for review (per model-selection guidance). Your call.
+- **Q1 — Charting dependency.** Approved: add `matplotlib>=3.11,<3.12` as a runtime dependency. Use headless object-oriented `Figure` + Agg rendering; never use pyplot global state.
+- **Q2 — Default columns for `missing_values_before_after`.** When columns are omitted, include original-data columns with at least one missing value, ordered by missing count descending then column name, capped at 30. Report when the cap truncates the list. Explicitly configured columns continue to follow the chart spec.
+- **Q3 — Implementation model.** Use ChatGPT Work/Codex for implementation. Defer Claude Code review until the build is complete; retain all acceptance checks, full repository validation, and the required security review. Record implementation decisions and evidence in the PR for Marvin's final review.
 
 ## Dev Agent Record
 
