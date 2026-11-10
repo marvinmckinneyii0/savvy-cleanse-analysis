@@ -26,8 +26,6 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li><Link to="/features" className="text-muted-foreground hover:text-savvy-gold transition-colors">Features</Link></li>
               <li><Link to="/pricing" className="text-muted-foreground hover:text-savvy-gold transition-colors">Pricing</Link></li>
-              <li><Link to="/testimonials" className="text-muted-foreground hover:text-savvy-gold transition-colors">Testimonials</Link></li>
-              <li><Link to="/api" className="text-muted-foreground hover:text-savvy-gold transition-colors">API</Link></li>
             </ul>
           </div>
           
@@ -36,8 +34,6 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li><Link to="/documentation" className="text-muted-foreground hover:text-savvy-gold transition-colors">Documentation</Link></li>
               <li><Link to="/guides" className="text-muted-foreground hover:text-savvy-gold transition-colors">Guides</Link></li>
-              <li><Link to="/api-reference" className="text-muted-foreground hover:text-savvy-gold transition-colors">API Reference</Link></li>
-              <li><Link to="/blog" className="text-muted-foreground hover:text-savvy-gold transition-colors">Blog</Link></li>
             </ul>
           </div>
           
@@ -45,7 +41,6 @@ const Footer = () => {
             <h4 className="text-sm font-semibold mb-4">Company</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to="/about" className="text-muted-foreground hover:text-savvy-gold transition-colors">About</Link></li>
-              <li><Link to="/careers" className="text-muted-foreground hover:text-savvy-gold transition-colors">Careers</Link></li>
               <li><Link to="/contact" className="text-muted-foreground hover:text-savvy-gold transition-colors">Contact</Link></li>
               <li><Link to="/savvy-analytics" className="text-muted-foreground hover:text-savvy-gold transition-colors">Savvy Analytics</Link></li>
             </ul>

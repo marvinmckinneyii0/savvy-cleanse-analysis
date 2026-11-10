@@ -7,7 +7,7 @@ const Hero = () => {
   const navigate = useNavigate();
   
   const handleStartAnalyzing = () => {
-    navigate('/dashboard');
+    navigate('/contact');
   };
 
   const handleSignupClick = () => {
@@ -35,7 +35,7 @@ const Hero = () => {
                 onClick={handleStartAnalyzing}
                 className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
               >
-                Start Analyzing Data
+                Request a Data-Quality Report
               </Button>
               <Button variant="outline" size="lg" onClick={handleSignupClick}>
                 Join Waitlist
