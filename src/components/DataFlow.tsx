@@ -13,7 +13,7 @@ const DataFlow = () => {
     },
     {
       title: 'We Run SAINT',
-      description: 'We check data quality, apply cleaning only if you asked for it, and review the report before it goes out.'
+      description: 'We check data quality, apply cleaning only if you asked for it, and produce your report.'
     },
     {
       title: 'Get Your Report',
