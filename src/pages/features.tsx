@@ -84,7 +84,7 @@ const Features = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">How We Work</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                During the beta, a person runs SAINT on your file and checks the report before sending it.
+                During the beta, a person runs SAINT on your file and emails you the report.
               </p>
             </div>
             
