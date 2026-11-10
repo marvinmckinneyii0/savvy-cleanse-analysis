@@ -81,39 +81,43 @@ const Contact = () => {
     {
       icon: <MessageSquare className="h-8 w-8 text-savvy-blue" />,
       title: "General Support",
-      description: "Questions about using SAINT, troubleshooting, or account issues",
+      description: "Questions about the beta, your request, or a report you received",
       email: "support@savvyanalytics.info"
     },
     {
       icon: <Briefcase className="h-8 w-8 text-savvy-gold" />,
       title: "Business Inquiries",
-      description: "Enterprise sales, partnerships, and custom solutions",
+      description: "Partnerships and custom work",
       email: "business@savvyanalytics.info"
     },
     {
       icon: <HelpCircle className="h-8 w-8 text-savvy-blue" />,
-      title: "Technical Questions",
-      description: "API documentation, integration help, and developer support",
+      title: "Data Questions",
+      description: "Questions about file format, what we check, and how cleaning works",
       email: "developers@savvyanalytics.info"
     }
   ];
 
   const faqs = [
     {
-      question: "How quickly can I get started with SAINT?",
-      answer: "You can start using SAINT immediately after signing up. Simply upload your data and begin cleaning and analyzing within minutes."
+      question: "How does the beta work?",
+      answer: "Send us a request with the form on this page. We reply by email with how to share your CSV by link, run SAINT on it, and email you a written report. There is no self-serve upload or account yet."
     },
     {
-      question: "What file formats do you support?",
-      answer: "We support CSV, Excel (.xlsx, .xls), JSON, and TSV files. We're continuously adding support for more formats based on user feedback."
+      question: "What files can I send?",
+      answer: "CSV only, up to 100 MB. Please do not send health records, financial account data or government IDs."
     },
     {
-      question: "Is my data secure?",
-      answer: "Yes, we take data security seriously. All data is encrypted in transit and at rest, and we follow industry-standard security practices."
+      question: "What do I get back?",
+      answer: "A Word or PDF report with data-quality findings, insights and recommendations. If you chose cleaning, you also get the cleaned CSV."
     },
     {
-      question: "Can I export my cleaned data?",
-      answer: "Absolutely! You can export your cleaned data in multiple formats including CSV, Excel, and as Python/Jupyter notebooks for further analysis."
+      question: "Will you change my data?",
+      answer: "Only if you ask. Cleaning is off by default. When you ask for it, SAINT applies only supported, rule-based changes to a working copy, keeps your original file unchanged, and lists every change in the report. Findings that need your judgment are left unchanged."
+    },
+    {
+      question: "What happens to my file?",
+      answer: "We use it to produce your report and delete it 7 days after the report is delivered."
     }
   ];
 
