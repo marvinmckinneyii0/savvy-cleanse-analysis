@@ -7,7 +7,7 @@ const CTA = () => {
   const navigate = useNavigate();
   
   const handleStartNow = () => {
-    navigate('/dashboard');
+    navigate('/contact');
   };
 
   const handleEarlyAccessClick = () => {
@@ -32,7 +32,7 @@ const CTA = () => {
             onClick={handleStartNow}
             className="bg-savvy-gold hover:bg-savvy-gold/90 text-white"
           >
-            Start Analyzing Now
+            Request a Data-Quality Report
           </Button>
           <Button 
             size="lg" 

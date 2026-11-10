@@ -32,19 +32,16 @@ const Navbar = () => {
           <a href="#pricing" className="font-medium transition-colors hover:text-savvy-gold">
             Pricing
           </a>
-          <Link to="/dashboard" className="font-medium transition-colors hover:text-savvy-gold">
-            Dashboard
-          </Link>
         </nav>
         
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
-          <Link to="/dashboard">
+          <Link to="/contact">
             <Button 
               variant="outline"
               className="hidden sm:inline-flex"
             >
-              Try Now
+              Contact Us
             </Button>
           </Link>
           <Button 
