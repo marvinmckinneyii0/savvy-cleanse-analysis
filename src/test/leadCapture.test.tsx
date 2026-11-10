@@ -98,7 +98,7 @@ describe('SignupForm', () => {
     await user.type(screen.getByLabelText('Full Name'), VALID.name);
     await user.type(screen.getByLabelText('Work Email'), VALID.email);
     await user.type(screen.getByLabelText('Company'), VALID.company);
-    await user.click(screen.getByRole('button', { name: 'Join Waitlist' }));
+    await user.click(screen.getByRole('button', { name: 'Request Report' }));
   };
 
   it('sends the lead and shows the thank-you state', async () => {

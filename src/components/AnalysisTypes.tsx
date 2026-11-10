@@ -5,31 +5,17 @@ const AnalysisTypes = () => {
   const analysisTypes = [
     {
       type: 'Descriptive',
-      question: 'What happened?',
-      description: 'Summarize historical data with statistics and visualizations.',
+      question: 'What does the data say?',
+      description: 'Summarizes each column and shows how key figures change over time and between groups.',
       formula: 'μ = Σx / n',
-      features: ['Summary statistics', 'Frequency distributions', 'Data visualizations']
+      features: ['Summary statistics', 'Trends over time', 'Segment comparisons']
     },
     {
-      type: 'Diagnostic',
-      question: 'Why did it happen?',
-      description: 'Identify patterns, correlations, and potential causes.',
-      formula: 'r = Σ[(xᵢ - x̄)(yᵢ - ȳ)] / √[Σ(xᵢ - x̄)²Σ(yᵢ - ȳ)²]',
-      features: ['Correlation analysis', 'Hypothesis testing', 'Causal inference flags']
-    },
-    {
-      type: 'Predictive',
-      question: 'What is likely to happen?',
-      description: 'Forecast future trends and outcomes using models.',
-      formula: 'ŷ = β₀ + β₁X',
-      features: ['Forecasting models', 'Classification algorithms', 'Model performance metrics']
-    },
-    {
-      type: 'Prescriptive',
-      question: 'What should we do about it?',
-      description: 'Optimize decisions with actionable recommendations.',
-      formula: 'Max Z = c₁x₁ + c₂x₂ …',
-      features: ['Optimization models', 'Decision trees', 'Scenario simulation']
+      type: 'Quality',
+      question: 'What needs a closer look?',
+      description: 'Flags data-quality problems and values that sit far from the rest.',
+      formula: 'z = (x − μ) / σ',
+      features: ['Findings rated by severity', 'Unusual values', 'Recommendations']
     }
   ];
 
@@ -37,13 +23,13 @@ const AnalysisTypes = () => {
     <section className="py-16 bg-savvy-white" id="analysis-types">
       <div className="container px-4 md:px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold">Four Types of Analytics</h2>
+          <h2 className="text-3xl font-bold">What the Analysis Covers</h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            From understanding what happened to determining what actions to take, SAINT guides you through the complete analytics journey.
+            Every figure in the report is calculated from your data. AI writes the narrative and never makes up numbers.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
           {analysisTypes.map((analysis, index) => (
             <div key={analysis.type} className={`bg-white dark:bg-card p-4 md:p-6 rounded-lg border shadow-sm hover:shadow-md transition-shadow animate-bounce-in [animation-delay:${index * 100}ms]`}>
               <div className="text-savvy-blue font-semibold mb-2">{analysis.type}</div>

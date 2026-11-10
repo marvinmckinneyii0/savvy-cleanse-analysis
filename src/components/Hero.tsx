@@ -10,10 +10,10 @@ const Hero = () => {
     navigate('/contact');
   };
 
-  const handleSignupClick = () => {
-    const signupForm = document.getElementById('signup-form');
-    if (signupForm) {
-      signupForm.scrollIntoView({ behavior: 'smooth' });
+  const handleHowItWorksClick = () => {
+    const howItWorks = document.getElementById('how-it-works');
+    if (howItWorks) {
+      howItWorks.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -23,11 +23,12 @@ const Hero = () => {
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
           <div className="space-y-4 animate-fade-in">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tighter">
-              Clean, Transform, and <span className="text-savvy-gold">Analyze</span> Your Data
+              A <span className="text-savvy-gold">Data-Quality Report</span> on Your CSV, Done for You
             </h1>
             <p className="text-muted-foreground md:text-xl">
-              SAINT is a Python-first data cleaning and analytics platform built for data scientists,
-              analysts, and business intelligence professionals.
+              SAINT checks your data for missing values, duplicates, outliers and formatting problems,
+              then gives you a written report with findings and recommendations. During the beta,
+              our team runs it for you.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button 
@@ -37,12 +38,12 @@ const Hero = () => {
               >
                 Request a Data-Quality Report
               </Button>
-              <Button variant="outline" size="lg" onClick={handleSignupClick}>
-                Join Waitlist
+              <Button variant="outline" size="lg" onClick={handleHowItWorksClick}>
+                How It Works
               </Button>
             </div>
             <p className="text-sm text-muted-foreground pt-2">
-              Upload CSV, JSON, XLSX, XML, or TXT files. AI cleaning included.
+              CSV files up to 100 MB. There is no upload on this site: we reply by email with how to send your file.
             </p>
           </div>
           <div className="lg:pl-10 animate-fade-in">
@@ -63,20 +64,17 @@ const Hero = () => {
                   />
                 </div>
                 <pre className="code-block text-xs md:text-sm overflow-x-auto">
-{`# SAINT Python Integration
-import saint as sc
+{`What's in the report
 
-# Load and clean your data
-df = sc.clean('messy_data.csv')
-
-# Analyze using descriptive statistics
-summary = df.analyze('descriptive')
-
-# Visualize the results
-summary.plot(kind='histogram')
-
-# Export the clean data and code
-df.to_notebook('analysis.ipynb')`}
+1. Summary of findings
+2. Data quality: missing values, duplicates,
+   outliers, types and formats
+3. Trends and segment comparisons
+4. Unusual values
+5. Recommendations
+6. Record of cleaning changes
+   (only if you asked for cleaning)
+7. Findings left for your judgment`}
                 </pre>
               </div>
             </div>

@@ -45,7 +45,7 @@ const SignupForm = () => {
             Thank you!
           </CardTitle>
           <CardDescription>
-            We'll be in touch soon with early access details.
+            We'll reply by email with how to send your CSV.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -56,10 +56,10 @@ const SignupForm = () => {
     <Card id="signup-form" className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">
-          Get Early Access
+          Request a Data-Quality Report
         </CardTitle>
         <CardDescription>
-          Join the waitlist for SAINT and be among the first to experience next-generation data cleaning.
+          Leave your details and we'll reply by email with how to send your CSV.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -112,12 +112,12 @@ const SignupForm = () => {
             className="w-full bg-savvy-gold hover:bg-savvy-gold/90 text-white" 
             disabled={loading}
           >
-            {loading ? 'Signing up...' : 'Join Waitlist'}
+            {loading ? 'Sending...' : 'Request Report'}
           </Button>
         </form>
         
         <p className="text-xs text-muted-foreground text-center mt-4">
-          By signing up, you agree to receive updates about SAINT. Unsubscribe anytime.
+          By submitting, you agree to be contacted about your request.
         </p>
       </CardContent>
     </Card>

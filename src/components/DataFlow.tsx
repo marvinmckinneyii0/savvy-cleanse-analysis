@@ -3,21 +3,21 @@ import React from 'react';
 
 const DataFlow = () => {
   const steps = [
-    { 
-      title: 'Upload Data', 
-      description: 'Upload structured or unstructured data in CSV, JSON, XLSX, XML, or TXT formats.' 
+    {
+      title: 'Request a Report',
+      description: 'Fill in the form with your contact details. There is no file upload on this site.'
     },
-    { 
-      title: 'AI Cleaning', 
-      description: 'Our smart cleaner detects and fixes formatting issues, missing values, and inconsistent schemas.' 
+    {
+      title: 'Send Your CSV',
+      description: 'We reply by email with how to share your file by link. CSV only, up to 100 MB. Please do not send health records, financial account data or government IDs.'
     },
-    { 
-      title: 'Choose Analysis', 
-      description: 'Select from Descriptive, Diagnostic, Predictive, or Prescriptive analytics based on your goals.' 
+    {
+      title: 'We Run SAINT',
+      description: 'We check data quality, apply cleaning only if you asked for it, and review the report before it goes out.'
     },
-    { 
-      title: 'Guided Results', 
-      description: 'Review results with visualizations, formulas, and Python code you can reuse.' 
+    {
+      title: 'Get Your Report',
+      description: 'You receive a Word or PDF report by email, plus the cleaned CSV if you chose cleaning. We delete your file 7 days after delivery.'
     }
   ];
 
@@ -27,7 +27,7 @@ const DataFlow = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold">How It Works</h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            A simple four-step process to transform messy data into actionable insights.
+            Four steps from a messy file to a written report.
           </p>
         </div>
         
