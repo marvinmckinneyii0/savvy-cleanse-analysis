@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className="border-t bg-white dark:bg-savvy-dark">
       <div className="container px-4 md:px-6 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2">
               <img 
@@ -26,14 +26,6 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li><Link to="/features" className="text-muted-foreground hover:text-savvy-gold transition-colors">Features</Link></li>
               <li><Link to="/pricing" className="text-muted-foreground hover:text-savvy-gold transition-colors">Pricing</Link></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="text-sm font-semibold mb-4">Resources</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/documentation" className="text-muted-foreground hover:text-savvy-gold transition-colors">Documentation</Link></li>
-              <li><Link to="/guides" className="text-muted-foreground hover:text-savvy-gold transition-colors">Guides</Link></li>
             </ul>
           </div>
           

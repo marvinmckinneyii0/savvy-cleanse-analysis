@@ -6,7 +6,15 @@ import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
 
 // Pages hidden for the concierge beta (launch decision D8).
-const HIDDEN_PATHS = ['/api', '/api-reference', '/testimonials', '/careers', '/blog'];
+const HIDDEN_PATHS = [
+  '/api',
+  '/api-reference',
+  '/testimonials',
+  '/careers',
+  '/blog',
+  '/documentation',
+  '/guides',
+];
 const HIDDEN_LINK_TARGETS = [...HIDDEN_PATHS, '/dashboard'];
 
 const renderAt = (path: string) =>
@@ -80,5 +88,14 @@ describe('pages hidden for the concierge beta', () => {
     for (const target of HIDDEN_LINK_TARGETS) {
       expect(linkTargets()).not.toContain(target);
     }
+  });
+
+  it('the home page omits the sample-chart and feedback sections', () => {
+    renderAt('/');
+
+    expect(screen.getByRole('heading', { name: 'Key Features' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Business Intelligence' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'We Value Your Feedback' })).not.toBeInTheDocument();
+    expect(document.getElementById('business-intelligence')).not.toBeInTheDocument();
   });
 });
