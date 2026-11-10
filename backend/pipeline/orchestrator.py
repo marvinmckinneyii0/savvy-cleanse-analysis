@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING, Annotated
 import pandas as pd
 import structlog
 import typer
+from dotenv import load_dotenv
 
 from backend.core.logging import bind_pipeline_run_id, configure_logging
 from backend.errors.exceptions import ConfigurationError, SavvyCleanseError
@@ -372,6 +373,9 @@ def cli(
 ) -> None:
     """Run the SAINT full analysis pipeline on a CSV file."""
     configure_logging()
+    # LLM provider keys live in .env. PipelineConfig.load() also loads it, but an
+    # explicit --no-clean skips that call, which left the narrative without keys.
+    load_dotenv()
     pipeline_run_id = str(uuid.uuid4())
 
     try:

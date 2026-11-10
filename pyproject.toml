@@ -21,6 +21,9 @@ dependencies = [
     "python-multipart>=0.0.9",
     "openpyxl>=3.1",
     "pillow>=12.3.0",
+    "anthropic>=2.7.0",
+    "openai>=3.49.0",
+    "google-genai>=3.0.0",
 ]
 
 [tool.pytest.ini_options]
