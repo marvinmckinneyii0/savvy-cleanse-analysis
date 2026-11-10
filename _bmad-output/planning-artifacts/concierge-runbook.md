@@ -120,8 +120,8 @@ The original `input.csv` is never changed. Cleaning works on a copy.
 2. Open the report and read it through. Check that:
    - the figures quoted in the narrative match the tables;
    - nothing in it refers to another customer;
-   - if cleaning ran, the Healing Manifest section lists the changes, and the changes match what the customer asked for;
-   - the section of findings left for the customer's judgment is present.
+   - if cleaning ran, the section headed "Data Cleaning" lists the changes, and the changes match what the customer asked for;
+   - if there is a section headed "Requires Your Review", you have read it. It lists findings SAINT left unchanged for the customer to decide. It appears only when there are such findings, so a report without it is not broken.
 
 This check is your own quality step. The website does not promise it to customers.
 
