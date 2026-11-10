@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import HoneypotField from '@/components/HoneypotField';
+import { submitLead } from '@/lib/leadCapture';
 
 const SignupForm = () => {
   const [email, setEmail] = useState('');
@@ -12,18 +14,24 @@ const SignupForm = () => {
   const [company, setCompany] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setSuccess(true);
+    setError(null);
+
+    const result = await submitLead('signup', { name, email, company }, honeypot);
     setLoading(false);
-    
-    // Reset form
+
+    if (!result.ok) {
+      // Keep what the visitor typed so they can retry.
+      setError(result.message);
+      return;
+    }
+
+    setSuccess(true);
     setEmail('');
     setName('');
     setCompany('');
@@ -56,6 +64,7 @@ const SignupForm = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <HoneypotField value={honeypot} onChange={setHoneypot} />
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input
@@ -91,6 +100,12 @@ const SignupForm = () => {
               required
             />
           </div>
+
+          {error && (
+            <Alert variant="destructive" role="alert">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
           <Button 
             type="submit" 

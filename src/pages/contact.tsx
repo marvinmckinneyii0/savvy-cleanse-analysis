@@ -6,6 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import HoneypotField from '@/components/HoneypotField';
+import { submitLead } from '@/lib/leadCapture';
 import { Mail, MapPin, Clock, Phone, Send, MessageSquare, HelpCircle, Briefcase } from 'lucide-react';
 
 const Contact = () => {
@@ -24,11 +27,27 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [honeypot, setHoneypot] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // Reset form
+    setSubmitting(true);
+    setError(null);
+    setSent(false);
+
+    const result = await submitLead('contact', formData, honeypot);
+    setSubmitting(false);
+
+    if (!result.ok) {
+      // Keep what the visitor typed so they can retry or copy it into an email.
+      setError(result.message);
+      return;
+    }
+
+    setSent(true);
     setFormData({
       name: '',
       email: '',
@@ -151,6 +170,7 @@ const Contact = () => {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
+                      <HoneypotField value={honeypot} onChange={setHoneypot} />
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Name</Label>
@@ -202,9 +222,26 @@ const Contact = () => {
                         />
                       </div>
                       
-                      <Button type="submit" className="w-full bg-savvy-blue hover:bg-savvy-blue/90">
+                      {sent && (
+                        <Alert role="status">
+                          <AlertDescription>
+                            Thanks — your message was sent. We'll reply by email.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      {error && (
+                        <Alert variant="destructive" role="alert">
+                          <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                      )}
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-savvy-blue hover:bg-savvy-blue/90"
+                        disabled={submitting}
+                      >
                         <Send className="h-4 w-4 mr-2" />
-                        Send Message
+                        {submitting ? 'Sending...' : 'Send Message'}
                       </Button>
                     </form>
                   </CardContent>
