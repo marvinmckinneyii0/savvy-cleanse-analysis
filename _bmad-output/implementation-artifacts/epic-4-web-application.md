@@ -46,12 +46,28 @@ documentation.
 CONSUMES Story 3.9's copy. Single source of truth — the pricing page and the in-app upgrade
 prompt must not diverge.
 
-**4.12 (NET-NEW)** — Implements Task 5 in full (see saint-design-tokens.css): two-token
-accent, warm neutral ramp, severity palette, hero-gradient fix, wordmark lockup (full +
-compact), type system. Uses ui-ux-pro-max-skill against savyanalytics.info, 21st.dev
-components, Motionsites templates. HALT and ask on any brand-color ambiguity.
-OPEN ITEM: the display typeface must be resolved from savvyanalytics.info before this ships
-(not raster-matched); currently blocked in saint-design-tokens.css (`--font-display`).
+**4.12 (NET-NEW) — Owner-approved Black & Amber direction (2026-11-10).**
+The source of visual direction is `docs/design/saint-black-amber.md`, distilled
+from the owner's SAINT homepage screenshot. The visual treatment is black
+navigation, near-black/charcoal surfaces, metallic amber accents and primary
+CTAs, bold high-contrast white typography, restrained gloss, subtle highlights,
+and careful mobile/accessibility behavior—not a heavy glassmorphism or neon theme.
+Use consistently across the marketing site, customer dashboard and admin.
+
+The implementation still must address Task 5's existing requirements
+(`saint-design-tokens.css` token reconciliation, two-token accent,
+warm neutrals, severity palette, hero contrast/gradient, full/compact wordmark,
+and typography), without creating a competing token source. The reference
+screenshot's low-contrast gray hero should be corrected for legibility.
+Keep all product claims limited to real capabilities.
+
+**Draft story:** `4-12-design-system-brand-tokens.md` is a proposed
+implementation/acceptance-criteria file, not evidence of status promotion.
+Canonical `sprint-status.yaml` remains `backlog` and
+`loop_eligible: false`. This design-system rollout belongs after the
+Friday concierge-beta critical path; do not introduce major changes before
+Friday's launch. HALT on unresolved brand ambiguity. The display typeface
+and final palette sampling still require human review before shipping.
 
 ## NAMING (do not blur)
 
