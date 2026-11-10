@@ -1,135 +1,145 @@
-# SavvyCortex App  
+# SAINT
 
-A comprehensive React + FastAPI–based data cleaning and analytics tool from **Savvy Analytics** that helps businesses and analysts quickly prepare datasets, run automated analysis, and generate professional reports.  
+SAINT (Savvy Analytics Intelligence) turns a CSV file into a written data-quality report. It checks the data for problems, optionally cleans a working copy, computes insights, and renders a Word or PDF report with findings and recommendations.
 
-![Savvy Analytics](https://img.shields.io/badge/Savvy%20Analytics-SavvyClean-blue) ![React](https://img.shields.io/badge/React-18.2.0-blue) ![Vite](https://img.shields.io/badge/Vite-5.0-purple) ![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.3.0-38B2AC) ![shadcn/ui](https://img.shields.io/badge/shadcn/ui-Components-black) ![Python](https://img.shields.io/badge/Python-3.11-yellow) ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688) ![License](https://img.shields.io/badge/License-Proprietary-red)  
+SAINT is made by Savvy Analytics. It was previously called SavvyCortex and SavvyClean; some file and class names still use the old names.
 
-Overview
+## Status: concierge beta
 
-SAINT is a data cleaning and analytics application that combines a React/Vite + TypeScript frontend with a Python/FastAPI backend. It enables businesses, analysts, and product owners to:
+Today SAINT is a command-line pipeline that a person runs. During the beta, a customer requests a report on the website, sends a CSV, and receives the report by email.
 
-Clean messy datasets with ML-powered strategies
+**What works**
 
-Run automated analytics pipelines
+- Data-quality assessment: missing values, duplicates, outliers, and type or format problems, each rated by severity.
+- Optional cleaning on a working copy, with every change recorded in the report. Off by default.
+- Insights: per-column summary statistics, trends over time, segment comparisons, unusual values, and recommendations.
+- A written narrative produced by an LLM from the computed numbers. The LLM never computes numbers.
+- Reports in Word (`.docx`) or PDF, and an optional export of the cleaned CSV.
+- A marketing website with contact and report-request forms.
 
-Ask natural-language questions about their data
+**What does not exist yet**
 
-Generate professional reports for decision-making
+- Self-serve upload, accounts, or sign-in.
+- A dashboard, or charts in reports.
+- Notebook or Python code export.
+- Forecasting, optimization, or natural-language queries.
+- A public API. The FastAPI app in `backend/api/` serves only a health check and a file-parsing endpoint.
+- Input formats other than CSV for the report pipeline.
 
-Features
-✨ Core Functionality
+## Requirements
 
-Data Uploads: CSV, Excel, JSON support
+- Python 3.13 or later and [uv](https://docs.astral.sh/uv/)
+- Node.js 22 and npm (for the website only)
+- For PDF output: the native libraries WeasyPrint needs (the GTK runtime on Windows; Pango and GObject on Linux or macOS). Word output needs nothing extra.
 
-Intelligent Cleaner: Profiles your dataset and auto-selects the best cleaning strategy
+## Generate a report
 
-Analytics Engine: Natural-language query interface for data analysis
+Install the Python dependencies once:
 
-Report Generation: Summaries, recommendations, and export options
+```bash
+uv sync --dev
+```
 
-Compliance Ready: Built with GDPR/AI Act awareness
+Run the pipeline on a CSV. This writes a Word report and leaves the data untouched:
 
-Responsive UI: Tailwind CSS + shadcn/ui
+```bash
+uv run python -m backend.pipeline.orchestrator --input backend/tests/e2e/sample_data/clean_sales.csv --output report.docx
+```
 
-📄 Footer Pages Implementation
+Options:
 
-All footer-linked pages are scaffolded with consistent styling and responsive design:
+| Option | Meaning |
+|---|---|
+| `--input PATH` | The CSV file to analyze. Required. |
+| `--output PATH` | Where to write the report. Required. |
+| `--format docx\|pdf` | Report format. Default `docx`. |
+| `--clean` / `--no-clean` | Turn cleaning on or off for this run. Without either, the `cleaning.enabled` value in `config.yaml` decides; if that section is absent, cleaning is off. |
+| `--cleaned-output PATH` | Also write the cleaned working copy to this CSV. Requires cleaning to be on. |
+| `--overwrite-cleaned-output` | Allow `--cleaned-output` to replace an existing file. |
 
-Product Pages: Features, Pricing, Testimonials, API (beta)
+Run with `--help` to see the full text, including the available missing-value methods.
 
-Resources: Documentation, Guides, API Reference, Blog
+A report with cleaning and the cleaned data:
 
-Company: About, Careers, Contact, Savvy Analytics info
+```bash
+uv run python -m backend.pipeline.orchestrator --input data.csv --output report.docx --clean --cleaned-output data_cleaned.csv
+```
 
-Style Consistency: Dark/light theme, SEO-friendly, unified brand tokens
+### Things to know before you run it
 
-Installation
-1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/savvycleanse.git
-cd savvycleanse
+- **LLM keys.** The narrative uses Anthropic first, then OpenAI, then Google as fallbacks. Copy `.env.example` to `.env` and set at least `ANTHROPIC_API_KEY`. With no working key the pipeline still completes, but the report uses a plain fallback narrative.
+- **Critical data problems stop the run.** If the quality check finds a critical problem (for example, a column that is 60% empty), the pipeline halts, prints the reason, exits with an error, and writes no report.
+- **PDF needs native libraries.** Without them, `--format pdf` fails with a clear error and no report is written. Use `docx` or install the libraries listed under Requirements.
+- **Your input file is never modified.** Cleaning works on a copy.
 
-2. Install dependencies (Frontend)
-npm install
+### Cleaning
+
+Cleaning is optional and off by default. When enabled, SAINT applies only supported, deterministic changes to a working copy, keeps the original input unchanged, and records every action in the report's Healing Manifest. Findings that need human judgment are listed and left unchanged.
+
+How missing values are filled is set in the `cleaning` section of `config.yaml`; the commented example there lists the accepted methods.
+
+## Website
+
+The site is a React, Vite and TypeScript app in `src/`.
+
+```bash
+npm ci
+```
+
+```bash
 npm run dev
+```
 
+The dev server runs at http://localhost:8080.
 
-Frontend will start at http://localhost:5173
-.
+The contact and report-request forms post to [Formspree](https://formspree.io). Set `VITE_FORMSPREE_FORM_ID` in `.env` to your form's ID. Without it, both forms show an error that points visitors to the support email.
 
-3. Setup Backend (FastAPI)
-uv sync
-uvicorn backend.api.app:app --reload
+To build for production:
 
-
-Backend will run at http://localhost:8000
-.
-
-Available endpoints:
-
-/upload → upload dataset
-
-/clean → intelligent cleaning pipeline
-
-/analyze → natural-language analytics
-
-/report/summary → generate reports
-
-/export → export cleaned data
-
-File Structure
-savvycleanse/
-├── frontend/               # React + Vite frontend
-│   ├── src/
-│   └── public/
-├── backend/                # FastAPI backend
-│   ├── main.py
-│   └── pyproject.toml
-├── package.json
-└── README.md
-
-Technologies Used
-
-Frontend: React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui, Lucide React
-
-Backend: Python 3.11, FastAPI, Pandas, ML-powered cleaning pipeline
-
-Dev Tools: Lovable, GitHub Codespaces, Docker-ready configs
-
-Deployment
-Backend
-
-Deploy to Render, Railway, Fly.io, or Docker:
-
-uvicorn backend.api.app:app --host 0.0.0.0 --port 8000
-
-Frontend
+```bash
 npm run build
+```
 
+The static site is written to `dist/`.
 
-Deploy dist/ to Netlify, Vercel, or GitHub Pages.
+## Tests
 
-Custom Domain
+```bash
+uv run pytest
+```
 
-Connect via Project > Settings > Domains in Lovable.
+```bash
+npm test
+```
 
-Roadmap
+CI runs both, plus the production build, on every pull request.
 
- Expand API with more endpoints
+## Repository layout
 
- Add PDF report export
+```
+backend/
+  pipeline/     orchestrator (CLI entry point), data quality, cleaning, insights, narrative, drift
+  rules/        cleaning policy and the opt-in gate
+  models/       Pydantic models passed between pipeline stages
+  renderers/    Word and PDF report rendering
+  agents/       scheduled reporting and monitoring
+  core/         LLM client and logging
+  api/          minimal FastAPI app (health check and file parsing)
+  tests/        pytest suite, including end-to-end CLI tests and sample data
+src/            website (React, Vite, TypeScript, Tailwind, shadcn/ui)
+config.yaml     thresholds, schedules and cleaning settings
+_bmad-output/   product requirements, architecture, story specs and sprint status
+agent-system/   tooling for the AI-assisted development workflow
+```
 
- Integrate vector database for semantic queries
+Some older modules in `backend/` (`main.py`, `main_enhanced.py`, `cleaner.py`, `advanced_pipeline.py`, `analytics.py`, `comprehensive_analytics.py`, `nlp_processor.py`, `dashboard_api.py`) are legacy reference code. New code must not import them.
 
- Multi-user authentication & role-based access
+Contributor rules are in `AGENTS.md`. Sprint status lives in `_bmad-output/implementation-artifacts/sprint-status.yaml`.
 
- Self-healing pipelines (data drift detection + correction)
-
-License
+## License
 
 © 2025 Savvy Analytics LLC. All rights reserved.
 
-Contact
+## Contact
 
-For support or inquiries:
-Savvy Analytics
-🌐 savvyanalytics.info
+Savvy Analytics: savvyanalytics.info
