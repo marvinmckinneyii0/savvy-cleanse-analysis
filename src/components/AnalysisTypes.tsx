@@ -36,7 +36,7 @@ const AnalysisTypes = () => {
               <h3 className="text-xl font-bold mb-2">{analysis.question}</h3>
               <p className="text-muted-foreground text-sm mb-4">{analysis.description}</p>
               <div className="formula-block mb-4">
-                <code className="formula text-savvy-midnight">{analysis.formula}</code>
+                <code className="formula text-savvy-midnight dark:text-foreground">{analysis.formula}</code>
               </div>
               <ul className="text-sm space-y-1">
                 {analysis.features.map((feature) => (

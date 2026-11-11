@@ -86,6 +86,18 @@ describe('the home page keeps its original design', () => {
   });
 });
 
+describe('home text fixes that leave the design alone', () => {
+  it('the formula lines in the analysis tiles have a dark-mode text colour', () => {
+    const formulas = renderSurface(<AnalysisTypes />).querySelectorAll('code.formula');
+
+    // Navy text on the tile's dark formula strip was 1.14:1 in dark mode.
+    expect(formulas.length).toBeGreaterThan(0);
+    for (const formula of formulas) {
+      expect(formula.className).toContain('dark:text-foreground');
+    }
+  });
+});
+
 describe('every other page matches the home page', () => {
   it.each(INNER_PAGES)('%s: opens with the home page hero', (_name, element) => {
     const hero = renderSurface(element).querySelector('main > section') as HTMLElement;
