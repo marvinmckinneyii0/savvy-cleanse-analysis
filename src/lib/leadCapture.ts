@@ -11,7 +11,7 @@ import { z } from 'zod';
 const FORMSPREE_BASE_URL = 'https://formspree.io/f';
 
 /** Shown when a submission cannot be delivered, so the lead is not lost. */
-export const LEAD_FALLBACK_EMAIL = 'support@savvyanalytics.info';
+export const LEAD_FALLBACK_EMAIL = 'info@savvyanalytics.co';
 
 const leadFieldsSchema = z
   .object({

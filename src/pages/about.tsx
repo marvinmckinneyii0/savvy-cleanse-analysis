@@ -9,7 +9,7 @@ import { Target, Users, Lightbulb, Award, MapPin, Mail } from 'lucide-react';
 const About = () => {
   const values = [
     {
-      icon: <Target className="h-8 w-8 text-savvy-blue" />,
+      icon: <Target className="h-8 w-8 text-savvy-gold" />,
       title: "Transparency",
       description: "We believe in showing you exactly how your insights are generated. No black boxes, just clear methodology and statistical rigor."
     },
@@ -19,7 +19,7 @@ const About = () => {
       description: "Powerful analytics shouldn't require a PhD. We make sophisticated data science accessible to everyone."
     },
     {
-      icon: <Lightbulb className="h-8 w-8 text-savvy-blue" />,
+      icon: <Lightbulb className="h-8 w-8 text-savvy-gold" />,
       title: "Intelligence",
       description: "We leverage cutting-edge AI and machine learning to automate the tedious parts of data analysis while maintaining human oversight."
     }
@@ -74,24 +74,24 @@ const About = () => {
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="py-16 bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate text-white">
+        <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5">
           <div className="container px-4 md:px-6">
             <div className="text-center max-w-4xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <h1 className="text-3xl md:text-5xl font-bold tracking-tighter mb-6">
                 About
                 <span className="text-savvy-gold"> SAINT</span>
               </h1>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+              <p className="text-muted-foreground md:text-xl max-w-2xl mx-auto mb-8">
                 We're on a mission to turn data chaos into clarity, one dataset at a time.
               </p>
               <div className="flex items-center justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  Lisbon, Portugal
+                  Dallas, Texas
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
-                  support@savvyanalytics.info
+                  info@savvyanalytics.co
                 </div>
               </div>
             </div>
@@ -99,14 +99,14 @@ const About = () => {
         </section>
 
         {/* Mission Statement */}
-        <section className="py-16 bg-white dark:bg-savvy-dark">
+        <section className="py-16 bg-white light-surface">
           <div className="container px-4 md:px-6">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-8">Our Mission</h2>
               <p className="text-xl text-muted-foreground leading-relaxed mb-8">
                 SAINT is built by <strong>Savvy Analytics</strong>, a consultancy dedicated to helping businesses adopt AI responsibly. We believe that powerful analytics should be transparent, accessible, and intelligent.
               </p>
-              <div className="bg-gradient-to-r from-savvy-blue/10 to-savvy-gold/10 rounded-lg p-8">
+              <div className="bg-savvy-slate/5 rounded-lg p-8">
                 <blockquote className="text-2xl font-semibold text-center italic">
                   "Turn chaos into clarity, one dataset at a time."
                 </blockquote>
@@ -117,7 +117,7 @@ const About = () => {
         </section>
 
         {/* Values */}
-        <section className="py-16 bg-gradient-to-r from-savvy-blue/5 to-savvy-gold/5">
+        <section className="py-16 bg-savvy-slate/5">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Our Values</h2>
@@ -130,7 +130,7 @@ const About = () => {
               {values.map((value, index) => (
                 <Card key={index} className="text-center shadow-sm hover:shadow-lg transition-all duration-300">
                   <CardHeader>
-                    <div className="w-16 h-16 bg-gradient-to-br from-savvy-blue/20 to-savvy-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-savvy-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
                       {value.icon}
                     </div>
                     <CardTitle className="text-xl">{value.title}</CardTitle>
@@ -145,7 +145,7 @@ const About = () => {
         </section>
 
         {/* Team */}
-        <section className="py-16 bg-white dark:bg-savvy-dark">
+        <section className="py-16 bg-white light-surface">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Meet Our Team</h2>
@@ -158,7 +158,7 @@ const About = () => {
               {team.map((member, index) => (
                 <Card key={index} className="text-center shadow-sm hover:shadow-lg transition-all duration-300">
                   <CardHeader>
-                    <div className="w-20 h-20 bg-gradient-to-br from-savvy-blue to-savvy-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-20 h-20 bg-gradient-to-br from-savvy-gold to-savvy-gold rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-white text-xl font-bold">{member.initials}</span>
                     </div>
                     <CardTitle className="text-xl">{member.name}</CardTitle>
@@ -176,7 +176,7 @@ const About = () => {
         </section>
 
         {/* Timeline */}
-        <section className="py-16 bg-gradient-to-r from-savvy-blue/5 to-savvy-gold/5">
+        <section className="py-16 bg-savvy-slate/5">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Our Journey</h2>
@@ -189,8 +189,8 @@ const About = () => {
               <div className="space-y-8">
                 {milestones.map((milestone, index) => (
                   <div key={index} className="flex items-start gap-6">
-                    <div className="flex-shrink-0 w-20 h-20 bg-white dark:bg-card rounded-full border-4 border-savvy-blue flex items-center justify-center shadow-lg">
-                      <span className="text-savvy-blue font-bold text-sm">{milestone.year}</span>
+                    <div className="flex-shrink-0 w-20 h-20 bg-white dark:bg-card rounded-full border-4 border-savvy-gold flex items-center justify-center shadow-lg">
+                      <span className="text-savvy-gold font-bold text-sm">{milestone.year}</span>
                     </div>
                     <div className="flex-grow">
                       <h3 className="text-xl font-semibold mb-2">{milestone.title}</h3>
@@ -204,7 +204,7 @@ const About = () => {
         </section>
 
         {/* Stats */}
-        <section className="py-16 bg-white dark:bg-savvy-dark">
+        <section className="py-16 bg-white light-surface">
           <div className="container px-4 md:px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               {[
@@ -214,7 +214,7 @@ const About = () => {
                 { value: "99.9%", label: "Uptime" }
               ].map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-savvy-blue mb-2">
+                  <div className="text-3xl md:text-4xl font-bold text-savvy-gold mb-2">
                     {stat.value}
                   </div>
                   <div className="text-muted-foreground">{stat.label}</div>
@@ -225,18 +225,18 @@ const About = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-16 bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate text-white">
+        <section className="py-16 bg-gradient-to-r from-savvy-dark to-savvy-midnight text-white">
           <div className="container px-4 md:px-6">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-4">Join Our Mission</h2>
-              <p className="text-gray-300 mb-8">
+              <p className="text-savvy-white/80 mb-8">
                 Ready to transform how your organization approaches data analytics? Let's turn your data chaos into clarity.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button className="bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">
                   Start Free Trial
                 </Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button variant="outline" className="border-white bg-transparent text-white hover:bg-white/10 hover:text-white">
                   Contact Our Team
                 </Button>
               </div>

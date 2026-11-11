@@ -108,7 +108,7 @@ describe('Savvy Analytics page', () => {
     );
 
     // Hero and closing section match src/components/Hero.tsx and CTA.tsx.
-    expect(sectionClasses[0]).toContain('py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5');
+    expect(sectionClasses[0]).toBe('py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5');
     expect(sectionClasses.at(-1)).toBe('py-16 bg-gradient-to-r from-savvy-dark to-savvy-midnight');
     // No section keeps the old dark-hero or blue-gradient treatments.
     for (const classes of sectionClasses) {
@@ -118,15 +118,16 @@ describe('Savvy Analytics page', () => {
     expect(main().innerHTML).not.toContain('savvy-blue');
   });
 
-  it('gives every light section a dark-mode background', () => {
+  it('keeps white bands white and their text readable, as on the home page', () => {
     renderPage();
 
-    // The site defaults to dark mode, where headings are near-white. A section
-    // that stays white there hides its own heading.
+    // The home page keeps its light sections white in dark mode. The
+    // light-surface class gives text on them a dark colour there.
     for (const section of main().querySelectorAll(':scope > section')) {
       const classes = section.className;
-      if (/(^|\s)bg-(white|savvy-white)(\s|$)|from-savvy-white/.test(classes)) {
-        expect(classes).toMatch(/dark:/);
+      if (/(^|\s)bg-(white|savvy-white)(\s|$)/.test(classes)) {
+        expect(classes).toMatch(/(^|\s)light-surface(\s|$)/);
+        expect(classes).not.toMatch(/dark:bg-/);
       }
     }
   });

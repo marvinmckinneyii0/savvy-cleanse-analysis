@@ -77,9 +77,8 @@ const SavvyAnalytics = () => {
     <div className="flex flex-col min-h-screen" data-page="savvy-analytics">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero — same layout and styles as the home page hero, plus dark-mode colours.
-            The home sections have no dark variants yet, so their headings vanish in dark mode. */}
-        <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5 dark:from-savvy-dark dark:to-savvy-gold/10">
+        {/* Hero — same layout and classes as the home page hero */}
+        <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="space-y-4 animate-fade-in">
@@ -128,7 +127,7 @@ const SavvyAnalytics = () => {
         </section>
 
         {/* Stats */}
-        <section className="py-16 bg-white dark:bg-savvy-dark" id="results">
+        <section className="py-16 bg-white light-surface" id="results">
           <div className="container px-4 md:px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {stats.map((stat) => (
@@ -142,7 +141,7 @@ const SavvyAnalytics = () => {
         </section>
 
         {/* Services */}
-        <section className="py-16 bg-savvy-white dark:bg-savvy-dark" id="services">
+        <section className="py-16 bg-savvy-white light-surface" id="services">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold">Our Services</h2>
@@ -206,7 +205,7 @@ const SavvyAnalytics = () => {
         </section>
 
         {/* SAINT */}
-        <section className="py-16 bg-white dark:bg-savvy-dark" id="saint">
+        <section className="py-16 bg-white light-surface" id="saint">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold">Where SAINT Fits</h2>
@@ -245,7 +244,7 @@ const SavvyAnalytics = () => {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-savvy-dark"
+                className="border-white bg-transparent text-white hover:bg-white hover:text-savvy-dark"
               >
                 <a href={SITE_URL} {...externalLink}>
                   Visit savvyanalytics.co

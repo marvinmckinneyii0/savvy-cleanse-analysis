@@ -20,7 +20,7 @@ const AnalysisTypes = () => {
   ];
 
   return (
-    <section className="py-16 bg-savvy-white" id="analysis-types">
+    <section className="py-16 bg-savvy-white light-surface" id="analysis-types">
       <div className="container px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold">What the Analysis Covers</h2>
