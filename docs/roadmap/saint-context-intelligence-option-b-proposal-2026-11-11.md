@@ -136,6 +136,15 @@ Acceptance criteria below are proposed for human filing into the relevant canoni
 - **Orchestration:** no n8n; if orchestration becomes necessary, use the repository-approved LangGraph or MIT-licensed equivalent after explicit story approval. Do not import complex agent frameworks into the beta.
 - **Launch policy:** PR #82 (About), #83 (pricing), #79 (market research) and #73 (visual brief) are separate change streams; this PR neither merges nor depends on them. M0 must not delay launch readiness, legal review, lead capture, report verification or the existing pricing sign-off.
 
+## Epic 4.1 schema design package (draft; not implementation)
+
+The owner has approved the **design direction** of Organization = Tenant, optional Client Workspace and Project as the existing canonical analysis parent. The next-stage architectural documentation is now available:
+
+- [Epic 4.1 Context Intelligence Schema Design](epic-4-1-context-intelligence-schema-design-2026-11-11.md) — proposed table/relationship contracts, metric and context revisions, authorization model, compatibility with the brownfield backend, and implementation phases.
+- [Epic 4.1 Migration & Security Review Gate](epic-4-1-schema-migration-security-review.md) — existing Supabase migration collisions, ownership verification, phased data migration, twenty negative/compatibility test cases, and human-only review checkpoints.
+
+**The physical DB design, access policies and future BMAD story scope are not yet approved.** Both documents are documentation-only; Friday beta remains independent.
+
 ## Architecture decision proposal — tenant/client/project hierarchy
 
 The follow-on architecture decision is proposed in [CI-ADR-001: Agency, Client Workspace, Project and Context Ownership](adr-proposed-agency-client-tenancy-2026-11-11.md). **Recommendation (not yet approved for implementation):** one tenant per subscribing organization, optional tenant-owned client workspaces for agencies, and the already planned Epic 4.1 project as the canonical parent of context, KPI definitions and runs. Deny cross-client access within the same tenant by default; store shared KPI templates without client observations. Any schema or RLS change requires its own human-approved canonical story.
