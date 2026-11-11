@@ -208,6 +208,31 @@ def test_cli_no_clean_flag_skips_config_load(
 
 
 @pytest.mark.integration
+@pytest.mark.parametrize("flags", [["--no-clean"], ["--clean"], []])
+def test_cli_loads_dotenv_for_every_cleaning_choice(
+    flags: list[str],
+    dirty_csv: Path,
+    tmp_path: Path,
+    canned_insight_report: InsightReport,
+) -> None:
+    """LLM provider keys come from .env, so the CLI must load it on every run.
+
+    Regression: PipelineConfig.load() was the only caller of load_dotenv(), and
+    an explicit --no-clean skips that call, so the narrative ran without keys.
+    """
+    out = tmp_path / "r.docx"
+    with (
+        patch(_NARRATIVE_TARGET, return_value=canned_insight_report),
+        patch("backend.pipeline.orchestrator.load_dotenv") as load_dotenv_spy,
+    ):
+        res = CliRunner().invoke(
+            app, ["--input", str(dirty_csv), "--output", str(out), *flags]
+        )
+    assert res.exit_code == 0, res.output
+    load_dotenv_spy.assert_called_once_with()
+
+
+@pytest.mark.integration
 def test_cli_clean_flag_enables_gate(
     dirty_csv: Path, tmp_path: Path, canned_insight_report: InsightReport
 ) -> None:

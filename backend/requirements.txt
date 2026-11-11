@@ -20,7 +20,7 @@ python-multipart
 supabase
 openai
 anthropic
-google-generativeai
+google-genai
 psycopg2-binary
 sqlalchemy
 
