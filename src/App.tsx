@@ -11,6 +11,8 @@ import Pricing from "./pages/pricing";
 import About from "./pages/about";
 import Contact from "./pages/contact";
 import SavvyAnalytics from "./pages/savvy-analytics";
+import Privacy from "./pages/privacy";
+import Terms from "./pages/terms";
 import { ThemeProvider } from "./components/ThemeProvider";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,9 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/savvy-analytics" element={<SavvyAnalytics />} />
+          {/* Legal Pages (drafts until approved, launch decision D9) */}
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

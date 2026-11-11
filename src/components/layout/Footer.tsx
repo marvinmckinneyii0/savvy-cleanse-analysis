@@ -44,15 +44,12 @@ const Footer = () => {
             © {new Date().getFullYear()} Savvy Analytics. All rights reserved.
           </p>
           <div className="flex items-center gap-4 mt-4 md:mt-0">
-            <a href="#" className="text-muted-foreground hover:text-savvy-gold transition-colors">
+            <Link to="/terms" className="text-muted-foreground hover:text-savvy-gold transition-colors">
               Terms
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-savvy-gold transition-colors">
+            </Link>
+            <Link to="/privacy" className="text-muted-foreground hover:text-savvy-gold transition-colors">
               Privacy
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-savvy-gold transition-colors">
-              Cookies
-            </a>
+            </Link>
           </div>
         </div>
       </div>
