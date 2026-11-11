@@ -43,18 +43,35 @@ describe('About page content (owner update, 2026-11-11)', () => {
     const text = aboutText();
 
     expect(text).toContain('Company Founded');
-    expect(text).toMatch(/2026\s*SAINT Launch|SAINT Launch/);
+    expect(text).toMatch(/2026\s*SAINT Concierge Beta/);
+    expect(text).toContain('Preparing a guided beta');
+    expect(text).not.toContain('Released our first product');
+    expect(text).not.toContain('SAINT Launch');
     expect(text).not.toContain('10K+ Users');
     expect(text).not.toContain('API Release');
     expect(text).not.toContain('50+ countries');
   });
 
-  it('drops the users and countries figures and keeps the other two', () => {
+  it('removes unverified numerical claims and obsolete user statistics', () => {
     const text = aboutText();
 
-    expect(text).not.toContain('Active Users');
-    expect(text).not.toContain('Countries');
-    expect(text).toContain('Rows Processed');
-    expect(text).toContain('Uptime');
+    for (const unsupported of [
+      'Active Users', 'Countries', 'Rows Processed', 'Uptime',
+      '500M+', '99.9%', '10K+', '50+',
+    ]) {
+      expect(text).not.toContain(unsupported);
+    }
+  });
+
+  it('routes the beta request to contact and provides a working email action', () => {
+    const { getByRole, queryByRole } = render(
+      <MemoryRouter><About /></MemoryRouter>,
+    );
+
+    expect(getByRole('link', { name: 'Request a Data-Quality Report' }).getAttribute('href'))
+      .toBe('/contact');
+    expect(getByRole('link', { name: 'Email Our Team' }).getAttribute('href'))
+      .toBe('mailto:info@savvyanalytics.co');
+    expect(queryByRole('button', { name: 'Start Free Trial' })).toBeNull();
   });
 });
