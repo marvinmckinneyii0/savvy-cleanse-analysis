@@ -102,6 +102,48 @@ npm run build
 
 The static site is written to `dist/`.
 
+### Deploy to Vercel
+
+The site deploys to [Vercel](https://vercel.com) as a static Vite app. `vercel.json` sets the build, sends every route to `index.html` so links like `/contact` work on reload, and adds basic security headers. `.vercelignore` keeps the Python pipeline and planning docs out of the upload. Only the website is deployed; reports are still produced locally with the CLI.
+
+One-time setup:
+
+1. Install the Vercel CLI and sign in:
+
+   ```bash
+   npm i -g vercel
+   ```
+
+   ```bash
+   vercel login
+   ```
+
+2. From the repository root, link the folder to a new Vercel project. Accept the detected settings:
+
+   ```bash
+   vercel link
+   ```
+
+3. Add the site's settings to the project, choosing **Production** (and Preview if you want them there too). Each command prompts for the value:
+
+   ```bash
+   vercel env add VITE_FORMSPREE_FORM_ID
+   ```
+
+   ```bash
+   vercel env add VITE_STRIPE_PAYMENT_LINK
+   ```
+
+   `VITE_STRIPE_PAYMENT_LINK` is optional. Leave it unset to keep "Reserve Your Spot" hidden.
+
+Deploy to production, in one command:
+
+```bash
+vercel --prod
+```
+
+Vite reads `VITE_*` values at build time, so redeploy after changing one. To deploy automatically on every merge to `main`, connect the GitHub repository in the Vercel dashboard instead (Project → Settings → Git). Add your domain under Project → Settings → Domains.
+
 ## Tests
 
 ```bash

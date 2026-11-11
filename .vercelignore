@@ -1,0 +1,13 @@
+# Only the website is deployed to Vercel. Keep the Python pipeline, planning
+# docs, local environments and secrets out of the upload.
+backend/
+agent-system/
+archive/
+_bmad/
+_bmad-output/
+supabase/
+.venv/
+.env
+.env.*
+!.env.example
+*.log
