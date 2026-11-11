@@ -2,12 +2,12 @@
 
 **ADR ID:** CI-ADR-001 (proposal identifier, **not an approved canonical architecture decision**)  
 **Date:** 2026-11-11  
-**Status:** Proposed; owner/architect/security review required before Story 4.1 schema approval  
+**Status:** Owner-endorsed conceptual hierarchy; detailed database schema, access policy and Story 4.1 scope still proposed and require architecture/security review  
 **Scope:** SAINT Context Intelligence Option B, agency-first but reusable for non-agency organizations  
 **Related draft:** [Option B roadmap](saint-context-intelligence-option-b-proposal-2026-11-11.md) and [candidate story packets](context-intelligence-story-packets-and-evaluation.md).  
 **Non-authoritative:** This ADR changes no runtime data model, PRD, sprint-status.yaml, story eligibility, billing, tenancy or access controls.
 
-## Decision recommended for owner review
+## Owner-endorsed design direction (not an approved physical schema)
 
 **Use one tenant per subscribing organization, an optional tenant-owned client workspace for agency customers, and the already planned tenant-owned project as the authoritative configuration/reporting parent.**
 
@@ -190,6 +190,10 @@ Proposed read path:
 
 This proposal does **not** change the product monetization tiers, create a paid agency feature, bypass existing story dependencies, or infer readiness from a date.
 
+## Detailed schema package for next-stage review
+
+See [Epic 4.1 schema design](epic-4-1-context-intelligence-schema-design-2026-11-11.md) and [migration/security acceptance matrix](epic-4-1-schema-migration-security-review.md). These are review packets; they do not authorize migrations, change the canonical story or alter RLS.
+
 ## Proposed acceptance criteria for a future tenancy architecture story
 
 **T-AC1 — Canonical identity:** project remains parent of runs, configs, baselines and report history. Client workspace is optional and tenant-owned; generic/direct-business path operates without it.
@@ -238,7 +242,7 @@ This proposal does **not** change the product monetization tiers, create a paid 
 
 ## Required governance after human decision
 
-- Marvin approves or revises the ADR explicitly; **merging this draft documentation does not itself approve a database design or promote a story**.
+- Marvin has endorsed the conceptual Organization/Client/Project direction; **merging this draft documentation does not itself approve a physical database design, authorization policy or promote a story**.
 - Future canonical 4.1/6.1/7.1 work is high-judgment and requires narrow story specification, an independent security/architecture review, full `uv run pytest`, `npm test`, `npm run build`, RLS and e2e authorization tests, plus an explicit human merge.
 - No change is made to `AGENTS.md`, `_bmad-output/implementation-artifacts/sprint-status.yaml`, `loop_eligible`, `agent-system/completion-policy.yaml`, schema or production deployment.
 
