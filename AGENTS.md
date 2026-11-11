@@ -74,6 +74,26 @@ Codex is the implementation worker:
 - Never merge.
 - Halt rather than guessing when scope or architecture is unclear.
 
+## SAINT visual direction (owner-approved; implementation still story-gated)
+
+When a story touches SAINT marketing, customer-facing UI, or admin UI, read
+`docs/design/saint-black-amber.md` alongside its authoritative story and the
+canonical ledger. The owner approved a **Black & Amber** direction on 2026-11-10:
+black navigation, charcoal panels, metallic-amber CTAs/accents, crisp white text,
+restrained glossy/reflective treatment, high contrast, and accessible focus states.
+Preserve this consistent identity across the public site and the eventual SaaS.
+
+Epic 4.12 is the supervised full design-system implementation. Its drafted story
+file `_bmad-output/implementation-artifacts/4-12-design-system-brand-tokens.md`
+does **not** promote its backlog status or authorize unattended work.
+
+For the 2026-11-13 concierge beta, prioritize accurate copy, real intake,
+report verification and launch. Do not introduce a broad redesign or imply
+unfinished features. When running the ChatGPT Work loop, read
+`agent-system/prompts/saint-work-supervisor.md` for the restartable
+visual-check instructions; that file is supplemental and cannot override
+this contract, the selected story, or `sprint-status.yaml`.
+
 ## Required checks
 
 Every implementation and repair run must pass:
