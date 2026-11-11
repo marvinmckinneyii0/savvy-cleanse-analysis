@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Target, Users, Lightbulb, Award, MapPin, Mail } from 'lucide-react';
@@ -42,8 +43,8 @@ const About = () => {
     },
     {
       year: "2026",
-      title: "SAINT Launch",
-      description: "Released our first product focusing on transparent data analytics"
+      title: "SAINT Concierge Beta",
+      description: "Preparing a guided beta for transparent data-quality reports and optional rule-based cleaning"
     }
   ];
 
@@ -128,7 +129,7 @@ const About = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Meet Our Team</h2>
               <p className="text-muted-foreground">
-                The passionate individuals behind SAINT's mission to democratize data analytics.
+                Meet the founder building SAINT to make transparent data analytics more accessible.
               </p>
             </div>
             
@@ -181,39 +182,20 @@ const About = () => {
           </div>
         </section>
 
-        {/* Stats */}
-        <section className="py-16 bg-white light-surface">
-          <div className="container px-4 md:px-6">
-            <div className="grid grid-cols-2 gap-8 max-w-xl mx-auto">
-              {[
-                { value: "500M+", label: "Rows Processed" },
-                { value: "99.9%", label: "Uptime" }
-              ].map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-savvy-gold mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* CTA */}
         <section className="py-16 bg-gradient-to-r from-savvy-dark to-savvy-midnight text-white">
           <div className="container px-4 md:px-6">
             <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold mb-4">Join Our Mission</h2>
+              <h2 className="text-3xl font-bold mb-4">Explore the SAINT Concierge Beta</h2>
               <p className="text-savvy-white/80 mb-8">
-                Ready to transform how your organization approaches data analytics? Let's turn your data chaos into clarity.
+                Request a data-quality report for your CSV. We'll reply by email with the next steps for the guided beta.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">
-                  Start Free Trial
+                <Button asChild className="bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">
+                  <Link to="/contact">Request a Data-Quality Report</Link>
                 </Button>
-                <Button variant="outline" className="border-white bg-transparent text-white hover:bg-white/10 hover:text-white">
-                  Contact Our Team
+                <Button asChild variant="outline" className="border-white bg-transparent text-white hover:bg-white/10 hover:text-white">
+                  <a href="mailto:info@savvyanalytics.co">Email Our Team</a>
                 </Button>
               </div>
             </div>
