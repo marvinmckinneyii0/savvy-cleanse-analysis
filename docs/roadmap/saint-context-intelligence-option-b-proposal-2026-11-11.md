@@ -149,6 +149,10 @@ The owner has approved the **design direction** of Organization = Tenant, option
 
 The follow-on architecture decision is proposed in [CI-ADR-001: Agency, Client Workspace, Project and Context Ownership](adr-proposed-agency-client-tenancy-2026-11-11.md). **Recommendation (not yet approved for implementation):** one tenant per subscribing organization, optional tenant-owned client workspaces for agencies, and the already planned Epic 4.1 project as the canonical parent of context, KPI definitions and runs. Deny cross-client access within the same tenant by default; store shared KPI templates without client observations. Any schema or RLS change requires its own human-approved canonical story.
 
+## Hermes context-agent adapter — proposed, not integrated
+
+Owner authorized a B2B agency-first Hermes exploration, documented in [Hermes Context Agent Integration Proposal](hermes-context-agent-integration-proposal-2026-11-11.md). The **SAINT-owned project-scoped Business Context Profile and Trusted Metric Registry remain authoritative**. Hermes is a replaceable, feature-flagged **analysis planning/evidence support** candidate at Epic 8 / CI-2 and evaluated under Epic 11 / CI-3. It does not persist customer memory, compute metrics, execute tools with client permissions, or enter Friday's concierge beta critical path. The first activity is a synthetic-data comparison against a deterministic and a direct-LLM baseline, after the beta. No new canonical story promotion or pre-vertical dependency change.
+
 ## 7. Decision record for owner review
 
 | Decision | Proposed default | Needs explicit human confirmation before execution |
