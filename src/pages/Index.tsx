@@ -8,8 +8,6 @@ import AnalysisTypes from '@/components/AnalysisTypes';
 import DataFlow from '@/components/DataFlow';
 import Pricing from '@/components/Pricing';
 import CTA from '@/components/CTA';
-import BusinessIntelligence from '@/components/BusinessIntelligence';
-import Feedback from '@/components/Feedback';
 import SignupForm from '@/components/SignupForm';
 
 const Index = () => {
@@ -19,11 +17,9 @@ const Index = () => {
       <main className="flex-grow">
         <Hero />
         <Features />
-        <BusinessIntelligence />
         <AnalysisTypes />
         <DataFlow />
         <Pricing />
-        <Feedback />
         <CTA />
         <section className="py-16 bg-white dark:bg-savvy-dark">
           <div className="container px-4 md:px-6">

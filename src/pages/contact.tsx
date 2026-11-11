@@ -317,9 +317,6 @@ const Contact = () => {
                   <Mail className="h-4 w-4 mr-2" />
                   Email Support
                 </Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
-                  Browse Documentation
-                </Button>
               </div>
             </div>
           </div>
