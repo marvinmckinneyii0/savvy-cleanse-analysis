@@ -30,7 +30,7 @@ const sections: LegalSection[] = [
     paragraphs: ['We use a small number of outside services to run the beta:'],
     items: [
       'Formspree receives what you enter in our forms and passes it to us by email.',
-      'An AI provider writes the narrative in your report. To do that, SAINT sends it figures calculated from your file. These include your column names, summary statistics, and some values taken from the file, such as the most common values in a column and values that look unusual. Your whole file is not sent. The provider is Anthropic; OpenAI or Google are used only if Anthropic is unavailable.',
+      'An AI provider writes the narrative in your report. To do that, SAINT sends it figures calculated from your file. These include your column names, summary statistics (including totals by time period and by group), and some values taken from the file: the most common values in a column, the names of groups, and values that look unusual together with their row numbers. Your whole file is not sent. The provider is Anthropic; OpenAI or Google are used only if Anthropic is unavailable.',
       'Our email provider carries the messages between us, including the report we send you.',
       'The file-sharing service you choose (for example Google Drive, Dropbox or OneDrive) holds the file you share with us.',
     ],

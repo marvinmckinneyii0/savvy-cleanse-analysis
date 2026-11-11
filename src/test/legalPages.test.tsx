@@ -56,8 +56,16 @@ describe('privacy policy page', () => {
     expect(text).toMatch(/Anthropic/);
     expect(text).toMatch(/OpenAI or Google/);
     expect(text).toMatch(/some values taken from the file/);
+    expect(text).toMatch(/totals by time period and by group/);
+    expect(text).toMatch(/values that look unusual together with their row numbers/);
     expect(text).toMatch(/Your whole file is not sent/);
     expect(text).toMatch(/Google Fonts/);
+  });
+
+  it('states no price', () => {
+    renderAt('/privacy');
+
+    expect(mainText()).not.toMatch(/\$|\bfree\b|\bfee\b|\bpaid\b|per month/i);
   });
 });
 
