@@ -8,33 +8,33 @@ const Features = () => {
   const features = [
     {
       icon: <CheckCircle className="h-8 w-8 text-savvy-blue" />,
-      title: 'Smart Data Cleaning',
-      description: 'Automatically detect missing values, duplicates, and outliers. One-click cleaning for structured and unstructured data. Our advanced algorithms identify data quality issues and suggest intelligent transformations, saving hours of manual work.',
+      title: 'Data-Quality Checks',
+      description: 'SAINT looks for missing values, duplicates, outliers and inconsistent types or formats. Each finding is rated by severity so you can see what matters most.',
     },
     {
       icon: <Code className="h-8 w-8 text-savvy-gold" />,
-      title: 'Python Integration',
-      description: 'Export Jupyter notebooks or Python scripts for reproducibility. Generate clean, well-documented code using pandas, NumPy, and scikit-learn. Every analysis comes with executable code that you can modify and extend.',
+      title: 'Optional Cleaning',
+      description: 'Cleaning is off unless you ask for it. When you do, SAINT applies only supported, rule-based changes to a working copy. Your original file is never changed.',
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-savvy-blue" />,
-      title: 'Guided Analytics',
-      description: 'Choose from descriptive, diagnostic, predictive, or prescriptive workflows. Our intelligent system guides you through each step, asking the right questions to refine your analysis goals and deliver actionable insights.',
+      title: 'Insights From Your Data',
+      description: 'Summary statistics for every column, trends over time, comparisons between segments, and values that sit far from the rest.',
     },
     {
       icon: <Eye className="h-8 w-8 text-savvy-gold" />,
-      title: 'Beautiful Visualizations',
-      description: 'Generate interactive plots, charts, and dashboards instantly. From simple histograms to complex multi-dimensional visualizations, our system automatically selects the best chart types for your data and analysis objectives.',
+      title: 'A Record of Every Change',
+      description: 'Every cleaning action is listed in the report, so you can see exactly what was changed. Findings that need your judgment are flagged and left unchanged.',
     },
     {
       icon: <FileText className="h-8 w-8 text-savvy-blue" />,
-      title: 'Formula Transparency',
-      description: 'Every result comes with formulas, statistical methods, and p-values. Understand exactly how your insights were generated with clear mathematical explanations, confidence intervals, and methodology documentation.',
+      title: 'A Report You Can Read',
+      description: 'A plain-language summary with recommendations, delivered as a Word or PDF document. The numbers are computed first; AI only writes the narrative around them.',
     },
     {
       icon: <Share2 className="h-8 w-8 text-savvy-gold" />,
-      title: 'Export & Sharing',
-      description: 'Share cleaned data, reports, and notebooks securely. Export in multiple formats including CSV, Excel, PDF reports, and interactive HTML dashboards. Collaborate with team members through secure sharing links.',
+      title: 'Cleaned Data on Request',
+      description: 'If you chose cleaning, you get the cleaned CSV back along with the report.',
     },
   ];
 
@@ -47,11 +47,11 @@ const Features = () => {
           <div className="container px-4 md:px-6">
             <div className="text-center max-w-4xl mx-auto">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                Powerful Features for 
-                <span className="text-savvy-gold"> Data Excellence</span>
+                What SAINT Does 
+                <span className="text-savvy-gold"> Today</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Discover the comprehensive toolkit that makes SAINT the preferred choice for data professionals worldwide.
+                The concierge beta is a done-for-you service. Here is what the report covers and how cleaning works.
               </p>
             </div>
           </div>
@@ -82,9 +82,9 @@ const Features = () => {
         <section className="py-16 bg-gradient-to-r from-savvy-blue/10 to-savvy-gold/10">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Why Choose SAINT?</h2>
+              <h2 className="text-3xl font-bold mb-4">How We Work</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Built by data scientists, for data scientists. Every feature is designed to save time while maintaining the highest standards of analytical rigor.
+                During the beta, a person runs SAINT on your file and emails you the report.
               </p>
             </div>
             
@@ -93,9 +93,9 @@ const Features = () => {
                 <div className="w-16 h-16 bg-savvy-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="h-8 w-8 text-savvy-blue" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Quality First</h3>
+                <h3 className="text-xl font-semibold mb-2">Computed, Not Guessed</h3>
                 <p className="text-muted-foreground">
-                  Every algorithm is validated against industry standards and peer-reviewed methodologies.
+                  Every figure is calculated from your data. AI writes the narrative and never makes up numbers.
                 </p>
               </div>
               
@@ -103,9 +103,9 @@ const Features = () => {
                 <div className="w-16 h-16 bg-savvy-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Code className="h-8 w-8 text-savvy-gold" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Open & Transparent</h3>
+                <h3 className="text-xl font-semibold mb-2">Nothing Changed Silently</h3>
                 <p className="text-muted-foreground">
-                  No black boxes. Every calculation is documented and exportable as clean Python code.
+                  Your original file stays as you sent it. Cleaning happens only on request, on a copy, with every change recorded.
                 </p>
               </div>
               
@@ -113,9 +113,9 @@ const Features = () => {
                 <div className="w-16 h-16 bg-savvy-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <BarChart3 className="h-8 w-8 text-savvy-blue" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Enterprise Ready</h3>
+                <h3 className="text-xl font-semibold mb-2">Clear About Limits</h3>
                 <p className="text-muted-foreground">
-                  Scalable infrastructure with enterprise security and compliance features.
+                  The beta takes CSV files up to 100 MB. Reports are written documents and do not include charts yet.
                 </p>
               </div>
             </div>
