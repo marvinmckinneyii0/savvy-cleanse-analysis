@@ -28,7 +28,7 @@ const LegalPage = ({ page, title, intro, version, sections }: LegalPageProps) =>
   <div className="flex flex-col min-h-screen" data-page={page}>
     <Navbar />
     <main className="flex-grow">
-      <section className="py-16 bg-white dark:bg-savvy-dark">
+      <section className="py-16 bg-white light-surface">
         <div className="container px-4 md:px-6 max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-2">{title}</h1>
           <p className="text-sm text-muted-foreground mb-6">{version}</p>

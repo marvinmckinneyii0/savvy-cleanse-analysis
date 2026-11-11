@@ -58,19 +58,19 @@ const Contact = () => {
 
   const contactInfo = [
     {
-      icon: <Mail className="h-6 w-6 text-savvy-blue" />,
+      icon: <Mail className="h-6 w-6 text-savvy-gold" />,
       title: "Email Us",
-      content: "support@savvyanalytics.info",
+      content: "info@savvyanalytics.co",
       description: "Get in touch for general inquiries and support"
     },
     {
       icon: <MapPin className="h-6 w-6 text-savvy-gold" />,
       title: "Location",
-      content: "Lisbon, Portugal",
-      description: "Our headquarters (Remote-first company)"
+      content: "Dallas, Texas",
+      description: "Supporting businesses nationwide"
     },
     {
-      icon: <Clock className="h-6 w-6 text-savvy-blue" />,
+      icon: <Clock className="h-6 w-6 text-savvy-gold" />,
       title: "Response Time",
       content: "Within 24 hours",
       description: "We typically respond to all inquiries quickly"
@@ -79,22 +79,22 @@ const Contact = () => {
 
   const contactTypes = [
     {
-      icon: <MessageSquare className="h-8 w-8 text-savvy-blue" />,
+      icon: <MessageSquare className="h-8 w-8 text-savvy-gold" />,
       title: "General Support",
       description: "Questions about the beta, your request, or a report you received",
-      email: "support@savvyanalytics.info"
+      email: "info@savvyanalytics.co"
     },
     {
       icon: <Briefcase className="h-8 w-8 text-savvy-gold" />,
       title: "Business Inquiries",
       description: "Partnerships and custom work",
-      email: "business@savvyanalytics.info"
+      email: "info@savvyanalytics.co"
     },
     {
-      icon: <HelpCircle className="h-8 w-8 text-savvy-blue" />,
+      icon: <HelpCircle className="h-8 w-8 text-savvy-gold" />,
       title: "Data Questions",
       description: "Questions about file format, what we check, and how cleaning works",
-      email: "developers@savvyanalytics.info"
+      email: "info@savvyanalytics.co"
     }
   ];
 
@@ -126,15 +126,15 @@ const Contact = () => {
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="py-16 bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate text-white">
+        <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5">
           <div className="container px-4 md:px-6">
             <div className="text-center max-w-4xl mx-auto">
               <Mail className="h-16 w-16 text-savvy-gold mx-auto mb-6" />
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <h1 className="text-3xl md:text-5xl font-bold tracking-tighter mb-6">
                 Get in
                 <span className="text-savvy-gold"> Touch</span>
               </h1>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              <p className="text-muted-foreground md:text-xl max-w-2xl mx-auto">
                 Have questions about SAINT? Need help with your data analytics workflow? We're here to help.
               </p>
             </div>
@@ -142,13 +142,13 @@ const Contact = () => {
         </section>
 
         {/* Contact Info Cards */}
-        <section className="py-12 bg-white dark:bg-savvy-dark border-b">
+        <section className="py-12 bg-white light-surface border-b">
           <div className="container px-4 md:px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {contactInfo.map((info, index) => (
                 <Card key={index} className="text-center shadow-sm">
                   <CardContent className="p-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-savvy-blue/20 to-savvy-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-12 h-12 bg-savvy-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
                       {info.icon}
                     </div>
                     <h3 className="font-semibold mb-2">{info.title}</h3>
@@ -162,7 +162,7 @@ const Contact = () => {
         </section>
 
         {/* Contact Form and Types */}
-        <section className="py-16 bg-gradient-to-r from-savvy-blue/5 to-savvy-gold/5">
+        <section className="py-16 bg-savvy-slate/5">
           <div className="container px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
               {/* Contact Form */}
@@ -241,7 +241,7 @@ const Contact = () => {
 
                       <Button
                         type="submit"
-                        className="w-full bg-savvy-blue hover:bg-savvy-blue/90"
+                        className="w-full bg-savvy-gold hover:bg-savvy-gold/90 text-white"
                         disabled={submitting}
                       >
                         <Send className="h-4 w-4 mr-2" />
@@ -260,7 +260,7 @@ const Contact = () => {
                     <Card key={index} className="shadow-sm hover:shadow-lg transition-all duration-300">
                       <CardContent className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-16 h-16 bg-gradient-to-br from-savvy-blue/20 to-savvy-gold/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <div className="w-16 h-16 bg-savvy-gold/20 rounded-lg flex items-center justify-center flex-shrink-0">
                             {type.icon}
                           </div>
                           <div className="flex-grow">
@@ -270,7 +270,7 @@ const Contact = () => {
                             </p>
                             <a
                               href={`mailto:${type.email}`}
-                              className="text-savvy-blue hover:text-savvy-blue/80 text-sm font-medium"
+                              className="text-savvy-gold hover:text-savvy-gold/80 text-sm font-medium"
                             >
                               {type.email}
                             </a>
@@ -286,7 +286,7 @@ const Contact = () => {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16 bg-white dark:bg-savvy-dark">
+        <section className="py-16 bg-white light-surface">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
@@ -309,11 +309,11 @@ const Contact = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate text-white">
+        <section className="py-16 bg-gradient-to-r from-savvy-dark to-savvy-midnight text-white">
           <div className="container px-4 md:px-6">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-4">Still Have Questions?</h2>
-              <p className="text-gray-300 mb-8">
+              <p className="text-savvy-white/80 mb-8">
                 Our team is here to help you succeed with SAINT. Don't hesitate to reach out.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

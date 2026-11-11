@@ -107,3 +107,22 @@
 .code-block {
   @apply p-3 bg-black text-white rounded-md block overflow-x-auto whitespace-pre text-xs;
 }
+
+/* Light bands.
+   The home page keeps some sections white in dark mode. Text placed directly
+   on such a section would inherit the dark theme's near-white colour and
+   disappear, so a light band uses the light theme's text colours. Dark cards
+   and controls inside it switch back to the dark theme's colours. */
+.dark .light-surface {
+  --foreground: 222.2 84% 4.9%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  color: hsl(var(--foreground));
+}
+
+.dark .light-surface .bg-card,
+.dark .light-surface .dark\:bg-card,
+.dark .light-surface .bg-background {
+  --foreground: 210 40% 98%;
+  --muted-foreground: 215 20.2% 65.1%;
+  color: hsl(var(--foreground));
+}

@@ -7,7 +7,7 @@ import { CheckCircle, Code, BarChart3, Eye, FileText, Share2 } from 'lucide-reac
 const Features = () => {
   const features = [
     {
-      icon: <CheckCircle className="h-8 w-8 text-savvy-blue" />,
+      icon: <CheckCircle className="h-8 w-8 text-savvy-gold" />,
       title: 'Data-Quality Checks',
       description: 'SAINT looks for missing values, duplicates, outliers and inconsistent types or formats. Each finding is rated by severity so you can see what matters most.',
     },
@@ -17,7 +17,7 @@ const Features = () => {
       description: 'Cleaning is off unless you ask for it. When you do, SAINT applies only supported, rule-based changes to a working copy. Your original file is never changed.',
     },
     {
-      icon: <BarChart3 className="h-8 w-8 text-savvy-blue" />,
+      icon: <BarChart3 className="h-8 w-8 text-savvy-gold" />,
       title: 'Insights From Your Data',
       description: 'Summary statistics for every column, trends over time, comparisons between segments, and values that sit far from the rest.',
     },
@@ -27,7 +27,7 @@ const Features = () => {
       description: 'Every cleaning action is listed in the report, so you can see exactly what was changed. Findings that need your judgment are flagged and left unchanged.',
     },
     {
-      icon: <FileText className="h-8 w-8 text-savvy-blue" />,
+      icon: <FileText className="h-8 w-8 text-savvy-gold" />,
       title: 'A Report You Can Read',
       description: 'A plain-language summary with recommendations, delivered as a Word or PDF document. The numbers are computed first; AI only writes the narrative around them.',
     },
@@ -43,14 +43,14 @@ const Features = () => {
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="py-16 bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate text-white">
+        <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5">
           <div className="container px-4 md:px-6">
             <div className="text-center max-w-4xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <h1 className="text-3xl md:text-5xl font-bold tracking-tighter mb-6">
                 What SAINT Does 
                 <span className="text-savvy-gold"> Today</span>
               </h1>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              <p className="text-muted-foreground md:text-xl max-w-2xl mx-auto">
                 The concierge beta is a done-for-you service. Here is what the report covers and how cleaning works.
               </p>
             </div>
@@ -58,11 +58,11 @@ const Features = () => {
         </section>
 
         {/* Features Grid */}
-        <section className="py-16 bg-white dark:bg-savvy-dark">
+        <section className="py-16 bg-white light-surface">
           <div className="container px-4 md:px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className="shadow-sm hover:shadow-lg transition-all duration-300 border-0 bg-card/50 backdrop-blur-sm">
+                <Card key={index} className="shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader>
                     <div className="mb-4">
                       {feature.icon}
@@ -79,7 +79,7 @@ const Features = () => {
         </section>
 
         {/* Additional Benefits */}
-        <section className="py-16 bg-gradient-to-r from-savvy-blue/10 to-savvy-gold/10">
+        <section className="py-16 bg-savvy-slate/5">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">How We Work</h2>
@@ -90,8 +90,8 @@ const Features = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 bg-savvy-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="h-8 w-8 text-savvy-blue" />
+                <div className="w-16 h-16 bg-savvy-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-savvy-gold" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Computed, Not Guessed</h3>
                 <p className="text-muted-foreground">
@@ -110,8 +110,8 @@ const Features = () => {
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-savvy-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BarChart3 className="h-8 w-8 text-savvy-blue" />
+                <div className="w-16 h-16 bg-savvy-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 className="h-8 w-8 text-savvy-gold" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Clear About Limits</h3>
                 <p className="text-muted-foreground">

@@ -67,7 +67,7 @@ uv run python -m backend.pipeline.orchestrator --input data.csv --output report.
 
 ### Things to know before you run it
 
-- **The LLM narrative is not set up by `uv sync`.** The provider SDKs (`anthropic`, `openai`, `google-genai`) are not declared in `pyproject.toml`, so a fresh install always completes with a plain fallback narrative. To use an LLM, install a provider SDK into the environment (for example `uv pip install anthropic`) and put its key in `.env`. The code tries Anthropic, then OpenAI, then Google, reading `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` and `GEMINI_API_KEY`. `.env.example` lists `GOOGLE_API_KEY`, which the code does not read. This is a known gap.
+- **The LLM narrative needs an API key.** Copy `.env.example` to `.env` and set `ANTHROPIC_API_KEY`. The code tries Anthropic, then OpenAI (`OPENAI_API_KEY`), then Google (`GEMINI_API_KEY`). With no working key the pipeline still completes, but the report uses a plain fallback narrative. Check the last log line: `"fallback_narrative": false` means the LLM wrote it.
 - **Critical data problems stop the run.** If the quality check finds a critical problem (for example, a column that is 60% empty), the pipeline halts, prints the reason, exits with an error, and writes no report.
 - **PDF needs native libraries.** Without them, `--format pdf` fails with a clear error and no report is written. Use `docx` or install the libraries listed under Requirements.
 - **Your input file is never modified.** Cleaning works on a copy.
@@ -142,4 +142,4 @@ Contributor rules are in `AGENTS.md`. Sprint status lives in `_bmad-output/imple
 
 ## Contact
 
-Savvy Analytics: savvyanalytics.info
+Savvy Analytics: [savvyanalytics.co](https://www.savvyanalytics.co) · info@savvyanalytics.co
