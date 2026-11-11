@@ -20,11 +20,13 @@ const leadFieldsSchema = z
     company: z.string().trim().max(200).optional(),
     subject: z.string().trim().max(200).optional(),
     message: z.string().trim().max(5000).optional(),
+    /** Interest list only: the upcoming capabilities the person ticked. */
+    interests: z.string().trim().max(500).optional(),
   })
   .strict();
 
 export type LeadFields = z.input<typeof leadFieldsSchema>;
-export type LeadSource = 'contact' | 'signup';
+export type LeadSource = 'contact' | 'signup' | 'interest';
 
 export type LeadResult =
   | { ok: true }

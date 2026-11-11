@@ -12,7 +12,7 @@ const sections: LegalSection[] = [
   {
     heading: 'What we collect',
     items: [
-      'Details you enter in a form on this site: your name, email address, company, and the subject and message you write.',
+      'Details you enter in a form on this site: your name, email address, company, the subject and message you write, and which upcoming features you are interested in.',
       'The CSV file you choose to send us, by a shared link, after we reply to your request.',
       'The emails you exchange with us.',
     ],
@@ -32,6 +32,7 @@ const sections: LegalSection[] = [
       'Formspree receives what you enter in our forms and passes it to us by email.',
       'An AI provider writes the narrative in your report. To do that, SAINT sends it figures calculated from your file. These include your column names, summary statistics (including totals by time period and by group), and some values taken from the file: the most common values in a column, the names of groups, and values that look unusual together with their row numbers. Your whole file is not sent. The provider is Anthropic; OpenAI or Google are used only if Anthropic is unavailable.',
       'Our email provider carries the messages between us, including the report we send you.',
+      'If you reserve a spot, Stripe processes your deposit. Stripe collects your card details; we receive your name, email address and whether the payment went through, but never your full card number.',
       'The file-sharing service you choose (for example Google Drive, Dropbox or OneDrive) holds the file you share with us.',
     ],
   },

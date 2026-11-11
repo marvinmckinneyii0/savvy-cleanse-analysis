@@ -4,20 +4,20 @@ import React from 'react';
 const DataFlow = () => {
   const steps = [
     {
-      title: 'Request a Report',
-      description: 'Fill in the form with your contact details. There is no file upload on this site.'
+      title: 'Upload Data',
+      description: 'Request a report with the form below, then share your file by link when we reply. There is no file upload on this site yet. CSV only, up to 100 MB. Please do not send health records, financial account data or government IDs.'
     },
     {
-      title: 'Send Your CSV',
-      description: 'We reply by email with how to share your file by link. CSV only, up to 100 MB. Please do not send health records, financial account data or government IDs.'
+      title: 'AI Cleaning',
+      description: 'SAINT checks for missing values, duplicates, outliers and formatting problems. Cleaning is off unless you ask for it: the fixes are rule-based, applied to a copy, and listed in your report. AI writes the report narrative.'
     },
     {
-      title: 'We Run SAINT',
-      description: 'We check data quality, apply cleaning only if you asked for it, and produce your report.'
+      title: 'Choose Analysis',
+      description: 'Tell us what you want to learn from your data. Every report covers summary statistics, trends over time, comparisons between groups and data-quality findings.'
     },
     {
-      title: 'Get Your Report',
-      description: 'You receive a Word or PDF report by email, plus the cleaned CSV if you chose cleaning. We delete your file 7 days after delivery.'
+      title: 'Guided Results',
+      description: 'You receive a Word or PDF report with findings and recommendations, plus the cleaned CSV if you chose cleaning. We delete your file 7 days after delivery.'
     }
   ];
 
@@ -27,7 +27,7 @@ const DataFlow = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold">How It Works</h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Four steps from a messy file to a written report.
+            A simple four-step process to transform messy data into actionable insights.
           </p>
         </div>
         
