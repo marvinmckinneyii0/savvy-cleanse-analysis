@@ -1,273 +1,256 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { Building2, Target, Users, Globe, ExternalLink, ArrowRight, CheckCircle } from 'lucide-react';
+
+// Content on this page follows the company site, savvyanalytics.co.
+const SITE_URL = 'https://www.savvyanalytics.co';
+const SERVICES_URL = `${SITE_URL}/services`;
+const BOOKING_URL = `${SITE_URL}/book-online`;
+const CONSULTING_EMAIL = 'info@savvyanalytics.co';
+
+const externalLink = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
 const SavvyAnalytics = () => {
-  const services = [
-    {
-      title: "AI Strategy Consulting",
-      description: "Develop comprehensive AI strategies aligned with your business objectives and organizational capabilities.",
-      features: [
-        "AI readiness assessment",
-        "Strategic roadmap development",
-        "Technology stack recommendations",
-        "ROI modeling and projections"
-      ]
-    },
-    {
-      title: "Process Automation",
-      description: "Streamline operations with intelligent automation solutions that scale with your business.",
-      features: [
-        "Workflow analysis and optimization",
-        "Custom automation solutions",
-        "Integration with existing systems",
-        "Change management support"
-      ]
-    },
-    {
-      title: "Analytics Solutions",
-      description: "Transform data into actionable insights with custom analytics platforms and reporting systems.",
-      features: [
-        "Data warehouse design",
-        "Custom dashboard development",
-        "Predictive analytics models",
-        "Real-time monitoring systems"
-      ]
-    }
-  ];
-
-  const industries = [
-    { name: "Financial Services", description: "Risk analysis, fraud detection, and regulatory compliance" },
-    { name: "Healthcare", description: "Patient analytics, operational efficiency, and clinical insights" },
-    { name: "Manufacturing", description: "Predictive maintenance, quality control, and supply chain optimization" },
-    { name: "Retail & E-commerce", description: "Customer analytics, inventory optimization, and personalization" },
-    { name: "Technology", description: "Product analytics, user behavior analysis, and performance optimization" },
-    { name: "Energy & Utilities", description: "Demand forecasting, grid optimization, and sustainability analytics" }
-  ];
-
-  const regions = [
-    { region: "United States", markets: "New York, San Francisco, Austin, Chicago" },
-    { region: "Europe", markets: "Lisbon, London, Berlin, Amsterdam" }
+  const supportPoints = [
+    'Audit and advise on data strategy, automation tools, and business intelligence',
+    'Utilize business data to predict patterns and plan for a successful future',
+    'Develop digital tools through our preferred partners to enhance business processes',
+    'Integrate new digital tools with existing business tools to create seamless workflows',
+    'Implement artificial business intelligence to reduce tasks and optimize productivity',
+    'Educate business owners and their respective teams to utilize new systems and processes',
   ];
 
   const stats = [
-    { value: "50+", label: "Projects Delivered" },
-    { value: "20+", label: "Enterprise Clients" },
-    { value: "95%", label: "Client Retention" },
-    { value: "3 Years", label: "Average Engagement" }
+    { value: '10+', label: 'Years of Experience' },
+    { value: '2,000+', label: 'Productivity Hours Saved' },
+    { value: '$500K', label: 'Avg. Annual Savings' },
+    { value: '9', label: 'Processes Implemented' },
+  ];
+
+  const services = [
+    {
+      title: 'AI Strategy & Roadmaps',
+      description:
+        'Connect business priorities to practical AI and data opportunities, starting from your workflows, the information you have, and the people who will use the result.',
+      features: [
+        'Process and data readiness review',
+        'Prioritized opportunities',
+        'Build-versus-buy recommendation',
+        'Phased roadmap with success measures',
+      ],
+    },
+    {
+      title: 'Business Solutions & Automation',
+      description:
+        'Reduce repetitive work and improve handoffs between people, data and software, using the tools you already have where they fit and adding AI only where it helps.',
+      features: [
+        'Connected workflows and data integration',
+        'Human review for important decisions',
+        'Operational reporting',
+        'Documentation and team adoption',
+      ],
+    },
+    {
+      title: 'Custom Software & AI Implementation',
+      description:
+        'Turn a validated operational need or product idea into a useful application, with users, data, integrations and ownership planned before the build.',
+      features: [
+        'Client portals and internal tools',
+        'Analytics applications',
+        'Discovery, prototype, testing and rollout',
+        'Access controls, monitoring and handover',
+      ],
+    },
+  ];
+
+  const steps = [
+    '30-Minute Discovery Call',
+    'Proposal & Recommendations',
+    'Project Execution',
+    'Project Completion & Launch',
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" data-page="savvy-analytics">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="py-16 bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate text-white">
+        {/* Hero — same layout and styles as the home page hero, plus dark-mode colours.
+            The home sections have no dark variants yet, so their headings vanish in dark mode. */}
+        <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5 dark:from-savvy-dark dark:to-savvy-gold/10">
           <div className="container px-4 md:px-6">
-            <div className="text-center max-w-4xl mx-auto">
-              <Building2 className="h-16 w-16 text-savvy-gold mx-auto mb-6" />
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                <span className="text-savvy-gold">Savvy Analytics</span>
-                <br />Consulting
-              </h1>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
-                We help businesses in the U.S. and Europe adopt AI responsibly through strategic consulting, automation, and custom analytics solutions.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Visit savvyanalytics.info
-                </Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
-                  Learn About Our Services
-                </Button>
+            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
+              <div className="space-y-4 animate-fade-in">
+                <h1 className="text-3xl md:text-5xl font-bold tracking-tighter">
+                  Savvy Analytics <span className="text-savvy-gold">Consulting</span>
+                </h1>
+                <p className="text-muted-foreground md:text-xl">
+                  Your partner for AI strategy, automation and business intelligence. Savvy
+                  Analytics is the company behind SAINT.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                  <Button asChild size="lg" className="bg-savvy-gold hover:bg-savvy-gold/90 text-white">
+                    <a href={SITE_URL} {...externalLink}>
+                      Visit savvyanalytics.co
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="lg">
+                    <a href={BOOKING_URL} {...externalLink}>
+                      Book a Discovery Call
+                    </a>
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground pt-2">
+                  Based in Dallas, Texas. Supporting businesses nationwide.
+                </p>
+              </div>
+              <div className="lg:pl-10 animate-fade-in">
+                <Card className="shadow-xl">
+                  <CardHeader>
+                    <CardTitle>How Savvy Analytics Supports Businesses</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="text-sm space-y-3">
+                      {supportPoints.map((point) => (
+                        <li key={point} className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-savvy-gold mt-2 flex-shrink-0"></div>
+                          <span className="text-muted-foreground">{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
         </section>
 
         {/* Stats */}
-        <section className="py-12 bg-white dark:bg-savvy-dark border-b">
+        <section className="py-16 bg-white dark:bg-savvy-dark" id="results">
           <div className="container px-4 md:px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-savvy-blue mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-muted-foreground">{stat.label}</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {stats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div className="text-3xl font-bold text-savvy-gold">{stat.value}</div>
+                  <div className="text-muted-foreground mt-2">{stat.label}</div>
                 </div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* About */}
-        <section className="py-16 bg-gradient-to-r from-savvy-blue/5 to-savvy-gold/5">
-          <div className="container px-4 md:px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-8">About Savvy Analytics</h2>
-              <div className="bg-white dark:bg-card rounded-lg p-8 shadow-sm">
-                <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                  Savvy Analytics is the parent company behind SAINT, specializing in AI strategy, 
-                  automation, and analytics solutions for businesses across the United States and Europe. 
-                  We believe in responsible AI adoption that drives real business value while maintaining 
-                  transparency and ethical standards.
-                </p>
-                <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
-                    Global Reach
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    Strategic Focus
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Expert Team
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </section>
 
         {/* Services */}
-        <section className="py-16 bg-white dark:bg-savvy-dark">
+        <section className="py-16 bg-savvy-white dark:bg-savvy-dark" id="services">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Our Services</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Comprehensive AI and analytics consulting services designed to transform your business operations.
+              <h2 className="text-3xl font-bold">Our Services</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+                Three ways we help organizations put data and AI to work.
               </p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {services.map((service, index) => (
-                <Card key={index} className="shadow-sm hover:shadow-lg transition-all duration-300 h-full">
-                  <CardHeader>
-                    <CardTitle className="text-xl">{service.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex flex-col h-full">
-                    <p className="text-muted-foreground mb-6 flex-grow">
-                      {service.description}
-                    </p>
-                    <div className="space-y-2">
-                      {service.features.map((feature, featureIndex) => (
-                        <div key={featureIndex} className="flex items-start gap-2">
-                          <CheckCircle className="h-4 w-4 text-savvy-blue mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* Industries */}
-        <section className="py-16 bg-gradient-to-r from-savvy-blue/5 to-savvy-gold/5">
-          <div className="container px-4 md:px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Industries We Serve</h2>
-              <p className="text-muted-foreground">
-                Deep expertise across multiple industries with tailored solutions for each sector.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {industries.map((industry, index) => (
-                <Card key={index} className="shadow-sm hover:shadow-lg transition-all duration-300">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold mb-2">{industry.name}</h3>
-                    <p className="text-muted-foreground text-sm">{industry.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Geographic Presence */}
-        <section className="py-16 bg-white dark:bg-savvy-dark">
-          <div className="container px-4 md:px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Global Presence</h2>
-              <p className="text-muted-foreground">
-                Serving clients across key markets in the United States and Europe.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {regions.map((region, index) => (
-                <Card key={index} className="shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((service) => (
+                <Card key={service.title} className="shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader>
-                    <CardTitle className="text-xl flex items-center gap-2">
-                      <Globe className="h-5 w-5 text-savvy-blue" />
-                      {region.region}
-                    </CardTitle>
+                    <CardTitle>{service.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{region.markets}</p>
+                    <p className="text-muted-foreground mb-4">{service.description}</p>
+                    <ul className="text-sm space-y-1">
+                      {service.features.map((feature) => (
+                        <li key={feature} className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-savvy-gold"></div>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </CardContent>
                 </Card>
+              ))}
+            </div>
+
+            <div className="text-center mt-10">
+              <Button asChild variant="outline" size="lg">
+                <a href={SERVICES_URL} {...externalLink}>
+                  See Services on savvyanalytics.co
+                </a>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* How projects work — same pattern as the home page "How It Works" */}
+        <section className="py-16 bg-savvy-slate/5" id="how-we-work">
+          <div className="container px-4 md:px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold">How We Work</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+                Every Savvy Analytics project follows four steps.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {steps.map((step, index) => (
+                <div key={step} className="bg-white dark:bg-card p-4 md:p-6 rounded-lg border shadow-sm">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-savvy-gold text-white mb-4">
+                    {index + 1}
+                  </div>
+                  <h3 className="text-xl font-bold">{step}</h3>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* SAINT Connection */}
-        <section className="py-16 bg-gradient-to-r from-savvy-blue/5 to-savvy-gold/5">
+        {/* SAINT */}
+        <section className="py-16 bg-white dark:bg-savvy-dark" id="saint">
           <div className="container px-4 md:px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-6">The SAINT Connection</h2>
-              <Card className="shadow-lg">
-                <CardContent className="p-8">
-                  <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                    SAINT was born from our consulting experience. After helping dozens of organizations 
-                    with data analytics challenges, we identified a common pain point: the time-consuming, 
-                    error-prone process of data cleaning and preparation. SAINT is our solution to 
-                    democratize access to clean, reliable data analytics.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button className="bg-savvy-blue hover:bg-savvy-blue/90">
-                      Try SAINT
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
-                    <Button variant="outline">
-                      Learn About Our Consulting
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold">Where SAINT Fits</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+                SAINT is built by Savvy Analytics. It turns a CSV into a written data-quality
+                report with findings and recommendations. During the beta, our team runs it for
+                you.
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <Button asChild size="lg" className="bg-savvy-gold hover:bg-savvy-gold/90 text-white">
+                <Link to="/contact">Request a Data-Quality Report</Link>
+              </Button>
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-16 bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate text-white">
-          <div className="container px-4 md:px-6">
-            <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Business?</h2>
-              <p className="text-gray-300 mb-8">
-                Let's discuss how Savvy Analytics can help you adopt AI responsibly and drive meaningful business outcomes.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Visit savvyanalytics.info
-                </Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
-                  Schedule a Consultation
-                </Button>
-              </div>
+        {/* CTA — same styles as the home page closing section */}
+        <section className="py-16 bg-gradient-to-r from-savvy-dark to-savvy-midnight">
+          <div className="container px-4 md:px-6 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to talk about your project?</h2>
+            <p className="text-savvy-white/80 max-w-2xl mx-auto mb-8">
+              Book a 30-minute discovery call, or email{' '}
+              <a href={`mailto:${CONSULTING_EMAIL}`} className="underline hover:text-savvy-gold">
+                {CONSULTING_EMAIL}
+              </a>
+              .
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button asChild size="lg" className="bg-savvy-gold hover:bg-savvy-gold/90 text-white">
+                <a href={BOOKING_URL} {...externalLink}>
+                  Book a Discovery Call
+                </a>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-savvy-dark"
+              >
+                <a href={SITE_URL} {...externalLink}>
+                  Visit savvyanalytics.co
+                </a>
+              </Button>
             </div>
           </div>
         </section>
