@@ -1,7 +1,8 @@
 # SAINT Context Intelligence — Proposed Story Packets, Contracts and Evaluation
 
 **Status:** DRAFT SPEC PACKETS ONLY — no approved BMAD story, no sprint-status promotion.  
-**Companion:** [Option B roadmap proposal](saint-context-intelligence-option-b-proposal-2026-11-11.md).  
+**Companion:** [Option B roadmap proposal](saint-context-intelligence-option-b-proposal-2026-11-11.md).
+**Schema packet:** [Epic 4.1 organization/client/project design](epic-4-1-context-intelligence-schema-design-2026-11-11.md) · [migration and security gate](epic-4-1-schema-migration-security-review.md).  
 **Review model:** the existing AGENTS.md per-run boundary, human-only story promotion/loop eligibility/merge and independent exact-commit review remain intact.  
 **Use:** a human planner may copy the relevant packet into *one* authoritative story and approve its scope, dependencies, and risk before implementation.
 
