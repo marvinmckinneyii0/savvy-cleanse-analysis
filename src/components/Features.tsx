@@ -5,28 +5,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const Features = () => {
   const features = [
     {
-      title: 'Smart Data Cleaning',
-      description: 'AI-powered cleaning for structured and unstructured data with automatic detection of issues and intelligent transformations.'
+      title: 'Data-Quality Checks',
+      description: 'Finds missing values, duplicates, outliers and inconsistent types or formats, and rates each finding by severity.'
     },
     {
-      title: 'Python Integration',
-      description: 'Native code snippet generator with pandas, NumPy, and scikit-learn support. Download as Jupyter notebook for further analysis.'
+      title: 'Optional Cleaning',
+      description: 'Cleaning is off unless you ask for it. When you do, SAINT applies only supported, rule-based changes to a working copy and keeps your original file unchanged.'
     },
     {
-      title: 'Guided Analytics',
-      description: 'Interactive analysis workflow with smart prompts to refine your goals and deliver actionable insights.'
+      title: 'A Record of Every Change',
+      description: 'Every cleaning action is listed in the report. Findings that need your judgment are flagged and left unchanged.'
     },
     {
-      title: 'Beautiful Visualizations',
-      description: 'Automatic generation of charts, plots, and dashboards tailored to your data and analysis type.'
+      title: 'Insights From Your Data',
+      description: 'Summary statistics, trends over time, comparisons between segments and unusual values, computed directly from your file.'
     },
     {
-      title: 'Formula Transparency',
-      description: 'See the math behind the results with clear formulas and methodology explanations for full transparency.'
+      title: 'A Report You Can Read',
+      description: 'A written summary with recommendations, delivered as a Word or PDF document. The numbers are computed first; AI only writes the narrative around them.'
     },
     {
-      title: 'Export & Sharing',
-      description: 'Export cleaned data, Python code, and complete analysis results for collaboration and further work.'
+      title: 'Cleaned Data on Request',
+      description: 'If you chose cleaning, you get the cleaned CSV back along with the report.'
     }
   ];
 
@@ -36,7 +36,7 @@ const Features = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold">Key Features</h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Designed to help you clean, transform, and analyze data with power and transparency.
+            What the concierge beta delivers today.
           </p>
         </div>
         
