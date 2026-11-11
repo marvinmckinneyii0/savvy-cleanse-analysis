@@ -23,7 +23,7 @@ const Hero = () => {
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
           <div className="space-y-4 animate-fade-in">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tighter">
-              A <span className="text-savvy-gold">Data-Quality Report</span> on Your CSV, Done for You
+              A <span className="text-savvy-gold">Data-Quality Report</span> on Your Data, Done for You
             </h1>
             <p className="text-muted-foreground md:text-xl">
               SAINT checks your data for missing values, duplicates, outliers and formatting problems,

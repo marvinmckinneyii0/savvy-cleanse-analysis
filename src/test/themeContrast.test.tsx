@@ -198,6 +198,19 @@ describe('contact details', () => {
     }
   });
 
+  it('the contact page says SAINT supports businesses globally', () => {
+    const text = renderSurface(<Contact />).textContent ?? '';
+
+    expect(text).toContain('Supporting businesses globally');
+    expect(text).not.toContain('nationwide');
+  });
+
+  it('the home headline promises a report on your data, not only CSV', () => {
+    const h1 = renderSurface(<Hero />).querySelector('h1')?.textContent ?? '';
+
+    expect(h1).toBe('A Data-Quality Report on Your Data, Done for You');
+  });
+
   it('gives Dallas, not Lisbon, as the location', () => {
     for (const element of [<Contact />, <About />]) {
       const text = renderSurface(element).textContent ?? '';

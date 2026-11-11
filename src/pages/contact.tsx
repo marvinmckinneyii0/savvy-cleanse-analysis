@@ -67,7 +67,7 @@ const Contact = () => {
       icon: <MapPin className="h-6 w-6 text-savvy-gold" />,
       title: "Location",
       content: "Dallas, Texas",
-      description: "Supporting businesses nationwide"
+      description: "Supporting businesses globally"
     },
     {
       icon: <Clock className="h-6 w-6 text-savvy-gold" />,
