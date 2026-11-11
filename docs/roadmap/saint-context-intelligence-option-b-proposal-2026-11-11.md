@@ -136,6 +136,10 @@ Acceptance criteria below are proposed for human filing into the relevant canoni
 - **Orchestration:** no n8n; if orchestration becomes necessary, use the repository-approved LangGraph or MIT-licensed equivalent after explicit story approval. Do not import complex agent frameworks into the beta.
 - **Launch policy:** PR #82 (About), #83 (pricing), #79 (market research) and #73 (visual brief) are separate change streams; this PR neither merges nor depends on them. M0 must not delay launch readiness, legal review, lead capture, report verification or the existing pricing sign-off.
 
+## Architecture decision proposal — tenant/client/project hierarchy
+
+The follow-on architecture decision is proposed in [CI-ADR-001: Agency, Client Workspace, Project and Context Ownership](adr-proposed-agency-client-tenancy-2026-11-11.md). **Recommendation (not yet approved for implementation):** one tenant per subscribing organization, optional tenant-owned client workspaces for agencies, and the already planned Epic 4.1 project as the canonical parent of context, KPI definitions and runs. Deny cross-client access within the same tenant by default; store shared KPI templates without client observations. Any schema or RLS change requires its own human-approved canonical story.
+
 ## 7. Decision record for owner review
 
 | Decision | Proposed default | Needs explicit human confirmation before execution |
