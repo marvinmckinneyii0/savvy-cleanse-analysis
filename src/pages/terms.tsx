@@ -35,6 +35,15 @@ const sections: LegalSection[] = [
     ],
   },
   {
+    heading: 'Reserving a spot',
+    items: [
+      'You can reserve a place in line for early access to the self-serve version of SAINT by paying a refundable deposit.',
+      'The deposit holds your place. It is not a charge for any report.',
+      'We refund the deposit in full if you ask before your access begins.',
+      'Deposits are processed by Stripe. The amount is shown on the payment page before you pay.',
+    ],
+  },
+  {
     heading: 'Beta',
     paragraphs: [
       'The beta is provided as it is. We work to make each report accurate, but we do not promise that it has no errors.',

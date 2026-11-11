@@ -6,6 +6,8 @@ import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import AnalysisTypes from '@/components/AnalysisTypes';
 import DataFlow from '@/components/DataFlow';
+import Roadmap from '@/components/Roadmap';
+import EarlyAccess from '@/components/EarlyAccess';
 import Pricing from '@/components/Pricing';
 import CTA from '@/components/CTA';
 import SignupForm from '@/components/SignupForm';
@@ -19,6 +21,8 @@ const Index = () => {
         <Features />
         <AnalysisTypes />
         <DataFlow />
+        <Roadmap />
+        <EarlyAccess />
         <Pricing />
         <CTA />
         <section className="py-16 bg-white dark:bg-savvy-dark">
