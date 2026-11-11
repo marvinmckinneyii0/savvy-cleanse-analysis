@@ -27,22 +27,10 @@ const About = () => {
 
   const team = [
     {
-      name: "Sarah Rodriguez",
-      role: "CEO & Co-Founder",
-      bio: "Former data science leader at Fortune 500 companies. PhD in Statistics from Stanford. Passionate about democratizing analytics.",
-      initials: "SR"
-    },
-    {
-      name: "Marcus Chen",
-      role: "CTO & Co-Founder", 
-      bio: "Ex-Google engineer with 10+ years in ML infrastructure. MIT Computer Science. Believes in building tools that scale.",
-      initials: "MC"
-    },
-    {
-      name: "Elena Vasquez",
-      role: "Lead Engineer",
-      bio: "Full-stack engineer specializing in data platforms. Former Netflix and Airbnb. Loves solving complex technical challenges.",
-      initials: "EV"
+      name: "Marvin McKinney",
+      role: "CEO & Founder",
+      bio: "Former data science leader at Fortune 500 companies. Passionate about democratizing analytics.",
+      initials: "MM"
     }
   ];
 
@@ -53,19 +41,9 @@ const About = () => {
       description: "Started as a consultancy helping businesses adopt AI responsibly"
     },
     {
-      year: "2024",
+      year: "2026",
       title: "SAINT Launch",
       description: "Released our first product focusing on transparent data analytics"
-    },
-    {
-      year: "2024",
-      title: "10K+ Users",
-      description: "Reached our first major user milestone with teams across 50+ countries"
-    },
-    {
-      year: "2025",
-      title: "API Release",
-      description: "Launching developer tools and enterprise integrations"
     }
   ];
 
@@ -154,7 +132,7 @@ const About = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 gap-8 max-w-sm mx-auto">
               {team.map((member, index) => (
                 <Card key={index} className="text-center shadow-sm hover:shadow-lg transition-all duration-300">
                   <CardHeader>
@@ -206,10 +184,8 @@ const About = () => {
         {/* Stats */}
         <section className="py-16 bg-white light-surface">
           <div className="container px-4 md:px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 gap-8 max-w-xl mx-auto">
               {[
-                { value: "10K+", label: "Active Users" },
-                { value: "50+", label: "Countries" },
                 { value: "500M+", label: "Rows Processed" },
                 { value: "99.9%", label: "Uptime" }
               ].map((stat, index) => (
