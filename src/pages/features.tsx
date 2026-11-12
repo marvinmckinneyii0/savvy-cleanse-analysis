@@ -29,7 +29,7 @@ const Features = () => {
     {
       icon: <FileText className="h-8 w-8 text-savvy-gold" />,
       title: 'A Report You Can Read',
-      description: 'A plain-language summary with recommendations, delivered as a Word or PDF document. The numbers are computed first; AI only writes the narrative around them.',
+      description: 'A plain-language summary with recommendations, delivered as a Word (.docx) document. The numbers are computed first; any AI-assisted narrative uses those results.',
     },
     {
       icon: <Share2 className="h-8 w-8 text-savvy-gold" />,
@@ -95,7 +95,7 @@ const Features = () => {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Computed, Not Guessed</h3>
                 <p className="text-muted-foreground">
-                  Every figure is calculated from your data. AI writes the narrative and never makes up numbers.
+                  Every figure is computed from your data; any AI-assisted narrative is explanatory text rather than the source of the numbers.
                 </p>
               </div>
               
@@ -115,7 +115,7 @@ const Features = () => {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Clear About Limits</h3>
                 <p className="text-muted-foreground">
-                  The beta takes CSV files up to 100 MB. Reports are written documents and do not include charts yet.
+                  The beta takes CSV files up to 100 MB. Reports are Word documents. Charts are optional and included only when explicitly configured by the analyst.
                 </p>
               </div>
             </div>
