@@ -26,6 +26,7 @@ from pydantic import BaseModel, Field
 from backend.models.drift_report import DriftReport
 from backend.models.healing_manifest import HealingManifest
 from backend.models.judgment_required_finding import JudgmentRequiredFinding
+from backend.models.visualization import NotProducedChart, Visualization
 
 
 class NarrativeSection(BaseModel):
@@ -80,3 +81,7 @@ class InsightReport(BaseModel):
     # action that may or may not have run. Empty list, not None, when there
     # are no human_only findings. Never routed through InsightPayload.
     judgment_required_findings: list[JudgmentRequiredFinding] = Field(default_factory=list)
+    # Story 3.7: populated server-side strictly after narrative generation.
+    # These fields never pass through InsightPayload/NarrativeContent.
+    visualizations: list[Visualization] = Field(default_factory=list)
+    charts_not_produced: list[NotProducedChart] = Field(default_factory=list)

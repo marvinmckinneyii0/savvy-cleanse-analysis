@@ -25,6 +25,7 @@ import yaml
 from pydantic import BaseModel, EmailStr, Field, ValidationError, field_validator, model_validator
 
 from backend.errors.exceptions import ConfigurationError
+from backend.models.visualization import VisualizationConfig
 
 DEFAULT_THRESHOLD = 0.15
 DEFAULT_CONFIG_PATH = Path("config.yaml")
@@ -287,6 +288,9 @@ class PipelineConfig(BaseModel):
     # Story 3.4 opt-in cleaning gate + Tier-2 imputation policy. Optional and
     # default-off: a config.yaml with no ``cleaning:`` key yields enabled=False.
     cleaning: CleaningConfig = Field(default_factory=CleaningConfig)
+    # Story 3.7: analyst-specified charts only; default empty preserves all
+    # pre-visualization report behavior.
+    visualizations: VisualizationConfig = Field(default_factory=VisualizationConfig)
 
     @classmethod
     def load(cls, path: str | Path | None = None) -> PipelineConfig:
@@ -344,5 +348,6 @@ class PipelineConfig(BaseModel):
             threshold_keys=sorted(config.metric_thresholds.thresholds.keys()),
             recipient_count=len(config.alert_recipients.recipients),
             output_format=config.output.format,
+            visualization_count=len(config.visualizations.charts),
         )
         return config

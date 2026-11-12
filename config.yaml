@@ -34,3 +34,18 @@ output:
 #       revenue: median
 #       region: leave_as_is
 #     # accepted values: mean | median | mode | forward_fill | leave_as_is
+
+
+# Report charts are analyst-specified only. Omitting this section produces no
+# charts and preserves the existing report output. Maximum 12 chart specs.
+# visualizations:
+#   charts:
+#     - chart_type: missing_values_before_after
+#       # columns: [revenue, region]   # optional; default is missing columns, capped at 30
+#     - chart_type: distribution_before_after
+#       column: revenue
+#     - chart_type: distribution
+#       column: units_sold
+#     - chart_type: top_values
+#       column: region
+#       limit: 10

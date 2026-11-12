@@ -97,6 +97,23 @@
       color: #555;
       font-size: 9pt;
     }
+
+    .chart {
+      margin: 14pt 0 20pt;
+      page-break-inside: avoid;
+    }
+
+    .chart img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 8pt auto;
+    }
+
+    .chart-caption {
+      color: #555;
+      font-size: 9pt;
+    }
   </style>
 </head>
 <body>
@@ -205,6 +222,27 @@
       </li>
       {% endfor %}
     </ul>
+  </div>
+  {% endif %}
+
+  {% if visualizations or charts_not_produced %}
+  <div class="section">
+    <h2>Charts</h2>
+    {% for chart in visualizations %}
+    <div class="chart">
+      <h3>{{ chart.title }}</h3>
+      <img src="{{ chart.data_uri }}" alt="{{ chart.title }}" />
+      <p class="chart-caption">{{ chart.caption }}</p>
+    </div>
+    {% endfor %}
+    {% if charts_not_produced %}
+    <h3>Not Produced</h3>
+    <ul>
+      {% for chart in charts_not_produced %}
+      <li><strong>{{ chart.title }}</strong> &mdash; {{ chart.reason_text }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
   </div>
   {% endif %}
 
