@@ -58,9 +58,9 @@ describe('features page copy for the concierge beta', () => {
 
     expect(text).toMatch(/Cleaning is off unless you ask for it/);
     expect(text).toMatch(/Your original file is never changed/);
-    expect(text).toMatch(/Word or PDF/);
+    expect(text).toMatch(/Word \(\.docx\)/);
     expect(text).toMatch(/CSV files up to 100 MB/);
-    expect(text).toMatch(/do not include charts yet/);
+    expect(text).toMatch(/Charts are optional and included only when explicitly configured/);
   });
 });
 
