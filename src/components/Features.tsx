@@ -22,7 +22,7 @@ const Features = () => {
     },
     {
       title: 'A Report You Can Read',
-      description: 'A written summary with recommendations, delivered as a Word or PDF document. The numbers are computed first; AI only writes the narrative around them.'
+      description: 'A written summary with recommendations, delivered as a Word (.docx) document. The numbers are computed first; any AI-assisted narrative uses those results.'
     },
     {
       title: 'Cleaned Data on Request',

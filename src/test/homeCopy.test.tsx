@@ -55,7 +55,7 @@ describe('home page copy for the concierge beta', () => {
     expect(text).toMatch(/CSV only, up to 100 MB/);
     expect(text).toMatch(/delete your file 7 days after delivery/i);
     expect(text).toMatch(/health records, financial account data or government IDs/);
-    expect(text).toMatch(/Word or PDF/);
+    expect(text).toMatch(/Word \(\.docx\)/);
   });
 
   it('states that cleaning is optional and leaves the original unchanged', () => {

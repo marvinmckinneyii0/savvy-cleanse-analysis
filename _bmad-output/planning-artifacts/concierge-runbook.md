@@ -22,7 +22,7 @@ Not tested:
 
 ## One-time setup
 
-1. Merge PR #70 (declares the LLM libraries and makes the CLI read `.env` on every run). Without it, every report uses the fallback narrative.
+1. Confirm the main checkout includes merged PR #70 (LLM libraries and `.env` loading). Do not use a stale checkout.
 2. Install the Python dependencies:
 
    ```powershell
@@ -38,7 +38,7 @@ Not tested:
    ```
 
    The last log line must contain `"fallback_narrative": false`. If it says `true`, the lines above it name each provider and its `error_type`; fix that before going further.
-6. Decide on PDF. `--format pdf` needs the GTK runtime on Windows. Without it the command fails and writes nothing. Either install GTK and test `--format pdf` once, or deliver Word only.
+6. For the Friday agency beta, **deliver Word (.docx) only** as the guaranteed format. `--format pdf` remains a separate optional CLI path and must not be offered until a supported runtime completes a real PDF smoke test.
 
 ## Per request
 
@@ -50,7 +50,9 @@ A form submission arrives by email from Formspree. Reply to the customer and ask
 
 - A link to their CSV (Google Drive, Dropbox or OneDrive). No email attachments.
 - Whether they want cleaning. If yes, how gaps should be filled (see step 3), or "leave gaps as they are".
-- Word or PDF.
+- Word (.docx) for the November 13 beta. Do not promise PDF unless the machine and exact output have been separately tested and the customer is explicitly informed.
+
+For the free Agency Diagnostic, confirm a **limited quality snapshot only** (no full report or cleaning) and the sample scope before accepting data. For the $249 Single Client Report or five-for-$999 Founding Agency Bundle, confirm the agency has authority to share each client's data, the exact scope, price, invoice details and payment instructions **in writing before accepting commissioned work**. There is no website checkout or automatic renewal. Use only an owner-approved invoicing provider; this runbook does not create or send invoices.
 
 Tell them in the same reply: CSV only, 100 MB maximum, and do not send health records, financial account data or government IDs.
 
@@ -100,7 +102,7 @@ With cleaning, also writing the cleaned CSV:
 uv run python -m backend.pipeline.orchestrator --input C:\saint-jobs\2026-11-13-acme\input.csv --output C:\saint-jobs\2026-11-13-acme\report.docx --clean --cleaned-output C:\saint-jobs\2026-11-13-acme\cleaned.csv
 ```
 
-For PDF, add `--format pdf` and name the output `report.pdf`.
+**PDF is excluded from the Friday beta's guaranteed deliverables.** It remains a CLI option only; enable it for customer delivery after verifying the runtime and updating customer-facing terms.
 
 The run prints one JSON log line per step, then one plain final line. Read the final line:
 
@@ -145,7 +147,8 @@ Keep a simple register outside the repository with one line per job: customer, d
 
 ## Open points
 
-- **What "the file" covers.** The site says the customer's file is deleted after 7 days. Decide whether the report and the cleaned CSV are deleted on the same day, and say so in the privacy policy. Step 7 assumes they are.
+- **Invoice execution.** The business must select and verify an invoicing account, recipient routing and payment reconciliation before taking paid agency orders. No such account was provisioned by this documentation change.
+- **What "the file" covers. The site says the customer's file is deleted after 7 days. Decide whether the report and the cleaned CSV are deleted on the same day, and say so in the privacy policy. Step 7 assumes they are.
 - **Halted runs.** A customer with a badly broken file gets no report today. Decide what you offer them.
 - **Speed without a key.** If no provider key works, a run spends about 20 seconds retrying before it falls back.
 - **Model names.** The code calls fixed model versions. If one has been retired, step 5 of the setup will show it as a provider error.
