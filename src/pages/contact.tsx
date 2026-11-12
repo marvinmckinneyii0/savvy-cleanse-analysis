@@ -112,7 +112,7 @@ const Contact = () => {
     },
     {
       question: "What do I get back?",
-      answer: "A Word or PDF report with data-quality findings, insights and recommendations. If you chose cleaning, you also get the cleaned CSV."
+      answer: "For an accepted commissioned report, a Word (.docx) document with data-quality findings, insights and recommendations; optionally a cleaned CSV if you requested cleaning. The free agency diagnostic is a limited snapshot, not a full report."
     },
     {
       question: "Will you change my data?",
