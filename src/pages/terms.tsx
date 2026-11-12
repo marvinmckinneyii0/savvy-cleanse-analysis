@@ -6,7 +6,7 @@ const sections: LegalSection[] = [
   {
     heading: 'The service',
     paragraphs: [
-      'SAINT is in beta. You send us a CSV file, a person at Savvy Analytics runs SAINT on it, and we email you a written data-quality report. There is no account and no upload on this site.',
+      'SAINT is a human-operated beta for marketing agencies. A qualifying agency may request a limited diagnostic (not a full report or cleaning). Accepted commissioned reports analyze an authorized CSV and deliver a Word (.docx) document. There is no account and no upload on this site.',
       'Because this is a beta, the service may change, and we may not be able to take every request.',
     ],
   },
@@ -29,9 +29,17 @@ const sections: LegalSection[] = [
     heading: 'The report',
     items: [
       'The figures in the report are calculated from the file you sent. If the file is incomplete or wrong, the report will reflect that.',
-      'The narrative in the report is written by AI from those figures. It can contain mistakes, so check anything important against the figures.',
+      'The report narrative may be AI-assisted or a non-AI fallback summary. Any narrative can contain mistakes, so check anything important against the computed figures.',
       'The report is information to help you understand your data. It is not professional, legal or financial advice, and decisions you make with it are yours.',
       'If a file has a critical data problem, for example a column that is mostly empty, SAINT stops and we cannot produce a report from it. We will tell you what the problem is.',
+    ],
+  },
+  {
+    heading: 'Commissioned reports and payment',
+    items: [
+      'We agree the scope, price, invoice details and payment instructions in writing before accepting commissioned analysis work.',
+      'Submitting a request does not automatically purchase a report, and five-report agency bundles do not automatically renew.',
+      'This website does not collect payment for commissioned reports.',
     ],
   },
   {
