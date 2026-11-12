@@ -84,7 +84,8 @@ describe('terms page', () => {
     expect(text).toMatch(/CSV files of up to 100 MB/);
     expect(text).toMatch(/There is no account and no upload on this site/);
     expect(text).toMatch(/We clean your data only if you ask us to/);
-    expect(text).toMatch(/written by AI/);
+    expect(text).toMatch(/may be AI-assisted or a non-AI fallback summary/);
+    expect(text).toMatch(/invoice details and payment instructions/);
     expect(text).toMatch(/we cannot produce a report from it/);
   });
 
