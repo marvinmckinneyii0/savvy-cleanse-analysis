@@ -92,6 +92,8 @@ class PdfRenderer:
             "drift_report": insight_report.drift_report,
             "healing_manifest": insight_report.healing_manifest,
             "judgment_required_findings": insight_report.judgment_required_findings,
+            "visualizations": insight_report.visualizations,
+            "charts_not_produced": insight_report.charts_not_produced,
         }
 
         try:

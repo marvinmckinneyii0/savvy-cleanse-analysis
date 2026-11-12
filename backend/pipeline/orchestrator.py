@@ -19,6 +19,7 @@ Architecture compliance (architecture.md §482-506, §745):
 
 from __future__ import annotations
 
+import base64
 import time
 import uuid
 from collections.abc import Iterable
@@ -40,11 +41,19 @@ from backend.models.cleaning_disclosure import (
 from backend.models.healing_manifest import build_healing_manifest
 from backend.models.judgment_required_finding import build_judgment_required_findings
 from backend.models.pipeline_result import PipelineResult
+from backend.models.visualization import (
+    NotProducedChart,
+    NotProducedReason,
+    Visualization,
+    VisualizationConfig,
+)
 from backend.pipeline.data_quality import DataQualityAssessor
 from backend.pipeline.drift_engine import DriftEngine
 from backend.pipeline.insight_engine import InsightEngine
 from backend.pipeline.narrative_generator import NarrativeGenerator
+from backend.pipeline.visualization_builder import build_visualization_data
 from backend.renderers import DocxRenderer, PdfRenderer
+from backend.renderers.chart_images import render_chart_png
 
 if TYPE_CHECKING:
     from backend.models.pipeline_config import CleaningConfig
@@ -104,6 +113,7 @@ def run_full_pipeline(
     cleaning_config: "CleaningConfig | None" = None,
     cleaned_output_path: str | Path | None = None,
     overwrite_cleaned_output: bool = False,
+    visualization_config: VisualizationConfig | None = None,
 ) -> PipelineResult:
     """Run the complete DQA → Drift → Insights → Narrative → Render pipeline.
 
@@ -140,6 +150,9 @@ def run_full_pipeline(
         pre-3.4 pipeline. When truthy and the run did not halt, the Tier-1
         engine + Tier-2 imputation policy run on a working copy after DQA; the
         report still describes the ORIGINAL frame (see Story 3.4 Q1).
+    visualization_config:
+        Analyst-specified Story 3.7 chart configuration. None is equivalent to
+        an empty configuration and produces no charts.
     cleaning_config:
         Cleaning configuration — supplies both the enablement default (see
         ``enable_cleaning`` above) and the Tier-2 imputation policy. When
@@ -282,6 +295,43 @@ def run_full_pipeline(
         result.quality_report
     )
 
+    # --- Stage 4d: Report Visualizations (Story 3.7) ---
+    # Strictly AFTER NarrativeGenerator has returned. Chart configuration/data
+    # therefore has no path into InsightPayload or the LLM prompt.
+    resolved_visualizations = visualization_config or VisualizationConfig()
+    chart_data, not_produced = build_visualization_data(
+        df, cleaned_df, resolved_visualizations
+    )
+    insight_report.charts_not_produced = list(not_produced)
+    for chart in chart_data:
+        try:
+            png = render_chart_png(chart)
+        except Exception as exc:
+            log.error(
+                "visualization_render_failed",
+                chart_type=chart.chart_type.value,
+                error_type=type(exc).__name__,
+            )
+            insight_report.charts_not_produced.append(
+                NotProducedChart(
+                    chart_type=chart.chart_type,
+                    title=chart.title,
+                    reason=NotProducedReason.CHART_RENDER_FAILED,
+                )
+            )
+            continue
+
+        insight_report.visualizations.append(
+            Visualization(
+                chart_type=chart.chart_type,
+                analysis_class=chart.analysis_class,
+                title=chart.title,
+                caption=chart.caption,
+                image_base64=base64.b64encode(png).decode("ascii"),
+                data=chart,
+            )
+        )
+
     # --- Stage 5: Render ---
     if fmt == OutputFormat.docx:
         DocxRenderer().render(insight_report, output_path)
@@ -374,7 +424,7 @@ def cli(
     """Run the SAINT full analysis pipeline on a CSV file."""
     configure_logging()
     # LLM provider keys live in .env. PipelineConfig.load() also loads it, but an
-    # explicit --no-clean skips that call, which left the narrative without keys.
+    # explicit --no-clean skips that call, so load provider keys independently.
     load_dotenv()
     pipeline_run_id = str(uuid.uuid4())
 
@@ -385,10 +435,13 @@ def cli(
         # explicit --no-clean needs neither, so a plain report run never grows
         # a hard dependency on a valid config.yaml.
         cleaning_config = None
+        visualization_config = VisualizationConfig()
         if clean is not False:
             from backend.models.pipeline_config import PipelineConfig
 
-            cleaning_config = PipelineConfig.load().cleaning
+            pipeline_config = PipelineConfig.load()
+            cleaning_config = pipeline_config.cleaning
+            visualization_config = pipeline_config.visualizations
 
         result = run_full_pipeline(
             input_path=input,
@@ -399,6 +452,7 @@ def cli(
             cleaning_config=cleaning_config,
             cleaned_output_path=cleaned_output,
             overwrite_cleaned_output=overwrite_cleaned_output,
+            visualization_config=visualization_config,
         )
     except SavvyCleanseError as exc:
         structlog.get_logger().error(

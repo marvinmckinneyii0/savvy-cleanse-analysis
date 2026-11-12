@@ -79,6 +79,7 @@ def _run_once(
         pipeline_run_id=pipeline_run_id,
         dataset_key=dataset_key,
         baseline_dir=baseline_dir,
+        visualization_config=config.visualizations,
     )
 
     log.info(

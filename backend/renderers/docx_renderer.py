@@ -9,11 +9,14 @@ template, IO, or rendering failure — never bare Exception.
 
 from __future__ import annotations
 
+import base64
 import time
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 import structlog
+from docx.shared import Mm
 from docxtpl import DocxTemplate
 
 from backend.errors.exceptions import ReportRenderError
@@ -67,10 +70,34 @@ class DocxRenderer:
             "drift_report": insight_report.drift_report,
             "healing_manifest": insight_report.healing_manifest,
             "judgment_required_findings": insight_report.judgment_required_findings,
+            "visualizations": insight_report.visualizations,
+            "charts_not_produced": insight_report.charts_not_produced,
         }
 
         try:
             doc.render(context)
+
+            # Story 3.7: append the chart section after the existing template
+            # blocks. This uses python-docx on the in-memory rendered document,
+            # keeping the binary template backward-compatible for zero-chart runs.
+            if insight_report.visualizations or insight_report.charts_not_produced:
+                document = doc.docx
+                document.add_heading("Charts", level=2)
+
+                for chart in insight_report.visualizations:
+                    document.add_heading(chart.title, level=3)
+                    image_stream = BytesIO(base64.b64decode(chart.image_base64))
+                    document.add_picture(image_stream, width=Mm(160))
+                    document.add_paragraph(chart.caption)
+
+                if insight_report.charts_not_produced:
+                    document.add_heading("Not Produced", level=3)
+                    for chart in insight_report.charts_not_produced:
+                        document.add_paragraph(
+                            f"{chart.title} — {chart.reason_text}",
+                            style="List Bullet",
+                        )
+
             doc.save(output_path)
         except Exception as exc:
             raise ReportRenderError(
