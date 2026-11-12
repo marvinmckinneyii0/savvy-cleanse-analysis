@@ -1,205 +1,143 @@
 import React from 'react';
-import { CheckIcon, XIcon, Star } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { Link } from 'react-router-dom';
+import DataFlow from '@/components/DataFlow';
+import { CONCIERGE_OFFERS, FUTURE_PLANS } from '@/lib/conciergePricing';
 
-const Pricing = () => {
-  const plans = [
-    {
-      name: 'Starter',
-      price: '$29',
-      period: '/month',
-      description: 'For individuals and students getting started with data analytics.',
-      features: [
-        '5 datasets per month',
-        'Basic cleaning tools',
-        'Descriptive analytics',
-        'Standard visualizations',
-        'CSV/Excel export',
-        'Email support',
-      ],
-      notIncluded: [
-        'Diagnostic analytics',
-        'Predictive analytics',
-        'Prescriptive analytics',
-        'Jupyter notebook export',
-        'API access',
-        'Priority support',
-      ],
-      buttonText: 'Start with Starter',
-      buttonVariant: 'outline',
-      popular: false,
-    },
-    {
-      name: 'Growth',
-      price: '$79',
-      period: '/month',
-      description: 'For small teams who need comprehensive analytics capabilities.',
-      features: [
-        'Unlimited datasets',
-        'All analytics modes',
-        'Advanced cleaning tools',
-        'Interactive dashboards',
-        'Export to CSV/Excel',
-        'Basic team dashboard',
-        'Jupyter notebook export',
-        'Priority email support',
-      ],
-      notIncluded: [
-        'Custom integrations',
-        'Dedicated support',
-        'SLA guarantees',
-        'Admin dashboard',
-      ],
-      buttonText: 'Choose Growth',
-      buttonVariant: 'default',
-      popular: true,
-    },
-    {
-      name: 'Enterprise',
-      price: 'Custom',
-      period: 'pricing',
-      description: 'For larger organizations with advanced requirements.',
-      features: [
-        'Everything in Growth',
-        'Dedicated support team',
-        'Advanced ML features',
-        'Custom integrations',
-        'SLA + admin dashboard',
-        'On-premise deployment',
-        'Custom training',
-        'White-label options',
-      ],
-      notIncluded: [],
-      buttonText: 'Contact Sales',
-      buttonVariant: 'outline',
-      popular: false,
-    },
-  ];
+const faqs = [
+  {
+    question: 'Who is the SAINT concierge beta for?',
+    answer: 'The founding beta is designed for marketing agency owners and their authorized analysts. Paid reports analyze one eligible client CSV file (up to 100 MB), deliver Word or PDF findings, and offer optional supported rule-based cleaning on a working copy. The free diagnostic is a limited quality snapshot—not a full report or cleaning service.',
+  },
+  {
+    question: 'How do I submit my data?',
+    answer: 'Start with the contact form. We review the request, then reply by email with instructions for sharing your file. There is no self-service upload on this site.',
+  },
+  {
+    question: 'How does the agency bundle work?',
+    answer: 'The $999 bundle covers five separate eligible concierge reports. Our team confirms scope and delivery details before accepting a bundle request. It does not renew automatically.',
+  },
+  {
+    question: 'Is a full report included in the free diagnostic?',
+    answer: 'No. Eligible marketing agencies may request a limited, human-reviewed data-quality snapshot and next steps at no cost, subject to availability. Full reports are $249 each, or five eligible reports for $999 under the founding-agency bundle. We confirm the scope by email before accepting data.',
+  },
+  {
+    question: 'Do you offer ongoing agency subscriptions?',
+    answer: 'Not yet. The published Starter ($49/month), Professional ($149/month) and Enterprise (custom) tiers are tentative future self-service concepts, not purchasable offers. Agency/client capacity and per-client billing will be evaluated with agency owners before launch.',
+  },
+];
 
-  return (
-    <div className="flex flex-col min-h-screen" data-page="pricing">
-      <Navbar />
-      <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="py-16 bg-gradient-to-br from-savvy-dark via-savvy-midnight to-savvy-slate text-white">
-          <div className="container px-4 md:px-6">
-            <div className="text-center max-w-4xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                Simple, Transparent
-                <span className="text-savvy-gold"> Pricing</span>
-              </h1>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Choose the plan that fits your data analytics needs. Start free, upgrade when you're ready.
-              </p>
-            </div>
+const PricingPage = () => (
+  <div className="flex flex-col min-h-screen" data-page="pricing">
+    <Navbar />
+    <main className="flex-grow">
+      <section className="py-20 md:py-28 bg-gradient-to-b from-savvy-white to-savvy-gold/5">
+        <div className="container px-4 md:px-6 text-center max-w-4xl mx-auto">
+          <h1 className="text-3xl md:text-5xl font-bold tracking-tighter mb-6">
+            Simple, Transparent <span className="text-savvy-gold">Pricing</span>
+          </h1>
+          <p className="text-muted-foreground md:text-xl max-w-2xl mx-auto">
+            For marketing agency owners managing client data: begin with a limited diagnostic or commission a reviewed, done-for-you report. Each agency request is scoped before acceptance.
+          </p>
+        </div>
+      </section>
+
+      <section className="py-16 bg-white light-surface" id="concierge-pricing">
+        <div className="container px-4 md:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold">Founding Agency Concierge Beta</h2>
+            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+              Designed for agency owners and authorized analysts. Paid reports support eligible CSV datasets up to 100 MB; the free diagnostic has a separately confirmed limited scope. No self-service account, upload or recurring subscription yet.
+            </p>
           </div>
-        </section>
-
-        {/* Pricing Cards */}
-        <section className="py-16 bg-white dark:bg-savvy-dark">
-          <div className="container px-4 md:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
-              {plans.map((plan) => (
-                <Card
-                  key={plan.name}
-                  className={`relative ${
-                    plan.popular
-                      ? 'border-savvy-blue shadow-lg shadow-savvy-blue/20 scale-105'
-                      : 'border-border shadow-sm'
-                  } transition-all duration-300 hover:shadow-lg`}
-                >
-                  {plan.popular && (
-                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-savvy-blue text-white">
-                      <Star className="h-3 w-3 mr-1" />
-                      Most Popular
-                    </Badge>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {CONCIERGE_OFFERS.map((offer) => (
+              <Card key={offer.id} className={'flex flex-col shadow-sm ' + (offer.featured ? 'border-savvy-gold shadow-lg' : '')}>
+                <CardHeader>
+                  {offer.featured && (
+                    <p className="text-sm font-semibold text-savvy-gold">Recommended for agencies</p>
                   )}
-                  
-                  <CardHeader className="text-center pb-2">
-                    <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                    <div className="mt-4 flex items-end justify-center">
-                      <span className="text-4xl font-bold">{plan.price}</span>
-                      {plan.period && (
-                        <span className="text-muted-foreground ml-1 mb-1">{plan.period}</span>
-                      )}
-                    </div>
-                    <p className="mt-3 text-muted-foreground text-sm">{plan.description}</p>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-4">
-                    <div className="space-y-3 mb-6">
-                      {plan.features.map((feature) => (
-                        <div key={feature} className="flex items-start">
-                          <CheckIcon className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </div>
-                      ))}
-                      
-                      {plan.notIncluded.map((feature) => (
-                        <div key={feature} className="flex items-start text-muted-foreground">
-                          <XIcon className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <Link to="/dashboard" className="block">
-                      <Button
-                        variant={plan.buttonVariant as "outline" | "default"}
-                        className={`w-full ${
-                          plan.popular ? 'bg-savvy-blue hover:bg-savvy-blue/90' : ''
-                        }`}
-                      >
-                        {plan.buttonText}
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  <CardTitle className="text-2xl font-bold">{offer.name}</CardTitle>
+                  <p className="text-3xl font-bold mt-3">{offer.price}</p>
+                  <p className="text-muted-foreground text-sm mt-2">{offer.description}</p>
+                </CardHeader>
+                <CardContent className="flex flex-col flex-1">
+                  <ul className="space-y-3 mb-6">
+                    {offer.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="h-5 w-5 text-savvy-gold flex-shrink-0" aria-hidden="true" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-auto">
+                    <Button asChild className="w-full bg-savvy-gold text-savvy-dark hover:bg-savvy-gold/90">
+                      <Link to={'/contact?offer=' + offer.id}>{offer.cta}</Link>
+                    </Button>
+                    <p className="mt-3 text-xs text-muted-foreground">{offer.note}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </section>
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            Please include your agency name, approximate number of client accounts, and the quality or reporting problem you need solved. Only submit data your agency is authorized to process. Scope, availability and price are confirmed before any paid work; no checkout is available here.
+          </p>
+        </div>
+      </section>
 
-        {/* FAQ Section */}
-        <section className="py-16 bg-gradient-to-r from-savvy-blue/5 to-savvy-gold/5">
-          <div className="container px-4 md:px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
-            </div>
-            
-            <div className="max-w-3xl mx-auto space-y-6">
-              <div className="bg-white dark:bg-card rounded-lg p-6 shadow-sm">
-                <h3 className="font-semibold mb-2">Can I change plans at any time?</h3>
-                <p className="text-muted-foreground">
-                  Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any billing adjustments.
-                </p>
-              </div>
-              
-              <div className="bg-white dark:bg-card rounded-lg p-6 shadow-sm">
-                <h3 className="font-semibold mb-2">What happens to my data if I cancel?</h3>
-                <p className="text-muted-foreground">
-                  Your data remains accessible for 30 days after cancellation. You can export all your projects and cleaned datasets during this period.
-                </p>
-              </div>
-              
-              <div className="bg-white dark:bg-card rounded-lg p-6 shadow-sm">
-                <h3 className="font-semibold mb-2">Do you offer discounts for students or nonprofits?</h3>
-                <p className="text-muted-foreground">
-                  Yes! We offer 50% discounts for verified students and qualifying nonprofit organizations. Contact us for more details.
-                </p>
-              </div>
-            </div>
+      <DataFlow />
+
+      <section className="py-16 bg-white light-surface" id="future-plans">
+        <div className="container px-4 md:px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold">Future Agency & Team Software — Coming Soon</h2>
+            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+              Future self-service concepts only: tentative prices, not available to buy. We intend to validate agency pricing against client count, reporting volume and delivery costs before any release.
+            </p>
           </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
-  );
-};
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {FUTURE_PLANS.map((plan) => (
+              <Card key={plan.name} className="shadow-sm">
+                <CardHeader>
+                  <CardTitle>{plan.name}</CardTitle>
+                  <p className="text-2xl font-bold mt-2">{plan.price}</p>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{plan.description}</p>
+                  <p className="text-sm font-semibold mt-4 text-savvy-gold">Coming Soon</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Button asChild variant="outline"><Link to="/contact">Ask About Early Access</Link></Button>
+          </div>
+        </div>
+      </section>
 
-export default Pricing;
+      <section className="py-16 bg-savvy-slate/5" id="pricing-faq">
+        <div className="container px-4 md:px-6">
+          <h2 className="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
+          <div className="max-w-3xl mx-auto space-y-5">
+            {faqs.map((faq) => (
+              <Card key={faq.question} className="shadow-sm">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-2">{faq.question}</h3>
+                  <p className="text-muted-foreground">{faq.answer}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </div>
+);
+
+export default PricingPage;

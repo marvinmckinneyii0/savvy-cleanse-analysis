@@ -5,7 +5,7 @@ const DataFlow = () => {
   const steps = [
     {
       title: 'Upload Data',
-      description: 'Request a report with the form below, then share your file by link when we reply. There is no file upload on this site yet. CSV only, up to 100 MB. Please do not send health records, financial account data or government IDs.'
+      description: 'Request a report through the contact form, then share your file by link when we reply. There is no file upload on this site yet. CSV only, up to 100 MB. Please do not send health records, financial account data or government IDs.'
     },
     {
       title: 'AI Cleaning',
