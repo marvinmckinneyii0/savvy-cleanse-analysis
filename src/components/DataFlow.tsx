@@ -9,7 +9,7 @@ const DataFlow = () => {
     },
     {
       title: 'AI Cleaning',
-      description: 'SAINT checks for missing values, duplicates, outliers and formatting problems. Cleaning is off unless you ask for it: the fixes are rule-based, applied to a copy, and listed in your report. AI writes the report narrative.'
+      description: 'SAINT checks for missing values, duplicates, outliers and formatting problems. Cleaning is off unless you ask for it: the fixes are rule-based, applied to a copy, and listed in your report. Narrative text may be AI-assisted or use a fallback summary; the reported figures come from computation.'
     },
     {
       title: 'Choose Analysis',
@@ -17,7 +17,7 @@ const DataFlow = () => {
     },
     {
       title: 'Guided Results',
-      description: 'You receive a Word or PDF report with findings and recommendations, plus the cleaned CSV if you chose cleaning. We delete your file 7 days after delivery.'
+      description: 'You receive a Word (.docx) report with findings and recommendations, plus the cleaned CSV if you chose cleaning. We delete your file 7 days after delivery.'
     }
   ];
 
