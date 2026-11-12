@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { offerRequestSubject } from '@/lib/conciergePricing';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,10 +14,11 @@ import { submitLead } from '@/lib/leadCapture';
 import { Mail, MapPin, Clock, Phone, Send, MessageSquare, HelpCircle, Briefcase } from 'lucide-react';
 
 const Contact = () => {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: '',
+    subject: offerRequestSubject(searchParams.get('offer')),
     message: ''
   });
 
