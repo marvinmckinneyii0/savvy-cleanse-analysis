@@ -11,7 +11,7 @@ import { CONCIERGE_OFFERS, FUTURE_PLANS } from '@/lib/conciergePricing';
 const faqs = [
   {
     question: 'Who is the SAINT concierge beta for?',
-    answer: 'The founding beta is designed for marketing agency owners and their authorized analysts. Paid reports analyze one eligible client CSV file (up to 100 MB), deliver Word or PDF findings, and offer optional supported rule-based cleaning on a working copy. The free diagnostic is a limited quality snapshot—not a full report or cleaning service.',
+    answer: 'The founding beta is designed for marketing agency owners and their authorized analysts. Paid reports analyze one eligible client CSV file (up to 100 MB), deliver a Word (.docx) report with findings, and offer optional supported rule-based cleaning on a working copy. The free diagnostic is a limited quality snapshot—not a full report or cleaning service.',
   },
   {
     question: 'How do I submit my data?',
@@ -24,6 +24,10 @@ const faqs = [
   {
     question: 'Is a full report included in the free diagnostic?',
     answer: 'No. Eligible marketing agencies may request a limited, human-reviewed data-quality snapshot and next steps at no cost, subject to availability. Full reports are $249 each, or five eligible reports for $999 under the founding-agency bundle. We confirm the scope by email before accepting data.',
+  },
+  {
+    question: 'How are commissioned reports invoiced?',
+    answer: 'We confirm scope, price, invoice details and payment instructions in writing before accepting work. Requesting a report is not an online purchase; there is no report checkout or automatic renewal.',
   },
   {
     question: 'Do you offer ongoing agency subscriptions?',
